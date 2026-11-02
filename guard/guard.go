@@ -82,14 +82,26 @@ func (g *Guard) preToolUse(ctx context.Context, ev hook.Event) hook.Result {
 // applyIntercept evaluates user-configured intercept rules against the tool call.
 // Both rules and the fallback judge receive the complete tool input.
 func (g *Guard) applyIntercept(ctx context.Context, ev hook.Event) hook.Result {
+	replay := isNativeReplayTool(ev.ToolName)
 	if g.interceptor == nil {
+		if replay {
+			return g.block(ev.ToolName, systemBlockMessage("Native request replay requires operator review"), "")
+		}
 		return hook.Result{}
 	}
-	if !g.interceptor.IsToolEnabled(ev.ToolName) {
+	if !replay && !g.interceptor.IsToolEnabled(ev.ToolName) {
 		return hook.Result{}
 	}
 	ctx = intercept.WithCall(ctx, ev.ToolName, ev.Input)
 	dec, matched := g.interceptor.Match(ev.ToolName, ev.Input, locale.FromContext(ctx))
+	if !matched {
+		if replay {
+			// A replay call may generate several target requests. Without an
+			// explicit matching rule, ask the operator and deny on timeout.
+			dec = intercept.Decision{Action: "ask", RuleName: "Native request replay", Message: "Review scoped request replay and its request count", TimeoutEnabled: true, TimeoutSeconds: 300, TimeoutAction: "deny"}
+			matched = true
+		}
+	}
 	if !matched {
 		// No rule matched. Ask the LLM fallback judge (if enabled); when it is off
 		// or unwired, keep current behavior and allow.
@@ -123,6 +135,14 @@ func (g *Guard) applyIntercept(ctx context.Context, ev hook.Event) hook.Result {
 		return hook.Result{}
 	}
 	return hook.Result{}
+}
+
+func isNativeReplayTool(name string) bool {
+	switch name {
+	case "race_probe", "identity_switch", "identity_matrix", "inflight_modify":
+		return true
+	}
+	return false
 }
 
 // systemBlockMessage frames an intercept block as an ARTEX platform-governance

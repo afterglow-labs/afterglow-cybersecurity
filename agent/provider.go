@@ -12,6 +12,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/Autumn-27/artex/chatgptauth"
+	"github.com/Autumn-27/artex/chatgptllm"
 	"github.com/Autumn-27/artex/locale"
 	"io"
 	"log"
@@ -35,7 +37,11 @@ import (
 
 // Config describes the LLM backend resolved from the environment.
 type Config struct {
-	PolicyResolver func() (bool, []string)
+	PolicyResolver     func() (bool, []string)
+	AuthMode           string
+	ChatGPTAccountID   string
+	ChatGPTAuth        *chatgptauth.Manager
+	AccessProgramCyber string
 
 	KeepAlive            string
 	MaxConcurrent        int
@@ -322,6 +328,45 @@ func (c Config) Provider() string {
 // limiter lives on the single provider instance — so planner + all workers +
 // main agent (which share this provider) are bounded by one shared rate limit.
 func (c Config) NewProvider() (llm.Provider, error) {
+	if c.AuthMode == "chatgpt_plan" {
+		if c.ChatGPTAccountID == "" {
+			return nil, errors.New("a ChatGPT account must be selected")
+		}
+		strict := c.LocalLLMOnly
+		if c.PolicyResolver != nil {
+			strict, _ = c.PolicyResolver()
+		}
+		if strict {
+			return nil, errors.New("ChatGPT plan inference is unavailable while local-only LLM policy is enabled")
+		}
+		client, err := llmnet.NewClient(c.Proxy, false, nil)
+		if err != nil {
+			return nil, err
+		}
+		options := chatgptllm.Config{Model: c.Model, HTTPClient: client, ReasoningEffort: c.ReasoningEffort,
+			AccessProgramCyber: c.AccessProgramCyber, MaxRetries: c.Retry.ConnectAttempts, RetryInterval: c.Retry.ConnectInterval}
+		options.Authorize = func(ctx context.Context) (context.Context, context.CancelFunc, string, error) {
+			if c.ChatGPTAuth == nil {
+				return ctx, func() {}, "", chatgptauth.ErrLoginRequired
+			}
+			return c.ChatGPTAuth.Authorize(ctx, c.ChatGPTAccountID)
+		}
+		options.OnError = func(e *chatgptllm.Error) {
+			if c.ChatGPTAuth != nil && e.Code == chatgptauth.PlanUsageLimitCode {
+				if err := c.ChatGPTAuth.BlockPlan(c.ChatGPTAccountID, e.Code); err != nil {
+					log.Printf("[chatgpt] could not persist plan limit: %v", err)
+				}
+			}
+		}
+		p, err := chatgptllm.New(options)
+		if err != nil {
+			return nil, err
+		}
+		return llm.RateLimited(p, llm.RateLimit{PerSecond: c.RatePerSecond, PerMinute: c.RatePerMinute}), nil
+	}
+	if c.AuthMode != "" && c.AuthMode != "api_key" {
+		return nil, errors.New("unsupported LLM authentication mode")
+	}
 	client, err := c.HTTPClient()
 	if err != nil {
 		return nil, err
@@ -397,6 +442,10 @@ func (c Config) NewProvider() (llm.Provider, error) {
 // IsQuotaExhaustedError trusts structured SDK evidence and preserves other providers' existing message rules.
 func IsQuotaExhaustedError(err error) bool {
 	if err == nil {
+		return false
+	}
+	var noFallback interface{ NoFallback() bool }
+	if errors.As(err, &noFallback) && noFallback.NoFallback() {
 		return false
 	}
 	var bridge *opencodesdk.BridgeError
@@ -550,6 +599,12 @@ func requestBodySnapshot(req *http.Request) string {
 
 // Ready allows keyless native Ollama and explicit local compatible servers.
 func (c Config) Ready() bool {
+	if c.AuthMode == "chatgpt_plan" {
+		return strings.TrimSpace(c.ChatGPTAccountID) != ""
+	}
+	if c.AuthMode != "" && c.AuthMode != "api_key" {
+		return false
+	}
 	if c.Provider() == opencodesdk.Format {
 		return strings.TrimSpace(c.APIKey) != ""
 	}
@@ -628,6 +683,19 @@ func TestConnection(ctx context.Context, c Config) (time.Duration, string, error
 	}
 	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
 	defer cancel()
+	if c.AuthMode == "chatgpt_plan" {
+		start := time.Now()
+		msg, stop, _, err := prov.Complete(ctx, llm.CompletionRequest{
+			System: []string{"Reply with exactly OK."}, Messages: []llm.Message{llm.UserText("ping")},
+		})
+		if err != nil {
+			return time.Since(start), "", err
+		}
+		if stop != "end_turn" || strings.TrimSpace(msg.Text()) == "" {
+			return time.Since(start), "", errors.New("ChatGPT returned no complete text response")
+		}
+		return time.Since(start), strings.TrimSpace(msg.Text()), nil
+	}
 	// Capture raw wire status/body for connection diagnostics; decoding into norma
 	// StreamEvents otherwise loses those details. quotaAwareTransport finds this
 	// Capture in context and records every HTTP attempt's status and response body.

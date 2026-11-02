@@ -371,6 +371,9 @@ CREATE TABLE IF NOT EXISTS llm_profiles (
     model            TEXT NOT NULL,
     api_key          TEXT,
     api_key_hint     TEXT,
+    auth_mode        TEXT NOT NULL DEFAULT 'api_key',
+    chatgpt_account_id TEXT NOT NULL DEFAULT '',
+    access_program_cyber TEXT NOT NULL DEFAULT '',
     rate_per_second  DOUBLE PRECISION NOT NULL DEFAULT 0,
     rate_per_minute  DOUBLE PRECISION NOT NULL DEFAULT 0,
     context_window_k INTEGER NOT NULL DEFAULT 0,
@@ -413,6 +416,16 @@ CREATE UNIQUE INDEX IF NOT EXISTS uq_llm_one_default ON llm_profiles(is_default)
 DROP TRIGGER IF EXISTS trg_llm_upd ON llm_profiles;
 CREATE TRIGGER trg_llm_upd BEFORE UPDATE ON llm_profiles
     FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+ALTER TABLE llm_profiles ADD COLUMN IF NOT EXISTS auth_mode TEXT NOT NULL DEFAULT 'api_key';
+ALTER TABLE llm_profiles ADD COLUMN IF NOT EXISTS chatgpt_account_id TEXT NOT NULL DEFAULT '';
+ALTER TABLE llm_profiles ADD COLUMN IF NOT EXISTS access_program_cyber TEXT NOT NULL DEFAULT '';
+ALTER TABLE llm_profiles DROP CONSTRAINT IF EXISTS llm_profiles_auth_mode_check;
+ALTER TABLE llm_profiles ADD CONSTRAINT llm_profiles_auth_mode_check CHECK (auth_mode IN ('api_key','chatgpt_plan'));
+ALTER TABLE llm_profiles DROP CONSTRAINT IF EXISTS llm_profiles_plan_credentials_check;
+ALTER TABLE llm_profiles ADD CONSTRAINT llm_profiles_plan_credentials_check CHECK (
+  auth_mode <> 'chatgpt_plan' OR
+  (format='openai-responses' AND chatgpt_account_id<>'' AND COALESCE(api_key,'')='' AND COALESCE(base_url,'')='')
+);
 -- Add pool priority/exclusion to older databases. Defaults 0/false include every profile in failover.
 ALTER TABLE llm_profiles ADD COLUMN IF NOT EXISTS priority     INTEGER NOT NULL DEFAULT 0;
 ALTER TABLE llm_profiles ADD COLUMN IF NOT EXISTS pool_exclude BOOLEAN NOT NULL DEFAULT false;
@@ -1118,6 +1131,66 @@ ALTER TABLE findings ADD COLUMN IF NOT EXISTS report TEXT NOT NULL DEFAULT '';
 CREATE INDEX IF NOT EXISTS idx_findings_task ON findings(task_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_findings_time ON findings(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_findings_status ON findings(status, created_at DESC);
+-- Optional per-task hunt coverage board. An operator enables it for focused
+-- web assessments; open rows then hold task completion.
+CREATE TABLE IF NOT EXISTS hunt_classes (
+    id BIGSERIAL PRIMARY KEY,
+    task_id BIGINT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+    class TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'open' CHECK (status IN ('open','found','exhausted','miss_tag')),
+    reason TEXT NOT NULL DEFAULT '',
+    evidence TEXT NOT NULL DEFAULT '',
+    miss_tag TEXT NOT NULL DEFAULT '' CHECK (miss_tag IN ('','coverage-gap','probe-defect','target-down','scope-out')),
+    widen_next TEXT NOT NULL DEFAULT '',
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE (task_id, class)
+);
+CREATE INDEX IF NOT EXISTS idx_hunt_classes_task ON hunt_classes(task_id);
+
+CREATE TABLE IF NOT EXISTS campaign_branches (
+    id BIGSERIAL PRIMARY KEY,
+    task_id BIGINT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+    branch_id TEXT NOT NULL,
+    goal TEXT NOT NULL DEFAULT '',
+    hypothesis TEXT NOT NULL,
+    probe_spec TEXT NOT NULL DEFAULT '',
+    expected_signal TEXT NOT NULL DEFAULT '',
+    status TEXT NOT NULL DEFAULT 'untested' CHECK (status IN ('untested','confirmed','clean')),
+    reason TEXT NOT NULL DEFAULT '',
+    evidence TEXT NOT NULL DEFAULT '',
+    finding_id BIGINT REFERENCES findings(id) ON DELETE SET NULL,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE (task_id, branch_id)
+);
+CREATE INDEX IF NOT EXISTS idx_campaign_branches_task ON campaign_branches(task_id);
+-- A recorded business model and evidence-linked attack chain board are scoped
+-- to a single task and removed with it.
+CREATE TABLE IF NOT EXISTS business_map (
+    id BIGSERIAL PRIMARY KEY,
+    task_id BIGINT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+    kind TEXT NOT NULL CHECK (kind IN ('actor','money_flow','state_machine','single_use','pricing','note')),
+    name TEXT NOT NULL,
+    detail JSONB NOT NULL DEFAULT '{}'::jsonb,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE (task_id, kind, name)
+);
+CREATE INDEX IF NOT EXISTS idx_business_map_task ON business_map(task_id);
+CREATE TABLE IF NOT EXISTS attack_chains (
+    id BIGSERIAL PRIMARY KEY,
+    task_id BIGINT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+    name TEXT NOT NULL,
+    source_finding_ids BIGINT[] NOT NULL DEFAULT '{}',
+    steps JSONB NOT NULL DEFAULT '[]'::jsonb,
+    prerequisites TEXT NOT NULL DEFAULT '',
+    impact TEXT NOT NULL DEFAULT 'P2' CHECK (impact IN ('P0','P1','P2')),
+    status TEXT NOT NULL DEFAULT 'proposed' CHECK (status IN ('proposed','verified','rejected')),
+    reason TEXT NOT NULL DEFAULT '',
+    spawned_task_id BIGINT REFERENCES tasks(id) ON DELETE SET NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_attack_chains_task ON attack_chains(task_id);
+ALTER TABLE tasks ADD COLUMN IF NOT EXISTS chain_verify_id BIGINT UNIQUE REFERENCES attack_chains(id) ON DELETE SET NULL;
 -- The By asset view uses asset_ids @> '[<id>]' to find findings; without this GIN index it would scan the whole table.
 CREATE INDEX IF NOT EXISTS idx_findings_asset_ids ON findings USING GIN(asset_ids jsonb_path_ops);
 
@@ -1543,3 +1616,135 @@ ALTER TABLE chat_control_gates ADD COLUMN IF NOT EXISTS closed BOOLEAN NOT NULL 
 ALTER TABLE chat_control_inputs ADD COLUMN IF NOT EXISTS language TEXT NOT NULL DEFAULT 'en';
 ALTER TABLE chat_control_runs ADD COLUMN IF NOT EXISTS language TEXT NOT NULL DEFAULT 'en';
 ALTER TABLE chat_control_inputs ADD COLUMN IF NOT EXISTS source_kind TEXT NOT NULL DEFAULT 'user';
+
+-- Operator-managed workflow canvas and schedule. Graph JSON is visual metadata;
+-- only the validated agent, schedule, and prompt fields drive execution.
+CREATE TABLE IF NOT EXISTS workflows (
+    id BIGSERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    description TEXT NOT NULL DEFAULT '',
+    agent_key TEXT NOT NULL DEFAULT 'auto',
+    enabled BOOLEAN NOT NULL DEFAULT true,
+    schedule_kind TEXT NOT NULL DEFAULT 'manual' CHECK (schedule_kind IN ('manual','interval','daily')),
+    interval_sec INTEGER NOT NULL DEFAULT 0,
+    daily_hour INTEGER NOT NULL DEFAULT 8 CHECK (daily_hour BETWEEN 0 AND 23),
+    daily_minute INTEGER NOT NULL DEFAULT 0 CHECK (daily_minute BETWEEN 0 AND 59),
+    timezone TEXT NOT NULL DEFAULT 'Local',
+    prompt TEXT NOT NULL DEFAULT '',
+    graph_json TEXT NOT NULL DEFAULT '{}',
+    last_fire TIMESTAMPTZ,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_workflows_enabled ON workflows(enabled) WHERE enabled;
+CREATE INDEX IF NOT EXISTS idx_workflows_updated ON workflows(updated_at DESC);
+
+-- Evidence-backed lessons. Candidate text is derived from findings and retests;
+-- prompt injection remains opt-in through ARTEX_RSI_LESSONS=inject.
+CREATE TABLE IF NOT EXISTS rsi_lessons (
+    id BIGSERIAL PRIMARY KEY,
+    dedupe_key TEXT NOT NULL UNIQUE,
+    kind TEXT NOT NULL CHECK (kind IN ('positive','negative','caution')),
+    cue TEXT NOT NULL,
+    action TEXT NOT NULL,
+    category_id BIGINT REFERENCES task_categories(id) ON DELETE SET NULL,
+    company_id BIGINT REFERENCES companies(id) ON DELETE SET NULL,
+    status TEXT NOT NULL DEFAULT 'candidate' CHECK (status IN ('candidate','adopted','retired')),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_rsi_lessons_scope ON rsi_lessons(company_id, category_id, status);
+CREATE INDEX IF NOT EXISTS idx_rsi_lessons_kind ON rsi_lessons(kind, updated_at DESC);
+CREATE TABLE IF NOT EXISTS rsi_lesson_evidence (
+    lesson_id BIGINT NOT NULL REFERENCES rsi_lessons(id) ON DELETE CASCADE,
+    source_kind TEXT NOT NULL,
+    source_id BIGINT NOT NULL,
+    detail TEXT NOT NULL DEFAULT '',
+    PRIMARY KEY (lesson_id, source_kind, source_id)
+);
+CREATE TABLE IF NOT EXISTS rsi_lesson_usage (
+    lesson_id BIGINT NOT NULL REFERENCES rsi_lessons(id) ON DELETE CASCADE,
+    task_id BIGINT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+    mode TEXT NOT NULL CHECK (mode IN ('shadow','inject')),
+    shown_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    PRIMARY KEY (lesson_id, task_id, mode)
+);
+
+-- Operator-owned egress nodes. Embedded URL credentials are rejected by the API.
+CREATE TABLE IF NOT EXISTS proxy_graph_nodes (
+    id TEXT PRIMARY KEY,
+    url TEXT NOT NULL,
+    kind TEXT NOT NULL DEFAULT 'datacenter' CHECK (kind IN ('datacenter','residential','tor')),
+    asn TEXT NOT NULL DEFAULT '',
+    active BOOLEAN NOT NULL DEFAULT true,
+    score DOUBLE PRECISION NOT NULL DEFAULT 1,
+    last_checked TIMESTAMPTZ
+);
+
+-- Test account passwords are AES-GCM ciphertext (v1: prefix). The key is
+-- derived from the installation's protected JWT key and never stored in PG.
+CREATE TABLE IF NOT EXISTS task_credentials (
+    id BIGSERIAL PRIMARY KEY,
+    task_id BIGINT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+    domain TEXT NOT NULL,
+    username TEXT NOT NULL,
+    password TEXT NOT NULL DEFAULT '',
+    source TEXT NOT NULL DEFAULT 'user' CHECK (source IN ('user','agent')),
+    note TEXT NOT NULL DEFAULT '',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE(task_id, domain, username)
+);
+
+-- Bounded follow-up lineage. auto_wave_id is committed in the same transaction
+-- as the child task, allowing a restarted sweeper to recover after a crash.
+CREATE TABLE IF NOT EXISTS auto_continue_waves (
+    id BIGSERIAL PRIMARY KEY,
+    root_task_id BIGINT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+    parent_task_id BIGINT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+    wave_number INTEGER NOT NULL CHECK (wave_number BETWEEN 1 AND 3),
+    reason TEXT NOT NULL CHECK (reason IN ('timeout','open-goals','open-intents')),
+    detail TEXT NOT NULL DEFAULT '',
+    scheduled_at TIMESTAMPTZ NOT NULL,
+    status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending','spawning','spawned','cancelled')),
+    spawned_task_id BIGINT REFERENCES tasks(id) ON DELETE SET NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE(root_task_id, wave_number)
+);
+CREATE INDEX IF NOT EXISTS idx_auto_waves_due ON auto_continue_waves(status, scheduled_at);
+CREATE INDEX IF NOT EXISTS idx_auto_waves_parent ON auto_continue_waves(parent_task_id);
+ALTER TABLE tasks ADD COLUMN IF NOT EXISTS auto_wave_id BIGINT UNIQUE REFERENCES auto_continue_waves(id) ON DELETE SET NULL;
+
+-- KSIR artifact indexing: metadata for files already in a task workspace.
+-- No artifact bytes or outbound destinations are stored in PostgreSQL.
+CREATE TABLE IF NOT EXISTS task_artifacts (
+    id BIGSERIAL PRIMARY KEY,
+    task_id BIGINT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+    relative_path TEXT NOT NULL,
+    artifact_type TEXT NOT NULL,
+    size_bytes BIGINT NOT NULL CHECK (size_bytes >= 0),
+    hash_sha256 TEXT NOT NULL,
+    value_rank INTEGER NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE(task_id, relative_path, hash_sha256)
+);
+CREATE INDEX IF NOT EXISTS idx_task_artifacts_rank ON task_artifacts(task_id, value_rank DESC, created_at DESC);
+
+-- Operator-controlled C2 handoff. The application never transmits a binary
+-- or emits a ready-to-run delivery command from this record.
+CREATE TABLE IF NOT EXISTS c2_handoffs (
+    id BIGSERIAL PRIMARY KEY,
+    task_id BIGINT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+    vector TEXT NOT NULL CHECK (vector IN ('webshell_upload','echo_b64','certutil','bitsadmin','wget','curl','smb')),
+    target_host TEXT NOT NULL,
+    target_path TEXT NOT NULL,
+    shell_url TEXT NOT NULL DEFAULT '',
+    binary_arch TEXT NOT NULL CHECK (binary_arch IN ('x64','x86')),
+    binary_sha256 TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'requested' CHECK (status IN ('requested','acknowledged','cancelled')),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_c2_handoffs_task ON c2_handoffs(task_id, created_at DESC);
+ALTER TABLE c2_handoffs ADD COLUMN IF NOT EXISTS shell_url TEXT NOT NULL DEFAULT '';

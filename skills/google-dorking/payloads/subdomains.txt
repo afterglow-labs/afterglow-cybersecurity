@@ -1,0 +1,10 @@
+site:*.{target} -www
+site:*.*.{target}
+site:{target} inurl:dev | inurl:staging | inurl:test
+site:{target} inurl:beta | inurl:demo | inurl:sandbox
+site:{target} inurl:old | inurl:legacy | inurl:backup
+site:{target} inurl:uat | inurl:qa | inurl:preprod
+site:uat.*.{target}
+site:dev.*.{target}
+site:staging.*.{target}
+site:api.*.{target}

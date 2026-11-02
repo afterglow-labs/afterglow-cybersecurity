@@ -1,4 +1,10 @@
 // Japanese translations. English owns keys, placeholders and meaning.
+import type { en as chatgptSource } from "./chatgpt.ts";
+import type { en as workflowsSource } from "./workflows.ts";
+import type { en as proxygraphSource } from "./proxygraph.ts";
+import type { en as taskintelSource } from "./taskintel.ts";
+import type { en as browserSource } from "./browser.ts";
+import type { en as autowavesSource } from "./autowaves.ts";
 import type { en as appSource } from "./app.ts";
 export const app: Record<keyof typeof appSource, string> = {
   metricValue: "{label} {value}",
@@ -3547,4 +3553,74 @@ export const settings: Record<keyof typeof settingsSource, string> = {
   updateLocalOnly:
     "LLM のローカル限定接続が有効なため、更新確認とダウンロードは無効です。これは意図した動作で、接続の問題ではありません。現在のバージョンの表示とロールバックは引き続き利用できます。更新を確認するにはローカル限定モードを無効にしてください。",
   judgeLoadFailed: "保存済みの承認設定を読み込めませんでした。既定値で上書きしないよう、保存を無効にしています。",
+};
+export const chatgpt: Record<keyof typeof chatgptSource, string> = {
+  title: "ChatGPT プラン",
+  help: "ChatGPT アカウントを接続し、公式 Responses API で利用可能なモデルを使います。プラン利用量と API 請求は別です。認証情報はこのサーバーに保存されます。",
+  connect: "アカウントを接続", reconnect: "再接続", disconnect: "接続解除", account: "アカウント", model: "モデル",
+  profile: "プロファイル名", create: "プランプロファイルを作成", update: "プランプロファイルを更新", newProfile: "新しいプランプロファイル",
+  statusConnected: "接続済み", statusSignedOut: "サインアウト", statusBlocked: "プラン利用を一時停止",
+  loadingModels: "アカウントのモデルを読み込む", recheck: "プラン利用を再確認",
+  openLogin: "開いたウィンドウでサインインし、このページに戻ってください。",
+  noAccount: "モデルを見るにはアカウントを接続してください。", noModels: "このアカウントのモデルは返されませんでした。",
+  saved: "ChatGPT プロファイルを保存しました", selectAccountModel: "接続済みアカウントとモデルを選択してください。",
+};
+export const workflows: Record<keyof typeof workflowsSource, string> = {
+  title: "ワークフロー", description: "エージェントへの指示を予約または手動で実行します。キャンバスには実行経路とノード位置が表示されます。",
+  create: "ワークフローを作成", empty: "ワークフローはまだありません。", name: "名前", details: "説明", agent: "エージェント",
+  schedule: "スケジュール", manual: "手動", interval: "間隔", daily: "毎日", minutes: "間隔（分）", hour: "時", minute: "分",
+  timezone: "タイムゾーン（IANA）", prompt: "エージェントへの指示", enabled: "有効", save: "ワークフローを保存", run: "今すぐ実行",
+  delete: "削除", canvas: "ワークフローキャンバス", lastRun: "前回の実行", select: "編集するワークフローを選択してください。",
+  saved: "ワークフローを保存しました", started: "ワークフローをキューに追加しました", removed: "ワークフローを削除しました",
+};
+export const proxygraph: Record<keyof typeof proxygraphSource, string> = {
+  title: "プロキシグラフ", description: "ワーカー実行用のオペレーター管理プロキシを設定します。ヘルスチェックは各プロキシの待受先にのみ接続します。",
+  routing: "ワーカーの経路", enabled: "送信にこのプールを使用", policy: "ローテーション方針", roundRobin: "順番に選択",
+  asnDiverse: "ASN を分散", leastUsed: "使用回数が最少", captureNote: "通信の記録が優先されます。このプールは記録がオフのときだけ使われます。アクティブなノードがない場合、直接接続せず実行を停止します。",
+  add: "プロキシを追加", id: "ID", url: "プロキシ URL（認証情報なし）", type: "種類", datacenter: "データセンター", residential: "住宅回線",
+  nodes: "プロキシノード", check: "待受先を確認", empty: "プロキシノードは未設定です。", active: "有効", inactive: "無効",
+  remove: "削除", saved: "経路を保存しました", added: "プロキシを追加しました", removed: "プロキシを削除しました", checked: "待受先の確認が完了しました",
+};
+export const taskintel: Record<keyof typeof taskintelSource, string> = {
+  accounts: "テストアカウント", accountsHelp: "パスワードは暗号化して保存されます。必要なときに一件ずつ表示してください。エージェントはこのタスクのアカウントを取得できます。",
+  domain: "ドメインまたはホスト", username: "ユーザー名", password: "パスワード", note: "メモ", add: "アカウントを保存", remove: "削除",
+  reveal: "表示", hide: "隠す", emptyAccounts: "このタスクにテストアカウントはありません。", pendingPassword: "パスワード未設定",
+  user: "オペレーター", agent: "エージェント", learning: "結果と教訓", outcome: "タスクの結果", lessons: "証拠に基づく教訓", extract: "教訓を抽出",
+  confirmed: "確認済みの発見", open: "未解決の発見", toolCalls: "ツール呼び出し", skillMisses: "不足するスキル", wallTime: "実行時間（秒）",
+  tokens: "出力トークン", emptyLessons: "このタスクから得られた教訓はまだありません。", evidence: "証拠", saved: "アカウントを保存しました",
+  removed: "アカウントを削除しました", extracted: "教訓を抽出しました",
+  artifacts: "ローカル証拠ファイル", emptyArtifacts: "このタスクに索引付けされた証拠ファイルはありません。",
+  c2Title: "オペレーターへの C2 引き継ぎ", c2Help: "この記録はオペレーターの確認用です。アプリはバイナリを送信も実行もしていません。",
+  c2Empty: "このタスクに C2 引き継ぎはありません。", c2Acknowledge: "確認済みにする", c2Cancel: "引き継ぎを中止", c2Requested: "オペレーター待ち", c2Acknowledged: "確認済み", c2Cancelled: "中止",
+  businessModel: "ビジネスモデル", emptyBusiness: "このタスクのビジネスモデル項目はありません。",
+  attackChains: "攻撃チェーン", emptyChains: "根拠に結び付いたチェーンはまだありません。",
+  compose: "検出結果から構成", composeStarted: "チェーンの構成を開始しました", composeRunning: "構成中…", composeFailed: "チェーンの構成に失敗しました。タスクの活動を確認してください。",
+  chainProposed: "提案", chainVerified: "検証済み", chainRejected: "却下", chainSource: "確認済み検出結果 ID",
+  verifyChain: "検証タスクを開始", verificationStarted: "チェーン検証タスクを開始しました", verificationTask: "検証タスク {id}",
+  campaign: "仮説キャンペーン", emptyCampaign: "このタスクに計画された検証分岐はありません。", branchUntested: "未検証", branchConfirmed: "確認済み", branchClean: "根拠付きで問題なし", branchProbe: "検証", branchSignal: "期待する兆候",
+  huntBoard: "脆弱性クラスの確認表", huntHelp: "対象を絞った Web 監査に使います。未確認のクラスと分岐がある間はタスクを完了しません。",
+  huntEnable: "確認表を有効化", huntEmpty: "このタスクでは確認表が無効です。",
+  huntOpen: "未確認", huntFound: "発見を記録済み", huntExhausted: "監査済み", huntGap: "確認範囲の不足",
+  huntReason: "試した内容と結果", huntReasonRequired: "先に試した内容と結果を入力してください。", huntGapType: "不足の種類",
+  huntMarkGap: "不足を記録", huntMarkExhausted: "監査済みにする", huntReopen: "再開",
+};
+export const browser: Record<keyof typeof browserSource, string> = {
+  agentActive: "エージェントが操作中", blankPage: "空白のページ", browserChat: "チャット {id}", browserDelete: "セッションを削除",
+  browserDeleteConfirm: "このセッションと保存されたログイン情報・Cookie を完全に削除しますか？", browserIntent: " · 目的 {id}",
+  browserSessions: "ブラウザーセッション", browserSessionsAppearHereWhenAnAgent: "エージェントがブラウザーを開くと、ここに表示されます。",
+  browserTab: "タブ {index}", browserTask: "タスク {id}", browserWaitingCount: "ブラウザーセッション · {count} 件が操作待ち",
+  chooseATabToControl: "操作するタブを選択", clickAFieldOnTheScreenThen: "画面上の入力欄をクリックしてから文字を入力",
+  completeSigninOTPOrVerificationInThe: "エージェントのブラウザーでログイン、ワンタイムコード、認証を完了し、操作を返してください。パネルを閉じてもブラウザーは待機します。タスクの制限時間は進みます。",
+  controlTheBrowserScreen: "ブラウザー画面を操作", currentAgentBrowserScreen: "エージェントの現在のブラウザー画面",
+  doneReturnControlToAgent: "完了 · エージェントに操作を返す", idle: "待機中", loadingScreen: "画面を読み込み中…",
+  noBrowserSessionsAreOpen: "開いているセッションはありません", refreshSessions: "セッションを更新", scrollDown: "下にスクロール",
+  scrollUp: "上にスクロール", selectAll: "すべて選択", selectBrowserSession: "セッションを選択", selectBrowserTab: "タブを選択",
+  sendText: "文字を送信", takeControl: "操作を引き継ぐ", textToSendToTheFocusedField: "選択中の入力欄に送る文字",
+  waitingForYourInput: "あなたの操作を待機中", yourInputIsNotSentToChat: "入力内容はチャットに送られません。ログイン状態はこのタスクのブラウザーセッションに保存されます。",
+};
+export const autowaves: Record<keyof typeof autowavesSource, string> = {
+  title: "自動フォローアップ", description: "タスクが時間切れになるか未完了の作業を残して停止した場合、系統全体で最大3件のフォローアップを予定します。各タスクは許可された内容を引き継ぎ、時間制限があります。",
+  enabled: "フォローアップを有効にする", delay: "開始までの待機時間（分）", budget: "各フォローアップの最大時間（分）", save: "方針を保存", saved: "方針を保存しました",
+  waves: "フォローアップ", empty: "このタスクにフォローアップはありません。", pending: "予定済み", spawning: "開始中", spawned: "開始済み", cancelled: "中止",
+  wave: "第 {number} 回", reasonTimeout: "タスクが時間切れ", reasonGoals: "未完了の目標", reasonIntents: "未完了の作業", child: "フォローアップタスク {id} を開く",
 };

@@ -155,6 +155,10 @@ type TaskCreateOptions struct {
 	// CoverageEnabled controls asset coverage; nil defaults to true so callers unaware of the switch
 	// (orchestration spawn and old APIs) preserve prior behavior. Web task creation may explicitly disable it.
 	CoverageEnabled *bool
+	// AutoWaveID links a follow-up task to its wave in the same transaction.
+	AutoWaveID int64
+	// ChainVerifyID links a verification child to its chain in the same transaction.
+	ChainVerifyID int64
 	// InterceptRules are task-level asset rules inserted into task_intercept_rules in the task-creation transaction.
 	InterceptRules []TaskInterceptRuleInput
 }
@@ -230,9 +234,9 @@ VALUES ($1, 'fact', $2, 0, 'origin', 'system')`, expID, string(originPayload)); 
 		CoverageEnabled: coverageEnabled,
 	}
 	if err := tx.QueryRow(`
-INSERT INTO tasks(name, category_id, description, goal, exploration_id, llm_profile_id, active_llm_profile_id, timeout_seconds, plan_heartbeat_seconds, coverage_enabled)
-VALUES ($1,$2,$3,$4,$5,$6,$6,$7,$8,$9)
-RETURNING id, status, paused, created_at`, opts.Name, opts.CategoryID, description, goal, expID, active, opts.TimeoutSeconds, opts.PlanHeartbeatSeconds, coverageEnabled).Scan(&t.ID, &t.Status, &t.Paused, &t.CreatedAt); err != nil {
+INSERT INTO tasks(name, category_id, description, goal, exploration_id, llm_profile_id, active_llm_profile_id, timeout_seconds, plan_heartbeat_seconds, coverage_enabled, auto_wave_id, chain_verify_id)
+VALUES ($1,$2,$3,$4,$5,$6,$6,$7,$8,$9,NULLIF($10,0),NULLIF($11,0))
+RETURNING id, status, paused, created_at`, opts.Name, opts.CategoryID, description, goal, expID, active, opts.TimeoutSeconds, opts.PlanHeartbeatSeconds, coverageEnabled, opts.AutoWaveID, opts.ChainVerifyID).Scan(&t.ID, &t.Status, &t.Paused, &t.CreatedAt); err != nil {
 		return nil, err
 	}
 	if opts.Language != "" {

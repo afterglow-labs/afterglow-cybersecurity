@@ -1,4 +1,10 @@
 // Simplified Chinese translations. English owns keys, placeholders and meaning.
+import type { en as chatgptSource } from "./chatgpt.ts";
+import type { en as workflowsSource } from "./workflows.ts";
+import type { en as proxygraphSource } from "./proxygraph.ts";
+import type { en as taskintelSource } from "./taskintel.ts";
+import type { en as browserSource } from "./browser.ts";
+import type { en as autowavesSource } from "./autowaves.ts";
 import type { en as appSource } from "./app.ts";
 export const app: Record<keyof typeof appSource, string> = {
   metricValue: "{label} {value}",
@@ -3441,4 +3447,74 @@ export const settings: Record<keyof typeof settingsSource, string> = {
   updateLocalOnly:
     "已开启仅本地 LLM 网络，因此无法检查或下载更新。这是有意为之，并非连接问题。当前版本和回滚仍然可用；如需检查更新，请关闭仅本地模式。",
   judgeLoadFailed: "无法加载已保存的审批设置，为避免用默认值覆盖，已禁用保存。",
+};
+export const chatgpt: Record<keyof typeof chatgptSource, string> = {
+  title: "ChatGPT 订阅计划",
+  help: "连接 ChatGPT 账户，通过官方 Responses API 使用账户可用的模型。订阅额度与 API 账单分开，凭据保存在本服务器。",
+  connect: "连接账户", reconnect: "重新连接", disconnect: "断开连接", account: "账户", model: "模型",
+  profile: "配置名称", create: "创建订阅配置", update: "更新订阅配置", newProfile: "新建订阅配置",
+  statusConnected: "已连接", statusSignedOut: "未登录", statusBlocked: "订阅使用已暂停",
+  loadingModels: "加载账户模型", recheck: "重新检查订阅额度",
+  openLogin: "在打开的窗口中完成登录，然后返回此页面。",
+  noAccount: "连接账户后可查看模型。", noModels: "此账户未返回任何模型。",
+  saved: "ChatGPT 配置已保存", selectAccountModel: "请选择已连接的账户和模型。",
+};
+export const workflows: Record<keyof typeof workflowsSource, string> = {
+  title: "工作流", description: "定时或手动运行代理指令。画布显示执行路径并保存节点位置。",
+  create: "创建工作流", empty: "暂无工作流。", name: "名称", details: "描述", agent: "代理",
+  schedule: "计划", manual: "手动", interval: "间隔", daily: "每天", minutes: "间隔（分钟）", hour: "小时", minute: "分钟",
+  timezone: "时区（IANA）", prompt: "代理指令", enabled: "已启用", save: "保存工作流", run: "立即运行",
+  delete: "删除", canvas: "工作流画布", lastRun: "上次运行", select: "选择要编辑的工作流。",
+  saved: "工作流已保存", started: "工作流已加入队列", removed: "工作流已删除",
+};
+export const proxygraph: Record<keyof typeof proxygraphSource, string> = {
+  title: "代理图谱", description: "管理操作员拥有的工作节点出口代理。健康检查仅连接各代理的监听端口。",
+  routing: "工作节点路由", enabled: "使用此代理池作为出口", policy: "轮换策略", roundRobin: "轮流使用",
+  asnDiverse: "ASN 多样化", leastUsed: "最少使用", captureNote: "流量捕获优先。仅在关闭捕获时使用此代理池。启用后若无活跃节点，工作节点会停止，而不会直接连接。",
+  add: "添加代理", id: "ID", url: "代理 URL（不含凭据）", type: "类型", datacenter: "数据中心", residential: "住宅代理",
+  nodes: "代理节点", check: "检查监听端口", empty: "尚未配置代理节点。", active: "活跃", inactive: "不可用",
+  remove: "移除", saved: "路由已保存", added: "代理已添加", removed: "代理已移除", checked: "监听端口检查完成",
+};
+export const taskintel: Record<keyof typeof taskintelSource, string> = {
+  accounts: "测试账户", accountsHelp: "密码加密保存。仅在需要时逐一显示；智能体可以获取本任务的账户。",
+  domain: "域名或主机", username: "用户名", password: "密码", note: "备注", add: "保存账户", remove: "移除",
+  reveal: "显示", hide: "隐藏", emptyAccounts: "此任务没有测试账户。", pendingPassword: "未设置密码",
+  user: "操作员", agent: "智能体", learning: "结果与经验", outcome: "任务结果", lessons: "有证据的经验", extract: "提取经验",
+  confirmed: "已确认发现", open: "未解决发现", toolCalls: "工具调用", skillMisses: "缺失技能", wallTime: "运行时间（秒）",
+  tokens: "输出令牌", emptyLessons: "尚未从此任务提取经验。", evidence: "证据", saved: "账户已保存",
+  removed: "账户已移除", extracted: "经验已提取",
+  artifacts: "本地证据文件", emptyArtifacts: "此任务尚未索引本地证据文件。",
+  c2Title: "操作员 C2 交接", c2Help: "这些记录供操作员审核。应用程序尚未传送或执行任何二进制文件。",
+  c2Empty: "此任务没有 C2 交接。", c2Acknowledge: "确认已审核", c2Cancel: "取消交接", c2Requested: "等待操作员", c2Acknowledged: "已确认", c2Cancelled: "已取消",
+  businessModel: "业务模型", emptyBusiness: "此任务尚无业务模型条目。",
+  attackChains: "攻击链", emptyChains: "尚无关联证据的攻击链。",
+  compose: "根据发现生成", composeStarted: "已开始生成攻击链", composeRunning: "生成中…", composeFailed: "攻击链生成失败，请查看任务活动。",
+  chainProposed: "待验证", chainVerified: "已验证", chainRejected: "已否决", chainSource: "已确认发现 ID",
+  verifyChain: "启动验证任务", verificationStarted: "已启动攻击链验证任务", verificationTask: "验证任务 {id}",
+  campaign: "假设测试计划", emptyCampaign: "此任务尚未规划测试分支。", branchUntested: "未测试", branchConfirmed: "已确认", branchClean: "有证据表明未命中", branchProbe: "测试方式", branchSignal: "预期信号",
+  huntBoard: "漏洞类型覆盖看板", huntHelp: "用于专项 Web 审计。未完成的类型和测试分支会暂缓任务结束。",
+  huntEnable: "启用覆盖看板", huntEmpty: "此任务未启用覆盖看板。",
+  huntOpen: "待检查", huntFound: "已记录发现", huntExhausted: "已审计", huntGap: "覆盖缺口",
+  huntReason: "测试内容与结果", huntReasonRequired: "请先填写测试内容与结果。", huntGapType: "缺口类型",
+  huntMarkGap: "记录缺口", huntMarkExhausted: "标记已审计", huntReopen: "重新打开",
+};
+export const browser: Record<keyof typeof browserSource, string> = {
+  agentActive: "智能体正在操作", blankPage: "空白页面", browserChat: "聊天 {id}", browserDelete: "删除会话",
+  browserDeleteConfirm: "永久删除此浏览器会话及保存的登录状态和 Cookie？", browserIntent: " · 目标 {id}",
+  browserSessions: "浏览器会话", browserSessionsAppearHereWhenAnAgent: "智能体打开浏览器时，会话将在此显示。",
+  browserTab: "标签页 {index}", browserTask: "任务 {id}", browserWaitingCount: "浏览器会话 · {count} 个等待您操作",
+  chooseATabToControl: "选择要操作的标签页", clickAFieldOnTheScreenThen: "点击屏幕上的输入框，然后输入文字",
+  completeSigninOTPOrVerificationInThe: "请在智能体浏览器中完成登录、一次性验证码或验证，然后交还控制权。关闭面板后浏览器仍会等待，任务时限继续计时。",
+  controlTheBrowserScreen: "操作浏览器画面", currentAgentBrowserScreen: "智能体当前的浏览器画面",
+  doneReturnControlToAgent: "完成 · 交还给智能体", idle: "空闲", loadingScreen: "正在加载画面…",
+  noBrowserSessionsAreOpen: "没有打开的会话", refreshSessions: "刷新会话", scrollDown: "向下滚动",
+  scrollUp: "向上滚动", selectAll: "全选", selectBrowserSession: "选择浏览器会话", selectBrowserTab: "选择标签页",
+  sendText: "发送文字", takeControl: "接管操作", textToSendToTheFocusedField: "发送到当前输入框的文字",
+  waitingForYourInput: "等待您操作", yourInputIsNotSentToChat: "输入内容不会发送到聊天。登录状态保存在此任务的浏览器会话中。",
+};
+export const autowaves: Record<keyof typeof autowavesSource, string> = {
+  title: "自动后续任务", description: "任务超时或仍有未完成工作时，在整条任务链上最多安排三个后续任务。每个任务继承已授权的上下文，并受到严格的时间限制。",
+  enabled: "启用后续任务", delay: "启动前延迟（分钟）", budget: "每个后续任务的最长时间（分钟）", save: "保存后续任务策略", saved: "后续任务策略已保存",
+  waves: "后续任务", empty: "此任务没有后续任务。", pending: "已安排", spawning: "启动中", spawned: "已启动", cancelled: "已取消",
+  wave: "第 {number} 波", reasonTimeout: "任务超时", reasonGoals: "仍有未完成目标", reasonIntents: "仍有未完成工作", child: "打开后续任务 {id}",
 };

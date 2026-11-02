@@ -94,9 +94,8 @@ function checkCatalog(source, translated, locale) {
 }
 
 test("every shipped catalog is complete and preserves placeholders and rich tags", () => {
-  // 3271 existing six-language keys + 12 OpenCode SDK bridge labels and guidance
-  // + 3 unfinished-worker soft-delete fragments (#62).
-  assert.equal(Object.keys(catalogs.en).length, 3286);
+  // Includes the ChatGPT, workflow, proxy, task intelligence, and managed browser controls.
+  assert.equal(Object.keys(catalogs.en).length, 3482);
   assert.deepEqual(catalogLocales.sort(), [...LOCALES].sort());
   assert.deepEqual(Object.keys(catalogs).sort(), [...LOCALES].sort());
   for (const locale of LOCALES) checkCatalog(catalogs.en, catalogs[locale], locale);
@@ -105,7 +104,7 @@ test("every shipped catalog is complete and preserves placeholders and rich tags
   const unchangedChinese = Object.entries(catalogs.en)
     .filter(([key, value]) => catalogs["zh-Hans"][key] === value)
     .map(([key]) => key);
-  assert.deepEqual(unchangedChinese.sort(), ["app.metricValue", "interface.m0460"]);
+  assert.deepEqual(unchangedChinese.sort(), ["app.metricValue", "interface.m0460", "proxygraph.id"]);
   assert.equal(
     interpolate("Task {id}: {name}", { id: 7, name: "사용자 原文 {unchanged}" }),
     "Task 7: 사용자 原文 {unchanged}",

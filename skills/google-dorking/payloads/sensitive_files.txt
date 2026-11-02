@@ -1,0 +1,39 @@
+site:{target} ext:env "DB_PASSWORD"
+site:{target} ext:env "DB_HOST"
+site:{target} "index of" ".env"
+site:{target} ext:env "AWS_SECRET_ACCESS_KEY"
+site:{target} ext:env "MAIL_PASSWORD"
+site:{target} ext:env intext:"APP_KEY"
+site:{target} ext:yml "password" | "credentials"
+site:{target} ext:yaml "database" "password"
+site:{target} ext:ini "password"
+site:{target} ext:conf "password" | "secret"
+site:{target} ext:cfg "password"
+site:{target} ext:xml "password" | "secret" | "token"
+site:{target} ext:log "error" | "warning" | "fatal"
+site:{target} ext:log "password" | "auth"
+site:{target} filetype:log inurl:"access.log"
+site:{target} filetype:log inurl:"error.log"
+site:{target} ext:sql "INSERT INTO" | "CREATE TABLE"
+site:{target} ext:sql "password"
+site:{target} ext:sql "DUMP"
+site:{target} filetype:dump "CREATE TABLE"
+site:{target} "database dump" ext:tar.gz
+site:{target} "index of" "backup.sql"
+site:{target} "index of" "dump.sql"
+site:{target} "index of" "backup.zip"
+site:{target} ext:bak | ext:old | ext:backup
+site:{target} ext:bak inurl:"wp-config"
+site:{target} ext:swp | ext:swo | ext:swn
+site:{target} ext:~
+site:{target} ext:pem "PRIVATE KEY"
+site:{target} ext:key "PRIVATE KEY"
+site:{target} ext:ppk "PuTTY"
+site:{target} ext:pfx | ext:p12
+site:{target} "BEGIN RSA PRIVATE KEY" ext:key
+site:{target} "BEGIN OPENSSH PRIVATE KEY"
+site:{target} filetype:pdf "confidential" | "internal only"
+site:{target} filetype:xls "password" | "credentials"
+site:{target} filetype:csv "email" "password"
+site:{target} filetype:doc "password" | "internal"
+site:{target} ext:log | ext:txt | ext:conf | ext:cnf | ext:ini | ext:env | ext:sh | ext:bak | ext:backup | ext:swp | ext:old | ext:~ | ext:git | ext:svn | ext:htpasswd | ext:htaccess

@@ -1,0 +1,13 @@
+site:{target} inurl:"/api/v1" | inurl:"/api/v2" | inurl:"/api/v3"
+site:{target} inurl:"/graphql" | inurl:"/graphiql"
+site:{target} inurl:"/swagger.json" | inurl:"/openapi.json"
+site:{target} intitle:"Swagger UI" | inurl:"/api-docs"
+site:{target} inurl:"/rest/" | inurl:"/soap/"
+site:{target} inurl:"/actuator" | inurl:"/actuator/env"
+site:{target} inurl:"/health" | inurl:"/metrics" | inurl:"/info"
+site:{target} inurl:"/debug" | inurl:"/trace"
+site:{target} inurl:"/api" ext:json
+site:{target} inurl:"/__debug__/" | inurl:"/debug/default/view"
+site:{target} inurl:"/server-info" | inurl:"/server-status"
+site:{target} inurl:"/elmah.axd"
+site:{target} inurl:"/phpinfo.php" | inurl:"/info.php"

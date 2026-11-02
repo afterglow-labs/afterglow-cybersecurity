@@ -36,6 +36,7 @@ import type { LLMModelDetail, LLMPoolMember, LLMPoolStatus, LLMProfile, LLMRetry
 import { cn } from "@/lib/utils";
 
 import { ProfileRetryFields, RetryPolicyPanel, ZERO_OVERRIDE } from "./_components/retry";
+import { ChatGPTPanel } from "./_components/chatgpt";
 
 // thinking.type and reasoning_effort are independent fields and must be set separately;
 // some APIs have no thinking field and enable reasoning through effort alone.
@@ -1128,7 +1129,13 @@ export default function LLMPage() {
   // the title from Edit X to New. editing=null means creation.
   const [editOpen, setEditOpen] = React.useState(false);
   const [editing, setEditing] = React.useState<LLMProfile | null>(null);
+  const [planEditing, setPlanEditing] = React.useState<LLMProfile | null>(null);
   const openEditor = React.useCallback((p: LLMProfile | null) => {
+    if (p?.auth_mode === "chatgpt_plan") {
+      setPlanEditing(p);
+      document.getElementById("chatgpt-panel")?.scrollIntoView({ behavior: "smooth" });
+      return;
+    }
     setEditing(p);
     setEditOpen(true);
   }, []);
@@ -1207,6 +1214,8 @@ export default function LLMPage() {
         </div>
       </div>
 
+      <ChatGPTPanel profiles={profiles} editing={planEditing} onSaved={() => void load()} />
+
       <Tabs defaultValue="profiles" className="flex-1">
         <TabsList>
           <TabsTrigger value="profiles">{swt("interface.m1240")}</TabsTrigger>
@@ -1247,7 +1256,7 @@ export default function LLMPage() {
                         <div className="flex flex-wrap items-center gap-2">
                           <span className="truncate font-medium text-sm">{p.name}</span>
                           <Badge variant="outline" className="uppercase">
-                            {p.format}
+                            {p.auth_mode === "chatgpt_plan" ? swt("chatgpt.title") : p.format}
                           </Badge>
                           <Badge variant="outline" className={cn("ml-auto", h.cls)} title={h.hint}>
                             {h.label}
@@ -1259,7 +1268,8 @@ export default function LLMPage() {
 
                     <div className="flex flex-wrap gap-x-3 gap-y-0.5 pl-6 text-muted-foreground text-xs">
                       {p.api_key_hint && <span>{p.api_key_hint}</span>}
-                      {!p.api_key_hint && keyOptional(p) &&<span>{swt("providers.keyless")}</span>}
+                      {p.auth_mode === "chatgpt_plan" && <span>{p.connected ? swt("chatgpt.statusConnected") : swt("chatgpt.statusSignedOut")}</span>}
+                      {p.auth_mode !== "chatgpt_plan" && !p.api_key_hint && keyOptional(p) &&<span>{swt("providers.keyless")}</span>}
                       <span>
                         {p.rate_per_second}{swt("english.e102")}{p.rate_per_minute}{swt("english.e103")}</span>
                       {p.proxy && <span className="truncate">{swt("interface.m1427")}{" "}{p.proxy}</span>}

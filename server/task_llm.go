@@ -443,6 +443,10 @@ func isRetryableStreamError(err error) bool {
 	if err == nil {
 		return false
 	}
+	var guarded interface{ NoReplay() bool }
+	if errors.As(err, &guarded) && guarded.NoReplay() {
+		return false
+	}
 	if isQuotaExhaustedError(err) {
 		return false
 	}
@@ -572,7 +576,8 @@ func (s *Server) agentsForTask(t *Task) *taskAgentBundle {
 	mainRuntime := &taskLLMRuntime{s: s, taskID: t.ID, agentKey: "mainagent"}
 	tx := transcript.NewStore(filepath.Join(s.m.dir, "transcripts"))
 	window := workerRuntime.CompactionWindow()
-	wk := agent.NewWorker(workerRuntime, "task-router", s.m.dir, tx, window, s.agentMaxTurns("worker"))
+	wk := agent.NewWorker(workerRuntime, "task-router", s.m.dir, tx, window, s.agentMaxTurns("worker"), s.toolAskOperator())
+	wk.SetChainStatusNotifier(s.notifyParentChainStatus)
 	wk.SetFindingRecorder(s.evidenceStore())
 	wk.SetCompactionWindowResolver(workerRuntime.CompactionWindow)
 	wk.SetNativeOllamaResolver(workerRuntime.nativeOllama)
@@ -581,6 +586,7 @@ func (s *Server) agentsForTask(t *Task) *taskAgentBundle {
 	wk.SetNoaEnabled(s.m.NoaCompactionEnabled)     // Experimental noa compaction: platform-level flag read once per run.
 	wk.SetRunTimeout(time.Duration(s.agentRunSeconds("worker")) * time.Second)
 	wk.SetProxy(s.m.ProxyAddr(), s.m.ProxyCACert())
+	wk.SetProxySelector(s.proxyGraphNextURL)
 	wk.SetWebSearch(s.webSearchFor("worker"))
 	wk.SetConstraintInject(s.constraintInjectWorker) // Inject operation constraints into workers; configurable and enabled by default.
 	pl := agent.NewPlanner(plannerRuntime, "task-router", s.m.dir, tx, plannerRuntime.CompactionWindow(), s.agentMaxTurns("planner"))
@@ -601,6 +607,7 @@ func (s *Server) agentsForTask(t *Task) *taskAgentBundle {
 	compactor := agent.NewCompactor(plannerRuntime, "task-router")
 	compactor.SetBackgroundRunner(s.ctx, s.startBackgroundWork)
 	pl.SetCompactor(compactor)
+	s.wireTaskLessons(t, wk, pl)
 	main := agent.NewMainAgent(mainRuntime, "task-router", s.m.dir, tx, mainRuntime.CompactionWindow(), s.agentMaxTurns("mainagent"))
 	main.SetFindingRecorder(s.evidenceStore())
 	main.SetCompactionWindowResolver(mainRuntime.CompactionWindow)

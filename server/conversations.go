@@ -225,7 +225,13 @@ func (s *Server) pgDeleteConversation(w http.ResponseWriter, r *http.Request) {
 		writeError(w, 500, err)
 		return
 	}
-	writeJSON(w, 200, map[string]any{"deleted": c.ID})
+	result := map[string]any{"deleted": c.ID}
+	if s.browsers != nil {
+		if err := s.browsers.removeConversation(strconv.FormatInt(c.ID, 10)); err != nil {
+			result["cleanup_warning"] = err.Error()
+		}
+	}
+	writeJSON(w, 200, result)
 }
 
 const maxConversationDeleteBatch = 100
@@ -299,6 +305,11 @@ func (s *Server) pgDeleteConversationsBatch(w http.ResponseWriter, r *http.Reque
 	for _, id := range ids {
 		_, ok := deletedSet[id]
 		item := conversationDeleteItem{ID: id, OK: ok}
+		if ok && s.browsers != nil {
+			if err := s.browsers.removeConversation(strconv.FormatInt(id, 10)); err != nil {
+				item.Error = err.Error()
+			}
+		}
 		if !ok {
 			item.Error = locale.Text(responseLanguage(w), "conversation not found")
 		}

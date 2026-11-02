@@ -203,8 +203,10 @@ func Open(dir, addr string) (*Traffic, error) {
 	}
 
 	p, err := mproxy.NewProxy(&mproxy.Options{
-		Addr:        addr,
-		SslInsecure: true,
+		Addr: addr,
+		// Verify upstream target certificates by default. Operators testing a
+		// self-signed lab can opt out explicitly for that isolated environment.
+		SslInsecure: strings.EqualFold(os.Getenv("ARTEX_TRAFFIC_INSECURE_UPSTREAM"), "true"),
 		CaRootPath:  filepath.Join(dir, "_ca"),
 	})
 	if err != nil {

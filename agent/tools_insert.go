@@ -655,6 +655,14 @@ func (t *ToolSet) WorkerTools() []actool.CoreTool {
 		// asset management (handlers guard nil store internally)。
 		// Workers do not get add_company_scope; defining company scope belongs to planner/main/Auto.
 		t.insertAssets(), t.listAssets(),
+		t.saveTaskCredential(), t.listTaskCredentials(),
+		t.raceProbe(), t.sessionStore(), t.identitySwitch(), t.identityMatrix(), t.inflightModify(),
+		t.indexTaskArtifacts(), t.listTaskArtifacts(),
+		t.businessMapRW(), t.attackChain(),
+		t.campaignBranches(), t.recordBranchOutcome(), t.huntClassStatus(),
+		t.c2StageImplant(), t.c2DeliverImplant(), t.c2AwaitOperator(),
+		t.enumerateOIDCChain(), t.queryIMDS(), t.extractTFState(), t.deviceCodeInit(), t.checkMFAMethods(),
+		t.lateralScan(), t.harvestCredentials(), t.moveLateral(), t.escalatePrivilege(), t.domainEscalate(), t.checkEDR(), t.cleanupArtifacts(),
 		// Workers may reuse other work traces to avoid duplicate exploration.
 		// search_all_worker_traces finds keyword matches without first knowing intent_id.
 		// get_worker_trace lists/searches steps and retrieves full content for one work item.
@@ -680,6 +688,10 @@ func (t *ToolSet) MainAgentTools() []actool.CoreTool {
 		t.setConstraints(),
 		// asset management (handlers guard nil store internally)
 		t.insertAssets(), t.addCompanyScope(), t.listAssets(),
+		t.listTaskCredentials(),
+		t.listTaskArtifacts(),
+		t.businessMapRW(), t.attackChain(),
+		t.planCampaign(), t.campaignBranches(), t.recordBranchOutcome(), t.huntClassStatus(),
 		t.addFinding(), t.recordFact(),
 		t.addTaskScope(),
 		// list_untested_assets supports type-filtered, paginated inspection for additional testing decisions.

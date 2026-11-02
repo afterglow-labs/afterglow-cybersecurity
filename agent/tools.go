@@ -54,6 +54,7 @@ func compactIntents(ns []*db.Node, parentsOf, yieldsOf map[int64][]int64) []map[
 // One ToolSet is created per planner/worker run; per-run signals live here.
 type ToolSet struct {
 	language        locale.Lang
+	workDir         string
 	findingRecorder FindingRecorder
 	as              *db.AssetStore   // asset store (optional; nil = asset tools not available)
 	cs              *db.CompanyStore // company store (optional)
@@ -70,6 +71,12 @@ type ToolSet struct {
 	// touches get anchored to it as lineage/provenance (NOT visibility — the asset
 	// graph is global and shared). Worker = its claimed intent; planner = begin root.
 	ownerNode int64
+	// Native request replay is available only while the recording proxy is active.
+	// The per-run identity roster is never persisted or returned to the model.
+	proxyAddr   string
+	proxyCACert string
+	identMu     sync.Mutex
+	identities  map[string]attackIdentity
 	// goalMu protects terminal tool writes and the planner's cancellation snapshot.
 	goalMu  sync.Mutex
 	GoalMet bool
@@ -93,6 +100,8 @@ type ToolSet struct {
 	// carrying (intentID, summary) so the round can spell out which intent found what.
 	// Wired for workers; nil elsewhere → falls back to notify (bare wake).
 	notifyFinding func(intentID int64, summary string)
+	// A verification child closing its assigned chain wakes the parent planner.
+	notifyChainStatus func(parentTaskID, chainID int64, status string)
 	// resumeTask, if set, revives the task after a graph change that should make a
 	// stopped task run again (currently: set_goals adds a goal). It flips a terminal/
 	// paused task back to running and (re)starts the engine loops — a plain notify()
@@ -137,6 +146,8 @@ func (t *ToolSet) SetNotify(fn func()) { t.notify = fn }
 
 // SetNotifyFinding wires the finding-wake callback (see ToolSet.notifyFinding).
 func (t *ToolSet) SetNotifyFinding(fn func(int64, string)) { t.notifyFinding = fn }
+
+func (t *ToolSet) SetNotifyChainStatus(fn func(int64, int64, string)) { t.notifyChainStatus = fn }
 
 // EnrichTrigger is the enrichment engine seen from the tool layer (see package
 // enrich). Kept as an interface here to avoid coupling agent → enrich.
@@ -2109,6 +2120,8 @@ func (t *ToolSet) PlannerTools() []actool.CoreTool {
 		// cold-digest §6.1: restore folded cold nodes (digest body → members → detail).
 		t.expandDigest(),
 		t.getWorkerOutput(), t.getWorkerTrace(), t.searchAllWorkerTraces(), t.listGoals(), t.addIntent(), t.proveGoal(), t.goalMet(),
+		t.businessMapRW(), t.attackChain(),
+		t.planCampaign(), t.campaignBranches(), t.recordBranchOutcome(), t.huntClassStatus(),
 		t.killWorkTool(), t.steerWorkTool(),
 		// report_finding lets planners register vulnerabilities they have actually confirmed.
 		t.addFinding(),

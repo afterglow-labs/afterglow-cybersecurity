@@ -25,6 +25,7 @@ const (
 	BlockThinking   BlockType = "thinking"
 	BlockToolUse    BlockType = "tool_use"
 	BlockToolResult BlockType = "tool_result"
+	BlockImage      BlockType = "image"
 )
 
 // ContentBlock is one piece of message content. Which fields are populated
@@ -34,6 +35,8 @@ type ContentBlock struct {
 
 	// Text block.
 	Text string `json:"text,omitempty"`
+	// Image is structured visual input rather than ordinary text.
+	Image *ImageSource `json:"image,omitempty"`
 
 	// Thinking block (extended thinking). Anthropic requires the field to be
 	// named "thinking" (not "text") and requires "signature" when replaying
@@ -69,6 +72,9 @@ func ToolResultText(toolUseID, text string, isError bool) ContentBlock {
 type Message struct {
 	Role    Role           `json:"role"`
 	Content []ContentBlock `json:"content"`
+	// ProviderData carries opaque replay state from a provider. Clear it when
+	// changing the message content or switching provider connections.
+	ProviderData json.RawMessage `json:"provider_data,omitempty"`
 }
 
 // UserText builds a user message with one text block.

@@ -42,11 +42,13 @@ import { api } from "@/lib/api";
 import type { LLMProfile, Task } from "@/lib/types";
 
 import { AssetsTab } from "./_tabs/assets-tab";
+import { AccountsTab } from "./_tabs/accounts-tab";
 import { BroadcastTab } from "./_tabs/broadcast-tab";
 import { CoverageGraphTab } from "./_tabs/coverage-graph-tab";
 import { FindingsTab } from "./_tabs/findings-tab";
 import { GraphTab } from "./_tabs/graph-tab";
 import { InterceptTab } from "./_tabs/intercept-tab";
+import { LearningTab } from "./_tabs/learning-tab";
 import { OverviewTab } from "./_tabs/overview-tab";
 import { ReportTab } from "./_tabs/report-tab";
 import { RetestsTab } from "./_tabs/retests-tab";
@@ -59,6 +61,8 @@ const TABS = [
   { value: "broadcast", get label() { return swt("interface.m0781"); } },
   { value: "findings", get label() { return swt("interface.m0188"); } },
   { value: "retests", get label() { return swt("interface.m0332"); } },
+  { value: "accounts", get label() { return swt("taskintel.accounts"); } },
+  { value: "learning", get label() { return swt("taskintel.learning"); } },
   { value: "assets", get label() { return swt("interface.m0510"); } },
   { value: "coverage", get label() { return swt("interface.m0782"); } },
   { value: "intercept", get label() { return swt("interface.m0783"); } },
@@ -439,6 +443,8 @@ function TaskDetailInner() {
         <TabsContent value="retests" className="mt-0">
           <RetestsTab key={id} taskId={id} />
         </TabsContent>
+        <TabsContent value="accounts" className="mt-0"><AccountsTab taskId={id} /></TabsContent>
+        <TabsContent value="learning" className="mt-0"><LearningTab taskId={id} /></TabsContent>
         <TabsContent value="assets" className="mt-0">
           <AssetsTab taskId={id} />
         </TabsContent>

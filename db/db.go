@@ -10,6 +10,7 @@ import (
 	"github.com/Autumn-27/artex/locale"
 	"net/url"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/Autumn-27/artex/config"
@@ -93,7 +94,12 @@ func DSN() (dsn, source string, err error) {
 
 // DB wraps the shared *sql.DB. PG handles its own connection pool + concurrency
 // (MVCC), so unlike the old SQLite store there is no process-wide write mutex.
-type DB struct{ *sql.DB }
+type DB struct {
+	*sql.DB
+	credentialMu    sync.RWMutex
+	credentialKey   [32]byte
+	credentialReady bool
+}
 
 // ensureDatabase connects to the postgres system database and creates the target
 // database if it does not exist. dsn must be a postgres:// URL.

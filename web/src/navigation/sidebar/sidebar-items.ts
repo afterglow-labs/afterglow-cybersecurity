@@ -22,6 +22,7 @@ import {
   Target,
   Terminal,
   Wrench,
+  Workflow,
 } from "lucide-react";
 
 export type NavBadge = "new" | "soon";
@@ -70,6 +71,7 @@ export const sidebarItems: NavGroup[] = [
       { id: "dashboard", get title() { return swt("interface.m2871"); }, url: "/dashboard", icon: LayoutDashboard },
       { id: "chat", get title() { return swt("interface.m2872"); }, url: "/chat", icon: MessageSquare },
       { id: "tasks", get title() { return swt("interface.m0190"); }, url: "/function/tasks", icon: Target },
+      { id: "workflows", get title() { return swt("workflows.title"); }, url: "/function/workflows", icon: Workflow },
       { id: "findings", get title() { return swt("interface.m0188"); }, url: "/function/findings", icon: Bug },
       { id: "traffic", get title() { return swt("interface.m1067"); }, url: "/function/traffic", icon: Activity },
       { id: "commands", get title() { return swt("interface.m0287"); }, url: "/function/commands", icon: Terminal },
@@ -84,6 +86,7 @@ export const sidebarItems: NavGroup[] = [
     get label() { return swt("interface.m1848"); },
     items: [
       { id: "llm", title: "LLM", url: "/system/llm", icon: Brain },
+      { id: "proxy-graph", get title() { return swt("proxygraph.title"); }, url: "/system/proxy-graph", icon: Network },
       { id: "agents", get title() { return swt("english.e082"); }, url: "/system/agents", icon: Bot },
       { id: "mcp", title: "MCP", url: "/system/mcp", icon: Plug },
       { id: "skills", get title() { return swt("english.e084"); }, url: "/system/skills", icon: Sparkles },

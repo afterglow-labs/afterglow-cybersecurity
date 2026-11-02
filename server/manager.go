@@ -1458,6 +1458,8 @@ func (m *Manager) SetTaskStatusGuarded(id, status string) (won bool, err error) 
 		})
 	}
 	m.mu.Unlock()
+	m.extractLessons(n)
+	m.scheduleResidualWave(n, status)
 	return true, nil
 }
 
@@ -1489,7 +1491,19 @@ func (m *Manager) SetTaskStatus(id, status string) error {
 		})
 	}
 	m.mu.Unlock()
+	if pgdb.IsTerminal(status) {
+		m.extractLessons(n)
+		m.scheduleResidualWave(n, status)
+	}
 	return nil
+}
+
+// extractLessons records candidate lessons after a terminal task transition.
+// Failure must not undo the task status; extraction is idempotent by source ID.
+func (m *Manager) extractLessons(taskID int64) {
+	if _, err := m.pg.ExtractLessonsForTask(context.Background(), taskID); err != nil {
+		log.Printf("[rsi] lesson extraction failed for task %d: %v", taskID, err)
+	}
 }
 
 // DeleteTask removes a task and optionally its related global data. Traffic has

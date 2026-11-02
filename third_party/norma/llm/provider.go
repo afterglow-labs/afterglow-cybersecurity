@@ -22,6 +22,7 @@ const (
 	SEThinkingSignature StreamEventType = "thinking_signature"
 	SEToolUseStart      StreamEventType = "tool_use_start"
 	SEToolInputJSON     StreamEventType = "tool_input_delta"
+	SEMessageFinal      StreamEventType = "message_final"
 	SEMessageDelta      StreamEventType = "message_delta" // carries stop_reason / usage
 	SEMessageStop       StreamEventType = "message_stop"
 )
@@ -34,6 +35,9 @@ type StreamEvent struct {
 	ToolName   string // tool_use_start
 	StopReason string // message_delta
 	Usage      Usage  // message_start / message_delta
+	// FinalMessage replaces accumulated deltas with the validated completed
+	// provider response. It is never a display event payload.
+	FinalMessage *Message // message_final
 }
 
 // Format selects the wire protocol of a Provider.

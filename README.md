@@ -1,17 +1,18 @@
 # Afterglow Cybersecurity
 
-Afterglow Cybersecurity combines selected features from related ARTEX-derived projects into one self-hosted security research console. Five forks were reviewed; ScopeWeaver supplies the base, with integrated code and content from three others. The application uses a Go backend, a Next.js frontend, PostgreSQL, a shared asset graph, and per-task exploration graphs. It is intended for locally isolated, authorized research environments.
+Afterglow Cybersecurity combines the main capabilities of five ARTEX-derived projects in one self-hosted security research console. ScopeWeaver supplies the application base; the other forks contribute ChatGPT plan access, browser sessions, workflows, deeper hunting, defensive content, proxy controls, and operator-directed assessment tools. The application uses a Go backend, a Next.js frontend, PostgreSQL, a shared asset graph, and per-task exploration graphs. Use it only in locally isolated or explicitly authorized research environments.
 
 ## What is included
 
 | Source | Integrated capability |
 | --- | --- |
 | ScopeWeaver `a89795a` | Core application: planner and workers, asset and evidence graphs, task controls, live work steering, MCP connections, scheduled agent triggers, local and hosted model profiles, six UI languages, and the agent adapter. |
-| artex-browser-chat `13fabbb` | Browser extension that records an authenticated tab's HTTP exchanges through `POST /api/traffic/ingest` into the existing traffic store. |
-| artex-deep-hunter `abbe8e4` | Defensive Sigma and Suricata rules, ATT&CK layer, indicators, host triage utility, and the `authz-hunter`, `xss-hunter`, and `rce-hunter` skills. Detection fingerprints were aligned with this application's source. |
-| KSIR-ARTEX `240ae7c` | `api-security`, `codeaudit`, `llm-pentest`, `oauth-attack`, and `patch-diff` skills. |
+| Artex-on-ChatGPT `afcd6ca` | ChatGPT account connection, OAuth refresh and quota checks, Responses inference, per-profile model selection, protected account storage, persistent browser sessions, and image input. |
+| artex-browser-chat `13fabbb` | Authenticated browser traffic capture, workflow canvas and schedules, operator questions, task test accounts, outcomes, lessons and skill gaps, and an optional Telegram stdio MCP helper. |
+| artex-deep-hunter `abbe8e4` | Bounded follow-up waves, cross-task finding hints, campaign branch board, business map and attack-chain hypotheses, verification tasks, scoped native request replay, stall watchdog, defensive rules, indicators, host triage, and focused hunting skills. |
+| KSIR-ARTEX `240ae7c` | Proxy graph rotation, local artifact manifest, operator-controlled C2 handoff records, scoped cloud and lateral assessment plans, and additional playbooks. |
 
-The ScopeWeaver base already provides work steering, task source inheritance, agent triggers, and MCP management. The browser-chat workflow canvas depended on a hardcoded external connector endpoint, so the existing local trigger and MCP flows are the supported path here. The ChatGPT subscription adapter, Deep Hunter's automatic follow-up waves, and KSIR's C2, exfiltration, and proxy rotation modules are not part of this integration. See [merge decisions and verification](docs/AFTERGLOW-MERGE.md) for the code-level review.
+The source forks overlap and some source tools reported success without executing anything. Afterglow keeps the feature surface while making those paths explicit: cloud and lateral tools produce scoped assessment plans, `exfil_data` indexes real local artifacts without transferring bytes, and C2 tools create a disabled-by-default handoff for an operator. See [integration status](docs/INTEGRATION-TRACKER.md) and [merge decisions and verification](docs/AFTERGLOW-MERGE.md) for details and test limits.
 
 ## Start locally
 
@@ -22,7 +23,24 @@ cp .env.example .env
 docker compose up -d --build
 ```
 
-Open `http://localhost:8787` and create the administrator password at `/setup`. Configure a model in **System → LLM** before starting an agent task. The Docker service and executable still use the internal `scopeweaver` name, and environment variables retain `SCOPEWEAVER_*` and `ARTEX_*` names for compatibility with the base. `docker compose logs -f scopeweaver` shows startup logs.
+Open `http://localhost:8787` and create the administrator password at `/setup`. Compose binds the app to loopback by default. Configure a model in **System → LLM** before starting an agent task. The Docker service and executable still use the internal `scopeweaver` name, and environment variables retain `SCOPEWEAVER_*` and `ARTEX_*` names for compatibility with the base. `docker compose logs -f scopeweaver` shows startup logs.
+
+## Connect ChatGPT
+
+Open **System → LLM → ChatGPT**, connect a ChatGPT account from the local Afterglow page, then create or select a `ChatGPT plan` profile. The account connection and administrator login are separate. Docker stores account tokens in the `chatgpt_auth` volume; the database stores an account reference. The callback is fixed to `http://127.0.0.1:${ARTEX_PORT:-8787}/auth/callback`. When `SCOPEWEAVER_LOCAL_LLM_ONLY=true`, plan inference and the account model catalog are disabled. A disconnected or blocked plan profile fails closed instead of switching to an API-key profile.
+
+Plan use follows the account's available models and limits. [OpenAI's Sign in with ChatGPT documentation](https://developers.openai.com/siwc/token-sharing-open-source/sign-in) describes the account connection; [OpenAI's plan guidance](https://help.openai.com/en/articles/20001542-using-your-chatgpt-plan-in-other-apps-and-sites) explains plan availability in other apps.
+
+## Workflows and task intelligence
+
+**Workflows** provides a visual graph for manual, interval, and daily agent runs. The task **Learning** tab shows campaign branches, an optional hunt-class coverage board, a business map, and proposed attack chains. Operators can compose a chain from confirmed findings and launch a separate verification task. **System → Settings** controls bounded follow-up waves. The task view also includes test accounts, artifact metadata, and operator C2 handoff status where configured.
+
+Workers also have `race_probe`, `session_store`, `identity_switch`, `identity_matrix`, and `inflight_modify` for authorized testing. Request replay requires an operator-entered task scope, a passing asset interception gate, and active traffic capture. Each replay call goes through the interception review, defaults to operator approval, and is bounded in request count, size, and time. Redirects and direct-network fallback are disabled.
+The capture proxy verifies target TLS certificates by default. For an isolated lab with self-signed target certificates, set `ARTEX_TRAFFIC_INSECURE_UPSTREAM=true` explicitly.
+
+The optional [Telegram MCP helper](plugins/telegram-mcp/README.md) requires operator-supplied credentials and an explicit destination allowlist. It does not start with the application.
+
+For the optional C2 **handoff record** feature, place an operator-owned binary under `private/c2-binaries/`, set `ARTEX_ENABLE_C2_HANDOFF=true`, and point `ARTEX_C2_BIN_X64` or `ARTEX_C2_BIN_X86` to its `/app/c2-binaries/...` path in `.env`. Docker mounts that directory read-only and excludes it from the image build context and Git. The tool verifies its hash and creates a review record; it does not deliver the file.
 
 For other installation modes and detailed operation, consult the [ScopeWeaver baseline guide](README.scopeweaver.md). Its release links and one-click updater refer to the original project; the updater in this checkout is pinned to `afterglow-labs/afterglow-cybersecurity` so it cannot replace this build with a ScopeWeaver release. No Afterglow release artifacts are assumed to exist yet.
 

@@ -1,5 +1,7 @@
 # backend
 /data/
+/chatgpt-auth/
+/private/
 *.db
 *.db-wal
 *.db-shm

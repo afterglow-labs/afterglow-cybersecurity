@@ -1,0 +1,11 @@
+site:{target} (filetype:env OR filetype:config) -filetype:pdf intext:"PASSWORD"
+site:{target} (filetype:env OR filetype:config) -filetype:pdf intext:"DATABASE"
+site:{target} (filetype:env OR filetype:config) -filetype:pdf intext:"SECRET"
+site:{target} (ext:sql OR ext:dump OR ext:bak OR ext:backup OR ext:old) ("INSERT INTO" OR "MySQL dump")
+site:{target} (ext:pem OR ext:key) ("PRIVATE KEY" OR "BEGIN RSA PRIVATE KEY" OR "BEGIN OPENSSH PRIVATE KEY") -stackoverflow -github
+site:{target} (inurl:staging OR inurl:test OR inurl:dev OR inurl:beta)
+site:{target} (inurl:staging OR inurl:homolog OR inurl:preprod) intitle:"Index of"
+site:*.{target} (ext:env OR ext:log OR ext:bak OR ext:sql OR ext:zip OR ext:conf OR ext:ini) (intext:"db_password" OR intext:"password" OR intext:"authorization" OR intext:"api_key" OR intext:"private key") -stackoverflow -github
+site:{target} (filetype:sql OR filetype:bak OR filetype:backup) -filetype:pdf
+site:{target} (inurl:.git OR inurl:.svn OR inurl:.hg) -github.com -gitlab.com
+site:{target} (inurl:api OR inurl:rest OR inurl:graphql) (intext:"error" OR intext:"exception" OR intext:"stack trace")

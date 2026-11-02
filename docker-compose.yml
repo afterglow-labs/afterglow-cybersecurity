@@ -24,8 +24,21 @@ services:
     environment:
       SCOPEWEAVER_LANGUAGE: ${SCOPEWEAVER_LANGUAGE:-en}
       ARTEX_PG_DSN: postgres://${POSTGRES_USER:-artex}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-artex}?sslmode=disable
+      ARTEX_CHATGPT_CALLBACK_URL: http://127.0.0.1:${ARTEX_PORT:-8787}/auth/callback
+      ARTEX_CHATGPT_AUTH_DIR: /app/chatgpt-auth
+      ARTEX_BROWSER_AUTH_DIR: /app/browser-auth
+      TELEGRAM_MCP_DATA: /app/telegram-auth
+      TELEGRAM_API_ID: ${TELEGRAM_API_ID:-}
+      TELEGRAM_API_HASH: ${TELEGRAM_API_HASH:-}
+      TELEGRAM_ALLOWED_CHATS: ${TELEGRAM_ALLOWED_CHATS:-}
+      ARTEX_BROWSER_SCRIPTS: /app/scripts
+      ARTEX_KEY_DIR: /app/keys
+      ARTEX_ENABLE_C2_HANDOFF: ${ARTEX_ENABLE_C2_HANDOFF:-false}
+      ARTEX_C2_BIN_X64: ${ARTEX_C2_BIN_X64:-}
+      ARTEX_C2_BIN_X86: ${ARTEX_C2_BIN_X86:-}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ARTEX_TRAFFIC_INSECURE_UPSTREAM: ${ARTEX_TRAFFIC_INSECURE_UPSTREAM:-false}
       OLLAMA_API_KEY: ${OLLAMA_API_KEY:-}
       ARTEX_LLM_PROVIDER: ${ARTEX_LLM_PROVIDER:-}
       ARTEX_LLM_MODEL: ${ARTEX_LLM_MODEL:-}
@@ -46,10 +59,15 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     ports:
-      - "8787:8787"
+      - "127.0.0.1:${ARTEX_PORT:-8787}:8787"
       - "127.0.0.1:8788:8788"
     volumes:
       - ./data:/app/data
+      - chatgpt_auth:/app/chatgpt-auth
+      - browser_auth:/app/browser-auth
+      - telegram_auth:/app/telegram-auth
+      - auth_keys:/app/keys
+      - ./private/c2-binaries:/app/c2-binaries:ro
       - ./skills:/app/skills
     restart: unless-stopped
 
@@ -68,3 +86,7 @@ services:
 volumes:
   pgdata:
   ollama_data:
+  chatgpt_auth:
+  browser_auth:
+  telegram_auth:
+  auth_keys:

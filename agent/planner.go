@@ -41,6 +41,7 @@ type Planner struct {
 	noaEnabledFn      func() bool                            // resolver: use experimental noa compaction? (nil = off)
 	maxTokensFn       func() int                             // resolver: per-reply output cap (nil/0 = send no cap)
 	compactor         *Compactor                             // cold-node compaction (§7); nil = disabled
+	lessonsBlock      string                                 // bounded, evidence-backed task data
 
 	// todos keeps ONE plan-scratchpad per task (keyed by exploration id) so the
 	// planner's multi-step plan survives across wake-ups — each Plan() is a fresh
@@ -52,6 +53,8 @@ type Planner struct {
 
 // SetNativeOllamaResolver resolves whether the current run uses native Ollama.
 func (p *Planner) SetNativeOllamaResolver(fn func() bool) { p.nativeOllamaFn = fn }
+
+func (p *Planner) SetLessonsBlock(block string) { p.lessonsBlock = block }
 
 func NewPlanner(prov llm.Provider, model, workDir string, tx *transcript.Store, window, maxTurns int) *Planner {
 	return &Planner{prov: prov, model: model, workDir: workDir, tx: tx, window: window, maxTurns: maxTurns, todos: map[int64]*actool.TodoStore{}}
@@ -361,6 +364,8 @@ func (p *Planner) Plan(ctx context.Context, taskID int64, as *db.AssetStore, ts 
 	// It may be compacted during long rounds, but planner rounds are usually short.
 	overview := tsx.graphOverviewData()
 	situational := renderTriggers(ts, triggers) + renderGraphOverview(overview)
+	situational += campaignContext(ts)
+	situational += huntClassContext(ts)
 	// The context carries task deadline/final-round state (taskclock.go). In the final
 	// round, append task-timeout settlement to user input as the round's operating
 	// instruction: assess goals one last time without generating intents.
@@ -372,7 +377,7 @@ func (p *Planner) Plan(ctx context.Context, taskID int64, as *db.AssetStore, ts 
 	taskDir := ensureRunDir(p.workDir, taskID, 0)
 	ctx = intercept.WithReviewContext(ctx, taskDir, intercept.ReviewBackground{})
 	situational += renderPlannerEvidence(ctx, overview, triggers, tools, ts.ID(), taskDir)
-	sysBody := plannerSystem(goal, p.workDir, taskDir, locale.FromContext(ctx))
+	sysBody := plannerSystem(goal, p.workDir, taskDir, locale.FromContext(ctx)) + p.lessonsBlock
 	if p.wantConstraints() {
 		sysBody += constraintBlock(ts, locale.FromContext(ctx)) // Inject operating constraints to bound exploration.
 	}

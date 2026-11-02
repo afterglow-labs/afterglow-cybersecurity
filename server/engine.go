@@ -127,8 +127,10 @@ type Engine struct {
 	// Per-work control lets the planner kill a worker and lets the UI pause/cancel
 	// one intent without pausing the whole task. The done channel closes only after
 	// runWorkerStep has stopped writing and committed its final state.
-	workMu sync.Mutex
-	work   map[int64]*workExecution
+	workMu     sync.Mutex
+	work       map[int64]*workExecution
+	stallMu    sync.Mutex
+	stallState map[string]stallWatch
 
 	// steerBox queues planner course-corrections for a running work (keyed by intent
 	// id). The worker's PreToolUse hook drains it before its next tool call and hands
@@ -162,6 +164,7 @@ type taskRuntime struct {
 }
 
 type workExecution struct {
+	task   string
 	cancel context.CancelCauseFunc
 	done   chan error
 	action string // user action: pause | cancel
@@ -400,9 +403,9 @@ func NewEngine(m *Manager) *Engine {
 }
 
 // registerWork records the cancel for the work currently running intentID.
-func (e *Engine) registerWork(intentID int64, cancel context.CancelCauseFunc) {
+func (e *Engine) registerWork(taskID string, intentID int64, cancel context.CancelCauseFunc) {
 	e.workMu.Lock()
-	e.work[intentID] = &workExecution{cancel: cancel, done: make(chan error, 1)}
+	e.work[intentID] = &workExecution{task: taskID, cancel: cancel, done: make(chan error, 1)}
 	e.workMu.Unlock()
 }
 
@@ -856,6 +859,9 @@ func (e *Engine) plannerLoop(ctx context.Context, t *Task) {
 		if open, err := t.Store.HasOpenGoal(); err == nil && !open {
 			t.drainTriggers() // Discard accumulated done/finding triggers to prevent unbounded growth in long goalless sessions.
 			if active, err := t.Store.HasActiveIntent(); err == nil && !active {
+				if pending, gateErr := e.closeoutPending(t.ID); gateErr != nil || pending {
+					return
+				}
 				// No open or running intents remain: finish with a guarded compare-and-swap to avoid overwriting
 				// concurrent pause, deletion, or timeout-settlement transitions.
 				if won, err := e.m.SetTaskStatusGuarded(t.ID, "done"); err != nil {
@@ -894,6 +900,10 @@ func (e *Engine) plannerLoop(ctx context.Context, t *Task) {
 		case err != nil && ectx.Err() == nil:
 			log.Printf(locale.Text(locale.FromContext(ctx), "[planner] task %s planning failed: %v"), t.ID, err)
 		case met:
+			if pending, gateErr := e.closeoutPending(t.ID); gateErr != nil || pending {
+				log.Printf("[closeout] task %s has open hunt classes or untested campaign branches: %v", t.ID, gateErr)
+				break
+			}
 			log.Printf(locale.Text(locale.FromContext(ctx), "[planner] task %s determined goals met: %s"), t.ID, reason)
 			// All goals met: persist done, which the frontend DTO prioritizes over runtime state.
 			if err := e.m.SetTaskStatus(t.ID, "done"); err != nil {
@@ -1004,7 +1014,7 @@ func (e *Engine) runIntent(ctx context.Context, t *Task, name string, worker *ag
 	}
 	// per-work child context so the planner's kill_work can stop just this work.
 	workCtx, workCancel := context.WithCancelCause(ectx)
-	e.registerWork(intent.ID, workCancel)
+	e.registerWork(t.ID, intent.ID, workCancel)
 	// wrap the guard hooks so steer_work can inject a mid-run course-correction
 	// for THIS intent (drained before the worker's next tool call).
 	iid := intent.ID

@@ -1,4 +1,10 @@
 // Traditional Chinese (Taiwan) translations. English owns keys, placeholders and meaning.
+import type { en as chatgptSource } from "./chatgpt.ts";
+import type { en as workflowsSource } from "./workflows.ts";
+import type { en as proxygraphSource } from "./proxygraph.ts";
+import type { en as taskintelSource } from "./taskintel.ts";
+import type { en as browserSource } from "./browser.ts";
+import type { en as autowavesSource } from "./autowaves.ts";
 import type { en as appSource } from "./app.ts";
 export const app: Record<keyof typeof appSource, string> = {
   metricValue: "{label} {value}",
@@ -3441,4 +3447,74 @@ export const settings: Record<keyof typeof settingsSource, string> = {
   updateLocalOnly:
     "已開啟僅本地 LLM 網路，因此無法檢查或下載更新。這是有意為之，並非連線問題。目前版本和復原仍然可用；如需檢查更新，請關閉僅本地模式。",
   judgeLoadFailed: "無法載入已儲存的核准設定，為避免用預設值覆蓋，已停用儲存。",
+};
+export const chatgpt: Record<keyof typeof chatgptSource, string> = {
+  title: "ChatGPT 訂閱方案",
+  help: "連結 ChatGPT 帳戶，透過官方 Responses API 使用帳戶可用的模型。訂閱用量與 API 帳單分開，憑證儲存在此伺服器。",
+  connect: "連結帳戶", reconnect: "重新連結", disconnect: "中斷連結", account: "帳戶", model: "模型",
+  profile: "設定名稱", create: "建立訂閱設定", update: "更新訂閱設定", newProfile: "新增訂閱設定",
+  statusConnected: "已連結", statusSignedOut: "未登入", statusBlocked: "訂閱使用已暫停",
+  loadingModels: "載入帳戶模型", recheck: "重新檢查訂閱用量",
+  openLogin: "在開啟的視窗完成登入，然後返回此頁。",
+  noAccount: "連結帳戶後即可查看模型。", noModels: "此帳戶未傳回模型。",
+  saved: "ChatGPT 設定已儲存", selectAccountModel: "請選擇已連結的帳戶和模型。",
+};
+export const workflows: Record<keyof typeof workflowsSource, string> = {
+  title: "工作流程", description: "排程或手動執行代理指令。畫布顯示執行路徑並儲存節點位置。",
+  create: "建立工作流程", empty: "尚無工作流程。", name: "名稱", details: "說明", agent: "代理",
+  schedule: "排程", manual: "手動", interval: "間隔", daily: "每天", minutes: "間隔（分鐘）", hour: "小時", minute: "分鐘",
+  timezone: "時區（IANA）", prompt: "代理指令", enabled: "已啟用", save: "儲存工作流程", run: "立即執行",
+  delete: "刪除", canvas: "工作流程畫布", lastRun: "上次執行", select: "選擇要編輯的工作流程。",
+  saved: "工作流程已儲存", started: "工作流程已加入佇列", removed: "工作流程已刪除",
+};
+export const proxygraph: Record<keyof typeof proxygraphSource, string> = {
+  title: "代理圖譜", description: "管理操作員擁有的工作節點出口代理。健康檢查只連接各代理的監聽連接埠。",
+  routing: "工作節點路由", enabled: "使用此代理池作為出口", policy: "輪換策略", roundRobin: "輪流使用",
+  asnDiverse: "ASN 多樣化", leastUsed: "最少使用", captureNote: "流量擷取優先。只有關閉擷取時才使用此代理池。啟用後若無可用節點，工作節點會停止，不會直接連接。",
+  add: "新增代理", id: "ID", url: "代理 URL（不含憑證）", type: "類型", datacenter: "資料中心", residential: "住宅代理",
+  nodes: "代理節點", check: "檢查監聽連接埠", empty: "尚未設定代理節點。", active: "可用", inactive: "不可用",
+  remove: "移除", saved: "路由已儲存", added: "代理已新增", removed: "代理已移除", checked: "監聽連接埠檢查完成",
+};
+export const taskintel: Record<keyof typeof taskintelSource, string> = {
+  accounts: "測試帳戶", accountsHelp: "密碼加密儲存。只在需要時逐一顯示；代理可以取得此工作的帳戶。",
+  domain: "網域或主機", username: "使用者名稱", password: "密碼", note: "備註", add: "儲存帳戶", remove: "移除",
+  reveal: "顯示", hide: "隱藏", emptyAccounts: "此工作沒有測試帳戶。", pendingPassword: "未設定密碼",
+  user: "操作員", agent: "代理", learning: "結果與經驗", outcome: "工作結果", lessons: "有證據的經驗", extract: "擷取經驗",
+  confirmed: "已確認發現", open: "未解決發現", toolCalls: "工具呼叫", skillMisses: "缺少的技能", wallTime: "執行時間（秒）",
+  tokens: "輸出權杖", emptyLessons: "尚未從此工作擷取經驗。", evidence: "證據", saved: "帳戶已儲存",
+  removed: "帳戶已移除", extracted: "經驗已擷取",
+  artifacts: "本機證據檔案", emptyArtifacts: "此任務尚未建立本機證據檔案索引。",
+  c2Title: "操作員 C2 交接", c2Help: "這些紀錄供操作員審核。應用程式尚未傳送或執行任何二進位檔案。",
+  c2Empty: "此任務沒有 C2 交接。", c2Acknowledge: "確認已審核", c2Cancel: "取消交接", c2Requested: "等待操作員", c2Acknowledged: "已確認", c2Cancelled: "已取消",
+  businessModel: "業務模型", emptyBusiness: "此任務尚無業務模型項目。",
+  attackChains: "攻擊鏈", emptyChains: "尚無關聯證據的攻擊鏈。",
+  compose: "根據發現產生", composeStarted: "已開始產生攻擊鏈", composeRunning: "產生中…", composeFailed: "攻擊鏈產生失敗，請查看任務活動。",
+  chainProposed: "待驗證", chainVerified: "已驗證", chainRejected: "已否決", chainSource: "已確認發現 ID",
+  verifyChain: "啟動驗證任務", verificationStarted: "已啟動攻擊鏈驗證任務", verificationTask: "驗證任務 {id}",
+  campaign: "假設測試計畫", emptyCampaign: "此任務尚未規劃測試分支。", branchUntested: "未測試", branchConfirmed: "已確認", branchClean: "有證據表明未命中", branchProbe: "測試方式", branchSignal: "預期訊號",
+  huntBoard: "漏洞類型涵蓋看板", huntHelp: "用於專項網站稽核。未完成的類型與測試分支會暫緩工作結束。",
+  huntEnable: "啟用涵蓋看板", huntEmpty: "此工作未啟用涵蓋看板。",
+  huntOpen: "待檢查", huntFound: "已記錄發現", huntExhausted: "已稽核", huntGap: "涵蓋缺口",
+  huntReason: "測試內容與結果", huntReasonRequired: "請先填寫測試內容與結果。", huntGapType: "缺口類型",
+  huntMarkGap: "記錄缺口", huntMarkExhausted: "標記已稽核", huntReopen: "重新開啟",
+};
+export const browser: Record<keyof typeof browserSource, string> = {
+  agentActive: "代理程式正在操作", blankPage: "空白頁面", browserChat: "聊天 {id}", browserDelete: "刪除工作階段",
+  browserDeleteConfirm: "永久刪除此瀏覽器工作階段及儲存的登入狀態和 Cookie？", browserIntent: " · 目標 {id}",
+  browserSessions: "瀏覽器工作階段", browserSessionsAppearHereWhenAnAgent: "代理程式開啟瀏覽器時，工作階段會顯示在這裡。",
+  browserTab: "分頁 {index}", browserTask: "任務 {id}", browserWaitingCount: "瀏覽器工作階段 · {count} 個等待您操作",
+  chooseATabToControl: "選擇要操作的分頁", clickAFieldOnTheScreenThen: "點選畫面上的輸入欄位，再輸入文字",
+  completeSigninOTPOrVerificationInThe: "請在代理程式的瀏覽器中完成登入、一次性驗證碼或驗證，然後交還控制權。關閉面板後瀏覽器仍會等待，任務時限持續計時。",
+  controlTheBrowserScreen: "操作瀏覽器畫面", currentAgentBrowserScreen: "代理程式目前的瀏覽器畫面",
+  doneReturnControlToAgent: "完成 · 交還給代理程式", idle: "閒置", loadingScreen: "正在載入畫面…",
+  noBrowserSessionsAreOpen: "沒有開啟的工作階段", refreshSessions: "重新整理工作階段", scrollDown: "向下捲動",
+  scrollUp: "向上捲動", selectAll: "全選", selectBrowserSession: "選擇瀏覽器工作階段", selectBrowserTab: "選擇分頁",
+  sendText: "傳送文字", takeControl: "接管操作", textToSendToTheFocusedField: "傳送到目前輸入欄位的文字",
+  waitingForYourInput: "等待您操作", yourInputIsNotSentToChat: "輸入內容不會傳送到聊天。登入狀態保存在此任務的瀏覽器工作階段中。",
+};
+export const autowaves: Record<keyof typeof autowavesSource, string> = {
+  title: "自動後續任務", description: "任務逾時或仍有未完成工作時，在整條任務鏈上最多安排三個後續任務。每個任務繼承已授權的內容，並受到嚴格的時間限制。",
+  enabled: "啟用後續任務", delay: "啟動前延遲（分鐘）", budget: "每個後續任務的最長時間（分鐘）", save: "儲存後續任務策略", saved: "後續任務策略已儲存",
+  waves: "後續任務", empty: "此任務沒有後續任務。", pending: "已安排", spawning: "啟動中", spawned: "已啟動", cancelled: "已取消",
+  wave: "第 {number} 波", reasonTimeout: "任務逾時", reasonGoals: "仍有未完成目標", reasonIntents: "仍有未完成工作", child: "開啟後續任務 {id}",
 };

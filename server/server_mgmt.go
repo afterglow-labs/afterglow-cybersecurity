@@ -188,6 +188,13 @@ func (s *Server) pgDeleteTask(w http.ResponseWriter, r *http.Request) {
 			s.taskAgentMu.Lock()
 			delete(s.taskAgents, id)
 			s.taskAgentMu.Unlock()
+			if s.browsers != nil {
+				if taskNum, parseErr := strconv.ParseInt(id, 10, 64); parseErr == nil {
+					if cleanupErr := s.browsers.removeTask(taskNum); cleanupErr != nil {
+						log.Printf("[browser] cleanup for deleted task %s: %v", id, cleanupErr)
+					}
+				}
+			}
 			deleted = true
 			writeCommittedTaskDelete(w, result, err)
 			return
@@ -202,6 +209,13 @@ func (s *Server) pgDeleteTask(w http.ResponseWriter, r *http.Request) {
 	s.taskAgentMu.Lock()
 	delete(s.taskAgents, id)
 	s.taskAgentMu.Unlock()
+	if s.browsers != nil {
+		if taskNum, parseErr := strconv.ParseInt(id, 10, 64); parseErr == nil {
+			if cleanupErr := s.browsers.removeTask(taskNum); cleanupErr != nil {
+				result.CleanupWarning = cleanupErr.Error()
+			}
+		}
+	}
 	deleted = true
 	writeJSON(w, 200, result)
 }
@@ -1813,7 +1827,7 @@ func (s *Server) pgListProfiles(w http.ResponseWriter, r *http.Request) {
 		writeError(w, 500, err)
 		return
 	}
-	writeJSON(w, 200, map[string]any{"profiles": llmProfileDTOs(ps)})
+	writeJSON(w, 200, map[string]any{"profiles": s.chatGPTProfileDTOs(ps)})
 }
 
 func (s *Server) pgSaveProfile(w http.ResponseWriter, r *http.Request) {
@@ -2045,6 +2059,12 @@ func (s *Server) pgListModels(w http.ResponseWriter, r *http.Request) {
 	if err := decode(r, &req); err != nil {
 		writeError(w, 400, err)
 		return
+	}
+	if req.ProfileID != nil {
+		if p, err := s.m.pg.ProfileByID(*req.ProfileID); err == nil && p != nil && p.AuthMode == "chatgpt_plan" {
+			writeJSON(w, 200, map[string]any{"ok": false, "error": "Use the ChatGPT account model list for this profile"})
+			return
+		}
 	}
 	// Resolve API key: form input > profile stored key.
 	apiKey := strings.TrimSpace(req.APIKey)

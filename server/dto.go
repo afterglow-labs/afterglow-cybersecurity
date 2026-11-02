@@ -597,22 +597,27 @@ func agentDTOs(in []*db.Agent, langs ...locale.Lang) []AgentDTO {
 // ---- LLMProfile (frontend "LLMProfile") — string id ----
 
 type LLMProfileDTO struct {
-	KeepAlive       string  `json:"keep_alive"`
-	MaxConcurrent   int     `json:"llm_max_concurrent"`
-	ID              string  `json:"id"`
-	Name            string  `json:"name"`
-	Format          string  `json:"format"`
-	BaseURL         string  `json:"base_url,omitempty"`
-	Proxy           string  `json:"proxy,omitempty"`
-	Model           string  `json:"model"`
-	APIKeyHint      string  `json:"api_key_hint,omitempty"`
-	APIKeyOptional  bool    `json:"api_key_optional"`
-	RatePerSecond   float64 `json:"rate_per_second"`
-	RatePerMinute   float64 `json:"rate_per_minute"`
-	ContextWindowK  int     `json:"context_window_k"`
-	ThinkingType    string  `json:"thinking_type"`
-	ReasoningEffort string  `json:"reasoning_effort"`
-	IsDefault       bool    `json:"is_default"`
+	AuthMode           string  `json:"auth_mode"`
+	ChatGPTAccountID   string  `json:"chatgpt_account_id,omitempty"`
+	AccessProgramCyber string  `json:"access_program_cyber,omitempty"`
+	Connected          bool    `json:"connected"`
+	PlanBlocked        bool    `json:"plan_blocked"`
+	KeepAlive          string  `json:"keep_alive"`
+	MaxConcurrent      int     `json:"llm_max_concurrent"`
+	ID                 string  `json:"id"`
+	Name               string  `json:"name"`
+	Format             string  `json:"format"`
+	BaseURL            string  `json:"base_url,omitempty"`
+	Proxy              string  `json:"proxy,omitempty"`
+	Model              string  `json:"model"`
+	APIKeyHint         string  `json:"api_key_hint,omitempty"`
+	APIKeyOptional     bool    `json:"api_key_optional"`
+	RatePerSecond      float64 `json:"rate_per_second"`
+	RatePerMinute      float64 `json:"rate_per_minute"`
+	ContextWindowK     int     `json:"context_window_k"`
+	ThinkingType       string  `json:"thinking_type"`
+	ReasoningEffort    string  `json:"reasoning_effort"`
+	IsDefault          bool    `json:"is_default"`
 	// Failover parameters: higher priority is selected first; the active profile always heads the chain.
 	// pool_exclude prevents failover selection but still allows explicit agent/task binding.
 	Priority    int  `json:"priority"`
@@ -635,6 +640,7 @@ type LLMProfileDTO struct {
 
 func llmProfileDTO(p *db.LLMProfile) LLMProfileDTO {
 	return LLMProfileDTO{
+		AuthMode: p.AuthMode, ChatGPTAccountID: p.ChatGPTAccountID, AccessProgramCyber: p.AccessProgramCyber,
 		ID:        i64s(p.ID),
 		KeepAlive: p.KeepAlive, MaxConcurrent: p.MaxConcurrent,
 		Name:             p.Name,
@@ -643,7 +649,7 @@ func llmProfileDTO(p *db.LLMProfile) LLMProfileDTO {
 		Proxy:            p.Proxy,
 		Model:            p.Model,
 		APIKeyHint:       p.APIKeyHint,
-		APIKeyOptional:   agent.ConfigFrom(p.Format, p.Model, p.BaseURL, "", p.Proxy).Ready(),
+		APIKeyOptional:   p.AuthMode == "chatgpt_plan" || agent.ConfigFrom(p.Format, p.Model, p.BaseURL, "", p.Proxy).Ready(),
 		RatePerSecond:    p.RatePerSecond,
 		RatePerMinute:    p.RatePerMinute,
 		ContextWindowK:   p.ContextWindowK,

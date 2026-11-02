@@ -98,6 +98,10 @@ func DecomposeGoalsWithProvider(ctx context.Context, prov llm.Provider, dataDir,
 		tools = append(tools, tsx.addTaskScope())
 		sys += locale.Text(locale.FromContext(ctx), goalsScopeTail)
 	}
+	if ts != nil && taskID > 0 {
+		tools = append(tools, tsx.businessMapRW())
+		sys += "\n\nIf the task explicitly describes business actors, money flows, prices, state transitions, or single-use values, record only those stated facts with business_map_rw before set_goals. Do not invent endpoints, prices, or transitions."
+	}
 	userMsg := locale.Text(locale.FromContext(ctx), "Task objective:\n") + goalText
 	if d := strings.TrimSpace(desc); d != "" {
 		userMsg += locale.Text(locale.FromContext(ctx), "\n\nTask description (background that may include target scope, flag count, or engagement instructions; do not invent unmentioned details):\n") + d

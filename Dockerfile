@@ -25,7 +25,7 @@ FROM python:3.12-slim-bookworm
 # Runtime tools and Node 20 for Playwright. Browser installation occurs at build time.
 RUN apt-get update && apt-get install -y --no-install-recommends \
       ca-certificates ripgrep curl wget vim git jq unzip \
-      dnsutils iputils-ping netcat-openbsd inetutils-telnet whois nmap \
+      dnsutils iputils-ping netcat-openbsd inetutils-telnet whois nmap libnss3-tools \
     && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y --no-install-recommends nodejs \
     && rm -rf /var/lib/apt/lists/*
@@ -34,11 +34,15 @@ RUN npm install -g @playwright/mcp@latest @playwright/cli@latest playwright@late
     && playwright install --with-deps chromium \
     && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
+ENV NODE_PATH=/usr/lib/node_modules
 COPY --from=backend /scopeweaver /app/scopeweaver
 # The supervisor forwards SIGTERM and restarts after a self-update.
 COPY start.sh /app/start.sh
 RUN chmod +x /app/scopeweaver /app/start.sh
 COPY skills/ /app/skills/
+COPY scripts/browser-mcp.cjs scripts/browser-session.cjs scripts/browser-runtime.cjs /app/scripts/
+COPY plugins/telegram-mcp/ /app/plugins/telegram-mcp/
+RUN pip install --no-cache-dir -r /app/plugins/telegram-mcp/requirements.txt
 COPY LICENSE /app/LICENSE
 COPY THIRD_PARTY_NOTICES.txt /app/THIRD_PARTY_NOTICES.txt
 VOLUME ["/app/data"]

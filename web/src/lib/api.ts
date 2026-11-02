@@ -12,6 +12,9 @@ import { MOCK } from "@/lib/mock/enabled";
 import { mockHandle } from "@/lib/mock/handler";
 import type {
   ActiveFindingRetest,
+  AutoContinuePolicy,
+  AutoContinueWave,
+  TaskArtifact,
   Activity,
   Agent,
   AgentDetail,
@@ -24,6 +27,12 @@ import type {
   BatchCategoryItem,
   BatchControlItem,
   ChatAttachment,
+  C2Handoff,
+  BusinessMapEntry,
+  AttackChain,
+  ChainComposeState,
+  CampaignBranch,
+  HuntClass,
   CommandRecord,
   Company,
   CompanyScopeMutation,
@@ -59,6 +68,8 @@ import type {
   JudgeConfig,
   JudgeUsage,
   LLMModelDetail,
+  ChatGPTModel,
+  ChatGPTStatus,
   LLMPoolStatus,
   LLMProfile,
   LLMRecordDetail,
@@ -67,6 +78,7 @@ import type {
   LLMRetryPolicy,
   LLMTask,
   LLMTestResult,
+  Workflow,
   MCPServer,
   MCPTool,
   MissingSkill,
@@ -86,6 +98,10 @@ import type {
   SSTask,
   Stats,
   Task,
+  TaskCredential,
+  TaskLesson,
+  TaskOutcome,
+  SkillGap,
   TaskArchive,
   TaskArchivePage,
   TaskAssetMutation,
@@ -366,6 +382,34 @@ export const api = {
       pct: number | null;
       by_type: { type: string; total: number; tested: number }[];
     }>(`/tasks/${id}/coverage`),
+  taskCredentials: (id: string) => get<TaskCredential[]>(`/tasks/${id}/credentials`),
+  addTaskCredential: (id: string, input: { domain: string; username: string; password: string; note: string }) =>
+    post<TaskCredential>(`/tasks/${id}/credentials`, input),
+  revealTaskCredential: (id: string, credentialId: number) =>
+    get<{ password: string }>(`/tasks/${id}/credentials/${credentialId}/secret`),
+  deleteTaskCredential: (id: string, credentialId: number) =>
+    del<{ ok: boolean }>(`/tasks/${id}/credentials/${credentialId}`),
+  taskOutcome: (id: string) => get<TaskOutcome>(`/tasks/${id}/outcome`),
+  taskLessons: (id: string) => get<{ mode: string; lessons: TaskLesson[]; block: string; count: number }>(`/tasks/${id}/lessons`),
+  taskWaves: (id: string) => get<{ waves: AutoContinueWave[] }>(`/tasks/${id}/waves`).then((r) => r.waves),
+  taskArtifacts: (id: string) => get<{ artifacts: TaskArtifact[] }>(`/tasks/${id}/artifacts`).then((r) => r.artifacts),
+  taskC2Handoffs: (id: string) => get<{ handoffs: C2Handoff[] }>(`/tasks/${id}/c2-handoffs`).then((r) => r.handoffs),
+  taskBusinessMap: (id: string) => get<{ business_map: BusinessMapEntry[] }>(`/tasks/${id}/business-map`).then((r) => r.business_map),
+  taskCampaign: (id: string) => get<{ branches: CampaignBranch[] }>(`/tasks/${id}/campaign`).then((r) => r.branches),
+  taskHuntClasses: (id: string) => get<{ hunt_classes: HuntClass[] }>(`/tasks/${id}/hunt-classes`).then((r) => r.hunt_classes),
+  enableTaskHuntClasses: (id: string) => post<{ hunt_classes: HuntClass[] }>(`/tasks/${id}/hunt-classes`).then((r) => r.hunt_classes),
+  updateTaskHuntClass: (id: string, huntClass: string, input: { status: "open" | "exhausted" | "miss_tag"; reason?: string; miss_tag?: HuntClass["miss_tag"]; widen_next?: string }) =>
+    put<{ hunt_classes: HuntClass[] }>(`/tasks/${id}/hunt-classes/${encodeURIComponent(huntClass)}`, input).then((r) => r.hunt_classes),
+  taskAttackChains: (id: string) => get<{ chains: AttackChain[] }>(`/tasks/${id}/attack-chains`).then((r) => r.chains),
+  chainComposeStatus: (id: string) => get<ChainComposeState>(`/tasks/${id}/attack-chains/compose`),
+  composeTaskChains: (id: string) => post<ChainComposeState>(`/tasks/${id}/attack-chains/compose`),
+  verifyAttackChain: (id: string, chainId: string) => post<{ task_id: number }>(`/tasks/${id}/attack-chains/${chainId}/verify`),
+  setC2HandoffStatus: (id: string, handoffId: string, status: "acknowledged" | "cancelled") =>
+    post<C2Handoff>(`/tasks/${id}/c2-handoffs/${handoffId}/status`, { status }),
+  autoContinuePolicy: () => get<AutoContinuePolicy>("/auto-continue"),
+  saveAutoContinuePolicy: (policy: AutoContinuePolicy) => put<AutoContinuePolicy>("/auto-continue", policy),
+  extractTaskLessons: (id: string) => post<{ extracted: number }>(`/tasks/${id}/lessons/extract`),
+  skillGaps: (limit = 50) => get<{ gaps: SkillGap[]; count: number }>(`/skill-gaps?limit=${limit}`),
   // Coverage graph includes in-scope assets plus connecting root/company nodes, with tested/in_scope flags.
   taskCoverageGraph: (id: string) => get<CoverageGraphData>(`/tasks/${id}/coverage-graph`),
   // Global llm_usage aggregates for the new dashboard token view: per-profile totals and daily buckets.
@@ -982,11 +1026,25 @@ export const api = {
       session_header_key,
     }),
   llmProfiles: () => get<{ profiles: LLMProfile[] }>("/llm/profiles").then((r) => arr(r.profiles)),
+  workflows: () => get<{ workflows: Workflow[] }>("/workflows").then((r) => arr(r.workflows)),
+  getWorkflow: (id: number) => get<Workflow>(`/workflows/${id}`),
+  createWorkflow: (body: Partial<Workflow>) => post<Workflow>("/workflows", body),
+  updateWorkflow: (id: number, body: Partial<Workflow>) => patch<Workflow>(`/workflows/${id}`, body),
+  deleteWorkflow: (id: number) => del<{ deleted: number }>(`/workflows/${id}`),
+  runWorkflow: (id: number) => post<{ ok: boolean }>(`/workflows/${id}/run`, {}),
+  chatgptStatus: () => get<ChatGPTStatus>("/chatgpt/status"),
+  chatgptLogin: (account_id?: string) => post<{ url: string; expires_at: string }>("/chatgpt/login", { account_id }),
+  chatgptLogout: (account_id: string) => post<{ ok: boolean; warning?: string }>("/chatgpt/logout", { account_id }),
+  chatgptRecheck: (profile_id: string) => post<{ ok: boolean; error?: string; model?: string; reply?: string }>("/chatgpt/recheck", { profile_id: Number(profile_id) }),
+  chatgptModels: (account_id: string) => get<{ models: ChatGPTModel[] }>(`/chatgpt/models?account_id=${encodeURIComponent(account_id)}`).then((r) => arr(r.models)),
   saveLLMProfile: (p: {
     id?: number; // omit/0 = create; set = update that profile
     name: string;
     format: string;
     model: string;
+    auth_mode?: "api_key" | "chatgpt_plan";
+    chatgpt_account_id?: string;
+    access_program_cyber?: string;
     base_url?: string;
     proxy?: string;
     api_key?: string; // blank on update keeps the existing key

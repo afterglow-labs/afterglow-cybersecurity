@@ -118,7 +118,15 @@ func run() (code int) {
 		skillDir = abs
 	}
 	log.Printf(locale.Text(locale.ServerDefault(), "[config] Skill directory: %s"), skillDir)
-	srv := server.New(ctx, mgr, skillDir, *dataDir, config.BaseDir())
+	keyDir := config.BaseDir()
+	if configured := os.Getenv("ARTEX_KEY_DIR"); configured != "" {
+		keyDir = configured
+	}
+	if err := os.MkdirAll(keyDir, 0700); err != nil {
+		log.Printf("[auth] key directory: %v", err)
+		return 1
+	}
+	srv := server.New(ctx, mgr, skillDir, *dataDir, keyDir)
 	httpSrv := &http.Server{
 		Addr:              *addr,
 		Handler:           srv.Handler(),
@@ -128,6 +136,7 @@ func run() (code int) {
 	defer func() {
 		shutdown(agent.AbortShutdown)
 		code = shutdownServer(code, httpSrv, srv.DrainChats)
+		srv.CloseBrowsers()
 	}()
 	served := make(chan error, 1)
 	go func() {

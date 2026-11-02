@@ -15,6 +15,7 @@ type Accumulator struct {
 	textBuf    *strings.Builder
 	thinkBuf   *strings.Builder
 	thinkSig   string // signature for the current thinking block
+	final      *Message
 	StopReason string
 	Usage      Usage
 }
@@ -24,6 +25,9 @@ func NewAccumulator() *Accumulator { return &Accumulator{} }
 
 // Add folds one event into the accumulator.
 func (a *Accumulator) Add(ev StreamEvent) {
+	if a.final != nil && ev.Type != SEMessageStart && ev.Type != SEMessageDelta && ev.Type != SEMessageStop {
+		return
+	}
 	switch ev.Type {
 	case SEMessageStart:
 		a.Usage.Add(ev.Usage)
@@ -49,6 +53,11 @@ func (a *Accumulator) Add(ev StreamEvent) {
 	case SEToolInputJSON:
 		if n := len(a.toolInputs); n > 0 {
 			a.toolInputs[n-1].WriteString(ev.Text)
+		}
+	case SEMessageFinal:
+		if ev.FinalMessage != nil {
+			msg := cloneMessage(*ev.FinalMessage)
+			a.final = &msg
 		}
 	case SEMessageDelta:
 		if ev.StopReason != "" {
@@ -87,6 +96,9 @@ func (a *Accumulator) flushThinking() {
 // Message finalizes and returns the assembled assistant message. Partial tool
 // inputs are validated; malformed JSON falls back to "{}".
 func (a *Accumulator) Message() Message {
+	if a.final != nil {
+		return cloneMessage(*a.final)
+	}
 	a.flushText()
 	a.flushThinking()
 	ti := 0
@@ -103,4 +115,27 @@ func (a *Accumulator) Message() Message {
 		out[i] = b
 	}
 	return Message{Role: RoleAssistant, Content: out}
+}
+
+func cloneMessage(m Message) Message {
+	m.ProviderData = append(json.RawMessage(nil), m.ProviderData...)
+	m.Content = cloneContent(m.Content)
+	return m
+}
+
+func cloneContent(blocks []ContentBlock) []ContentBlock {
+	if blocks == nil {
+		return nil
+	}
+	out := make([]ContentBlock, len(blocks))
+	for i, b := range blocks {
+		b.Input = append(json.RawMessage(nil), b.Input...)
+		b.Content = cloneContent(b.Content)
+		if b.Image != nil {
+			image := *b.Image
+			b.Image = &image
+		}
+		out[i] = b
+	}
+	return out
 }

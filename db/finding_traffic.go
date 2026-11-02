@@ -387,6 +387,7 @@ VALUES($1,'finding',$2,9,'confirmed',$3) RETURNING id`, in.ExplorationID, string
 VALUES(NULLIF($1,0),$2,$3,$4,$5,$6,$7,$8,$9) RETURNING id`, in.TaskID, out.NodeID, in.VulnClass, in.Name, in.Severity, in.Summary, in.Evidence, in.Worker, string(raw)).Scan(&out.FindingID); err != nil {
 		return nil, err
 	}
+	MarkHuntClassFoundTx(tx, in.TaskID, in.VulnClass, out.FindingID)
 	// Register the notification event in the same transaction, making finding persistence and
 	// notification enqueueing atomic on commit, without a post-commit window that loses the message.
 	// Savepoints isolate failures from finding writes (see function comment), so ignore the return value.

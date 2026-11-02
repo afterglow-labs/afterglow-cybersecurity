@@ -92,6 +92,7 @@ func (sc *Scheduler) Run(ctx context.Context) {
 	sc.init(ctx)
 	t := time.NewTicker(sc.tick)
 	defer t.Stop()
+	waveTicks := 0
 	for {
 		select {
 		case <-ctx.Done():
@@ -105,6 +106,12 @@ func (sc *Scheduler) Run(ctx context.Context) {
 				return
 			}
 			sc.step()
+			waveTicks++
+			if waveTicks >= 6 {
+				waveTicks = 0
+				sc.s.sweepAutoWaves(ctx)
+				sc.s.engine.stallTick()
+			}
 		}
 	}
 }
@@ -180,6 +187,7 @@ func (sc *Scheduler) init(ctx context.Context) {
 }
 
 func (sc *Scheduler) step() {
+	sc.s.fireDueWorkflows()
 	triggers, err := sc.pg.ListEnabledTriggers()
 	if err != nil {
 		return

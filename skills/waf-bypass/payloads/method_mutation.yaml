@@ -1,0 +1,39 @@
+# HTTP Method Mutation Map — extracted from evasion.py mutate_http_method()
+# Technique: MITRE ATT&CK T1562
+# Rationale: WAFs frequently inspect only GET and POST. Alternative verbs bypass signature rules.
+
+mutations:
+  GET:
+    alternatives:
+      - HEAD     # Fetches headers only; many WAFs skip body inspection entirely
+      - OPTIONS  # Preflight verb; often whitelisted or uninspected
+      - TRACE    # Echo verb; rarely blocked; useful for detecting proxy headers
+    notes: "HEAD is safest — no response body noise. OPTIONS useful for CORS discovery."
+
+  POST:
+    alternatives:
+      - PUT      # REST create/replace; WAF may not apply POST rules to PUT
+      - PATCH    # REST partial update; often bypasses POST-specific body inspection
+      - DELETE   # Destructive verb; WAF may not inspect body; use only when safe
+    notes: "PUT and PATCH are the primary POST bypass options. DELETE is aggressive."
+
+content_type_mutations:
+  # WAF inspects these heavily:
+  blocked:
+    - "application/json"
+    - "application/x-www-form-urlencoded"
+  # WAF may ignore or partially inspect these:
+  bypass:
+    - "text/xml"            # Triggers XML parser; bypasses JSON-specific WAF rules
+    - "application/xml"     # Same as text/xml; slightly different MIME handling
+    - "multipart/form-data" # Fragments payload across MIME boundaries
+    - "text/plain"          # Often whitelisted; body treated as opaque
+
+# Usage:
+# 1. Send original request → observe 403/block
+# 2. Retry with mutated method from alternatives list
+# 3. If application accepts the verb, WAF bypass achieved
+# 4. Combine with content-type mutation for compounded evasion
+# Example:
+#   Original: POST /api/login  Content-Type: application/json
+#   Mutated:  PUT  /api/login  Content-Type: text/xml

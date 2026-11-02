@@ -2,7 +2,9 @@ package server
 
 import (
 	"crypto/rand"
+	"errors"
 	"github.com/Autumn-27/artex/locale"
+	"io"
 	"log"
 	"math/big"
 	"net/http"
@@ -51,15 +53,37 @@ func loadOrCreateJWTKey(keyDir, dataDir string) ([]byte, error) {
 	if legacy := filepath.Join(dataDir, jwtKeyFilename); legacy != path {
 		if _, err := os.Stat(path); os.IsNotExist(err) {
 			if data, rerr := os.ReadFile(legacy); rerr == nil {
-				if werr := os.WriteFile(path, data, 0o600); werr == nil {
-					_ = os.Remove(legacy)
-					log.Printf(locale.Text(locale.ServerDefault(), "[auth] JWT key migrated from %s to %s (outside the browsable workspace)"), legacy, path)
+				if len(strings.TrimSpace(string(data))) < 32 {
+					return nil, locale.Errorf("legacy JWT key is invalid")
 				}
+				if werr := createJWTKeyFile(path, data); werr != nil {
+					return nil, locale.Errorf("migrate JWT key: %w", werr)
+				}
+				if rerr := os.Remove(legacy); rerr != nil {
+					return nil, locale.Errorf("remove legacy JWT key: %w", rerr)
+				}
+				log.Printf(locale.Text(locale.ServerDefault(), "[auth] JWT key migrated from %s to %s (outside the browsable workspace)"), legacy, path)
+			} else if !os.IsNotExist(rerr) {
+				return nil, locale.Errorf("read legacy JWT key: %w", rerr)
 			}
 		}
 	}
-	if data, err := os.ReadFile(path); err == nil && len(strings.TrimSpace(string(data))) >= 32 {
-		return []byte(strings.TrimSpace(string(data))), nil
+	if info, err := os.Lstat(path); err == nil && (!info.Mode().IsRegular() || info.Mode()&os.ModeSymlink != 0) {
+		return nil, locale.Errorf("JWT key path is not a regular private file")
+	} else if err != nil && !os.IsNotExist(err) {
+		return nil, locale.Errorf("inspect JWT key: %w", err)
+	}
+	if data, err := os.ReadFile(path); err == nil {
+		key := []byte(strings.TrimSpace(string(data)))
+		if len(key) < 32 {
+			return nil, locale.Errorf("stored JWT key is invalid; refusing to rotate encrypted task credentials")
+		}
+		if err := os.Chmod(path, 0600); err != nil {
+			return nil, locale.Errorf("protect JWT key: %w", err)
+		}
+		return key, nil
+	} else if !os.IsNotExist(err) {
+		return nil, locale.Errorf("read JWT key: %w", err)
 	}
 	buf := make([]byte, 32)
 	for i := range buf {
@@ -69,11 +93,35 @@ func loadOrCreateJWTKey(keyDir, dataDir string) ([]byte, error) {
 		}
 		buf[i] = keyChars[n.Int64()]
 	}
-	if err := os.WriteFile(path, buf, 0600); err != nil {
+	err := createJWTKeyFile(path, buf)
+	if os.IsExist(err) {
+		return loadOrCreateJWTKey(keyDir, dataDir)
+	}
+	if err != nil {
 		return nil, locale.Errorf("write jwt key: %w", err)
 	}
 	log.Printf(locale.Text(locale.ServerDefault(), "[auth] New JWT key written to %s"), path)
 	return buf, nil
+}
+
+func createJWTKeyFile(path string, key []byte) error {
+	file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0600)
+	if err != nil {
+		return err
+	}
+	n, writeErr := file.Write(key)
+	if writeErr == nil && n != len(key) {
+		writeErr = io.ErrShortWrite
+	}
+	if writeErr == nil {
+		writeErr = file.Sync()
+	}
+	closeErr := file.Close()
+	if writeErr != nil || closeErr != nil {
+		_ = os.Remove(path)
+		return errors.Join(writeErr, closeErr)
+	}
+	return nil
 }
 
 // signJWT issues a 7-day HS256 token for user ARTEX.

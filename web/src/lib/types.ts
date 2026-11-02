@@ -2,6 +2,141 @@
 // Derived from functional specification section 7, key data shapes.
 
 export type TaskStatus = "created" | "queued" | "running" | "paused" | "done" | "failed" | "timeout";
+export interface TaskCredential {
+  id: number;
+  task_id: number;
+  domain: string;
+  username: string;
+  has_password: boolean;
+  source: "user" | "agent";
+  note: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AutoContinuePolicy {
+  enabled: boolean;
+  delay_minutes: number;
+  wave_timeout_minutes: number;
+}
+
+export interface AutoContinueWave {
+  id: string;
+  root_task_id: string;
+  parent_task_id: string;
+  wave_number: number;
+  reason: "timeout" | "open-goals" | "open-intents";
+  detail: string;
+  scheduled_at: string;
+  status: "pending" | "spawning" | "spawned" | "cancelled";
+  spawned_task_id?: string;
+}
+
+export interface TaskArtifact {
+  id: string;
+  task_id: string;
+  path: string;
+  type: string;
+  size_bytes: number;
+  sha256: string;
+  value_rank: number;
+  created_at: string;
+}
+
+export interface C2Handoff {
+  id: string;
+  task_id: string;
+  vector: string;
+  target_host: string;
+  target_path: string;
+  shell_url?: string;
+  binary_arch: "x64" | "x86";
+  binary_sha256: string;
+  status: "requested" | "acknowledged" | "cancelled";
+  created_at: string;
+  updated_at: string;
+}
+
+export interface BusinessMapEntry {
+  id: string;
+  task_id: string;
+  kind: "actor" | "money_flow" | "state_machine" | "single_use" | "pricing" | "note";
+  name: string;
+  detail: Record<string, unknown>;
+  updated_at: string;
+}
+
+export interface CampaignBranch {
+  id: string;
+  task_id: string;
+  branch_id: string;
+  goal: string;
+  hypothesis: string;
+  probe_spec: string;
+  expected_signal: string;
+  status: "untested" | "confirmed" | "clean";
+  reason?: string;
+  finding_id?: number;
+}
+
+export interface HuntClass {
+  id: string;
+  task_id: string;
+  class: string;
+  status: "open" | "found" | "exhausted" | "miss_tag";
+  reason: string;
+  evidence: string;
+  miss_tag?: "coverage-gap" | "probe-defect" | "target-down" | "scope-out";
+  widen_next?: string;
+}
+
+export interface AttackChain {
+  id: string;
+  task_id: string;
+  name: string;
+  source_finding_ids: number[];
+  steps: { step: string; description: string; from_finding?: string; evidence?: string }[];
+  prerequisites?: string;
+  impact: "P0" | "P1" | "P2";
+  status: "proposed" | "verified" | "rejected";
+  spawned_task_id?: string;
+  reason?: string;
+  created_at: string;
+}
+
+export interface ChainComposeState {
+  running: boolean;
+  added: number;
+  error?: string;
+  finished_at?: string;
+}
+
+export interface TaskLesson {
+  id: number;
+  kind: "positive" | "negative" | "caution";
+  cue: string;
+  action: string;
+  category_id: number;
+  company_id: number;
+  status: string;
+  support: number;
+  evidence: string[];
+}
+
+export interface TaskOutcome {
+  task_id: number;
+  status: string;
+  category_id: number;
+  company_id: number;
+  findings: { total: number; confirmed: number; open: number; false_positive: number; duplicate: number; critical: number; high: number; medium: number; low: number };
+  retests: { reproduced: number; fixed: number; inconclusive: number };
+  tokens: { input_tokens: number; output_tokens: number; cache_read_tokens: number; cache_write_tokens: number };
+  tool_calls: number;
+  skill_misses: number;
+  wall_seconds: number;
+}
+
+export interface SkillGap { skill: string; agent_key: string; category_id: number; misses: number; hits: number; last_seen: number }
 export type EngineMode = "exploring" | "paused" | "stalled" | "idle";
 
 export interface Task {
@@ -1041,7 +1176,53 @@ export interface NotificationDelivery {
 }
 
 // ---- LLM config ----
+export interface ChatGPTAccount {
+  id: string;
+  email: string;
+  connected: boolean;
+  plan_enabled: boolean;
+  plan_blocked?: boolean;
+  plan_block_reason?: string;
+  rechecking?: boolean;
+}
+
+export interface ChatGPTStatus {
+  accounts: ChatGPTAccount[];
+  pending: boolean;
+  error?: string;
+}
+
+export interface ChatGPTModel {
+  id: string;
+  name: string;
+  context_window?: number;
+  capabilities?: { reasoning_efforts?: string[]; default_reasoning_effort?: string };
+}
+
+export interface Workflow {
+  id: number;
+  name: string;
+  description: string;
+  agent_key: string;
+  enabled: boolean;
+  schedule_kind: "manual" | "interval" | "daily";
+  interval_sec: number;
+  daily_hour: number;
+  daily_minute: number;
+  timezone: string;
+  prompt: string;
+  graph_json: string;
+  last_fire?: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface LLMProfile {
+  auth_mode?: "api_key" | "chatgpt_plan";
+  chatgpt_account_id?: string;
+  access_program_cyber?: string;
+  connected?: boolean;
+  plan_blocked?: boolean;
   id: string;
   name: string;
   format: "openai" | "anthropic" | "openai-responses" | "ollama" | "opencode-sdk";

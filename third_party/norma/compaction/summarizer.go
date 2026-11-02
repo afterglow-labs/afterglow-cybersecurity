@@ -2,6 +2,7 @@ package compaction
 
 import (
 	"context"
+	"errors"
 	"regexp"
 	"strings"
 
@@ -96,6 +97,11 @@ func streamSummary(ctx context.Context, p llm.Provider, maxOut int, head []llm.M
 		if IsOverflow(callErr) {
 			return "", callErr // PTL — let the caller truncate, don't burn streaming retries
 		}
+		var noReplay interface{ NoReplay() bool }
+		var noFallback interface{ NoFallback() bool }
+		if errors.As(callErr, &noReplay) && noReplay.NoReplay() || errors.As(callErr, &noFallback) && noFallback.NoFallback() {
+			return "", callErr
+		}
 		lastErr = callErr // transient — retry
 	}
 	return "", lastErr
@@ -135,8 +141,12 @@ func pairForReplay(msgs []llm.Message) []llm.Message {
 			}
 			nc = append(nc, b)
 		}
-		if len(nc) > 0 {
-			out = append(out, llm.Message{Role: m.Role, Content: nc})
+		if len(nc) > 0 || (len(m.Content) == 0 && len(m.ProviderData) > 0) {
+			copy := llm.Message{Role: m.Role, Content: nc}
+			if len(nc) == len(m.Content) {
+				copy.ProviderData = append(copy.ProviderData, m.ProviderData...)
+			}
+			out = append(out, copy)
 		}
 	}
 	return out

@@ -45,7 +45,7 @@ func builtinToolsByAgent() map[string][]actool.CoreTool {
 		"auto": {ts.addFinding(), ts.insertAssets(), ts.addCompanyScope(), ts.listAssets(), ts.listCompanies()},
 		// Solo pentest defaults to asset lookup/insertion, finding reporting/lookup, and company lookup.
 		// New databases use these seeds; existing databases use seedPentestDefaultBindings.
-		"pentest": {ts.listAssets(), ts.insertAssets(), ts.addFinding(), ts.listFindings(), ts.listCompanies()},
+		"pentest": {ts.listAssets(), ts.insertAssets(), ts.addFinding(), ts.listFindings(), ts.listCompanies(), ts.saveTaskCredential(), ts.listTaskCredentials()},
 	}
 }
 

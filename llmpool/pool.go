@@ -232,6 +232,10 @@ func shouldFailover(ctx context.Context, err error) bool {
 	if err == nil {
 		return false
 	}
+	var guarded interface{ NoFallback() bool }
+	if errors.As(err, &guarded) && guarded.NoFallback() {
+		return false
+	}
 	if ctx.Err() != nil || errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
 		return false
 	}

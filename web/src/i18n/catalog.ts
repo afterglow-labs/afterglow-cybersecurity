@@ -6,6 +6,12 @@
 import { LOCALES, type Locale } from "./config.ts";
 import * as app from "./messages/app.ts";
 import * as common from "./messages/common.ts";
+import * as chatgpt from "./messages/chatgpt.ts";
+import * as workflows from "./messages/workflows.ts";
+import * as proxygraph from "./messages/proxygraph.ts";
+import * as taskintel from "./messages/taskintel.ts";
+import * as browser from "./messages/browser.ts";
+import * as autowaves from "./messages/autowaves.ts";
 import * as english from "./messages/english.ts";
 import * as es from "./messages/es.ts";
 import * as interfaceMessages from "./messages/interface.ts";
@@ -16,6 +22,12 @@ import * as zhHans from "./messages/zh-hans.ts";
 import * as zhHant from "./messages/zh-hant.ts";
 
 const namespaces = {
+  chatgpt,
+  workflows,
+  proxygraph,
+  taskintel,
+  browser,
+  autowaves,
   providers,
   settings,
   english,

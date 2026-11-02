@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/Autumn-27/artex/agent"
+	"github.com/Autumn-27/artex/chatgptauth"
 	"github.com/Autumn-27/artex/chatstate"
 	"github.com/Autumn-27/artex/db"
 	"github.com/Autumn-27/artex/llmpool"
@@ -42,9 +43,18 @@ var BuildVersion = "dev"
 // Server exposes the ARTEX backend over a JSON HTTP API for the shadcn/ui
 // frontend.
 type Server struct {
-	m      *Manager
-	engine *Engine
-	ctx    context.Context
+	chatGPTOnce    sync.Once
+	chatGPT        *chatgptauth.Manager
+	chatGPTErr     error
+	chatGPTDir     string
+	proxyGraph     *proxyGraphState
+	browsers       *browserSessionManager
+	chainComposeMu sync.Mutex
+	chainCompose   map[string]chainComposeState
+	chainVerifyMu  sync.Mutex
+	m              *Manager
+	engine         *Engine
+	ctx            context.Context
 
 	skillDir string // root directory for skill subdirectories
 	jwtKey   []byte // HS256 signing key loaded from / generated into dataDir/jwt.key
@@ -166,18 +176,32 @@ func newServer(ctx context.Context, m *Manager, skillDir string, dataDir string,
 	if err != nil {
 		return nil, fmt.Errorf("JWT key: %w", err)
 	}
+	if m.pg != nil {
+		if err := m.pg.SetTaskCredentialKey(key); err != nil {
+			return nil, fmt.Errorf("test credential key: %w", err)
+		}
+	}
 	s := &Server{m: m, engine: NewEngine(m), ctx: ctx, skillDir: skillDir, jwtKey: key, chatBusy: map[string]bool{},
 		chatCancel: map[string]context.CancelCauseFunc{}, triggerQ: map[string][]triggeredRun{},
 		triggerActive: map[string]int{}, triggerCfg: map[string]triggerBehavior{},
 		profChatAgents: map[int64]*agent.ChatAgent{},
 		provByProfile:  map[int64]*provEntry{},
 		taskAgents:     map[string]*taskAgentBundle{}, archiveWake: make(chan struct{}, 1)}
+	s.proxyGraph, err = loadProxyGraphState(m.pg)
+	if err != nil {
+		return nil, fmt.Errorf("proxy graph startup: %w", err)
+	}
 	s.ctx = agent.WithCallbackOwner(s.ctx, s.reserveBackgroundWork)
 	s.llmHealth = newLLMHealthRegistry(m.pg, s.startBackgroundWork)
 	// Recovery must finish before any internal producer or task runtime starts.
 	if err := s.recoverChatControls(); err != nil {
 		return nil, fmt.Errorf("chat startup recovery: %w", err)
 	}
+	browserDir, err := prepareBrowserPrivateDir(keyDir, dataDir)
+	if err != nil {
+		return nil, fmt.Errorf("browser session storage: %w", err)
+	}
+	s.browsers = newBrowserSessionManager(ctx, browserDir)
 	s.initSideQuestions()
 	// Circuit thresholds/cooldown are hot-path failure settings. Push the global retry policy into Registry
 	// at startup and again whenever saveLLMRetryPolicy saves changes.
@@ -244,7 +268,7 @@ func newServer(ctx context.Context, m *Manager, skillDir string, dataDir string,
 			}
 			return a.TaskTimeoutWrapupMaxTurns, true
 		}
-		wireAgentAugment(m.pg, s.skillDir, s.hostTools) // Assemble visible skills/MCP and traffic/orchestration host tools into agent toolsets.
+		wireAgentAugment(m.pg, s.skillDir, s.hostTools, s.browsers) // Assemble visible skills/MCP and traffic/orchestration host tools into agent toolsets.
 		domainReg := s.domainToolRegistry()
 		wireTools(m.pg, domainReg, s.knownToolLanguages()) // Built-in tools: filter by agent, override descriptions/schemas, and inject defaults.
 		seedPrompts(m.pg)                                  // Seed built-in agent prompt bodies into agent_prompts only when empty.
@@ -320,6 +344,14 @@ func (s *Server) restoreTaskRuntimes() {
 	for _, t := range m.List() {
 		lifecycle := t.lifecycleSnapshot()
 		if !lifecycle.Queued && !isTerminalStatus(lifecycle.Status) {
+			if !lifecycle.Paused {
+				if taskID, err := strconv.ParseInt(t.ID, 10, 64); err == nil {
+					if bootstrap, err := m.pg.AutoWaveNeedsBootstrap(taskID); err == nil && bootstrap {
+						s.launchTask(t, t.Description+" "+t.Goal, false)
+						continue
+					}
+				}
+			}
 			s.engine.Run(s.ctx, t)
 		}
 	}
@@ -358,6 +390,7 @@ func (s *Server) loadLLMConfig() (agent.Config, bool) {
 		return agent.Config{}, false
 	}
 	cfg := agent.ConfigFrom(p.Format, p.Model, p.BaseURL, p.APIKey, p.Proxy)
+	s.configureChatGPT(&cfg, p)
 	cfg.RatePerSecond, cfg.RatePerMinute = p.RatePerSecond, p.RatePerMinute
 	cfg.ContextWindowK = p.ContextWindowK
 	cfg.ThinkingType = p.ThinkingType
@@ -549,6 +582,7 @@ func (s *Server) loadProfileConfig(id int64) (agent.Config, bool) {
 		return agent.Config{}, false
 	}
 	cfg := agent.ConfigFrom(p.Format, p.Model, p.BaseURL, p.APIKey, p.Proxy)
+	s.configureChatGPT(&cfg, p)
 	cfg.RatePerSecond, cfg.RatePerMinute = p.RatePerSecond, p.RatePerMinute
 	cfg.ContextWindowK = p.ContextWindowK
 	cfg.ThinkingType = p.ThinkingType
@@ -707,6 +741,20 @@ func (s *Server) chatAgentRef() *agent.ChatAgent {
 func (s *Server) Handler() http.Handler {
 	mux := http.NewServeMux()
 	s.registerSideRoutes(mux)
+	s.registerBrowserRoutes(mux)
+	s.registerAutoContinueRoutes(mux)
+	mux.HandleFunc("GET /api/tasks/{id}/artifacts", s.taskArtifacts)
+	mux.HandleFunc("GET /api/tasks/{id}/business-map", s.taskBusinessMap)
+	mux.HandleFunc("GET /api/tasks/{id}/campaign", s.taskCampaignBranches)
+	mux.HandleFunc("GET /api/tasks/{id}/hunt-classes", s.taskHuntClasses)
+	mux.HandleFunc("POST /api/tasks/{id}/hunt-classes", s.enableTaskHuntClasses)
+	mux.HandleFunc("PUT /api/tasks/{id}/hunt-classes/{class}", s.updateTaskHuntClass)
+	mux.HandleFunc("GET /api/tasks/{id}/attack-chains", s.taskAttackChains)
+	mux.HandleFunc("GET /api/tasks/{id}/attack-chains/compose", s.taskChainComposeStatus)
+	mux.HandleFunc("POST /api/tasks/{id}/attack-chains/compose", s.composeTaskChains)
+	mux.HandleFunc("POST /api/tasks/{id}/attack-chains/{chain}/verify", s.verifyTaskChain)
+	mux.HandleFunc("GET /api/tasks/{id}/c2-handoffs", s.taskC2Handoffs)
+	mux.HandleFunc("POST /api/tasks/{id}/c2-handoffs/{handoff}/status", s.c2HandoffStatus)
 
 	// Auth routes — exempt from JWT check (handled in requireAuth)
 	mux.HandleFunc("GET /api/auth/status", s.authStatus)
@@ -729,6 +777,13 @@ func (s *Server) Handler() http.Handler {
 
 	mux.HandleFunc("GET /api/tasks", s.listTasks)
 	mux.HandleFunc("POST /api/tasks", s.createTask)
+	mux.HandleFunc("GET /api/skill-gaps", s.skillGaps)
+	mux.HandleFunc("GET /api/proxygraph/nodes", s.proxyGraphListNodes)
+	mux.HandleFunc("POST /api/proxygraph/nodes", s.proxyGraphAddNode)
+	mux.HandleFunc("DELETE /api/proxygraph/nodes/{id}", s.proxyGraphRemoveNode)
+	mux.HandleFunc("POST /api/proxygraph/health", s.proxyGraphHealth)
+	mux.HandleFunc("GET /api/proxygraph/config", s.proxyGraphGetConfig)
+	mux.HandleFunc("PUT /api/proxygraph/config", s.proxyGraphSetConfig)
 	mux.HandleFunc("GET /api/task-categories", s.pgListTaskCategories)
 	mux.HandleFunc("POST /api/task-categories", s.pgCreateTaskCategory)
 	mux.HandleFunc("PATCH /api/task-categories/{id}", s.pgRenameTaskCategory)
@@ -739,6 +794,13 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("PATCH /api/task-templates/{id}", s.pgUpdateTaskTemplate)
 	mux.HandleFunc("DELETE /api/task-templates/{id}", s.pgDeleteTaskTemplate)
 	mux.HandleFunc("GET /api/tasks/{id}", s.getTask)
+	mux.HandleFunc("GET /api/tasks/{id}/outcome", s.taskOutcome)
+	mux.HandleFunc("GET /api/tasks/{id}/lessons", s.taskLessons)
+	mux.HandleFunc("POST /api/tasks/{id}/lessons/extract", s.extractTaskLessons)
+	mux.HandleFunc("GET /api/tasks/{id}/credentials", s.listTaskCredentials)
+	mux.HandleFunc("POST /api/tasks/{id}/credentials", s.addTaskCredential)
+	mux.HandleFunc("GET /api/tasks/{id}/credentials/{cid}/secret", s.revealTaskCredential)
+	mux.HandleFunc("DELETE /api/tasks/{id}/credentials/{cid}", s.deleteTaskCredential)
 	mux.HandleFunc("PATCH /api/tasks/{id}", s.updateTaskMetadata)
 	mux.HandleFunc("PATCH /api/tasks/{id}/category", s.updateTaskCategory)
 	// Task-specific asset interception/allow rules.
@@ -959,6 +1021,11 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("POST /api/visibility/skill/toggle", s.pgToggleSkillVisibility)
 	// Multiple LLM profiles.
 	mux.HandleFunc("GET /api/llm/profiles", s.pgListProfiles)
+	mux.HandleFunc("GET /api/chatgpt/status", s.chatGPTStatus)
+	mux.HandleFunc("POST /api/chatgpt/login", s.chatGPTLogin)
+	mux.HandleFunc("POST /api/chatgpt/logout", s.chatGPTLogout)
+	mux.HandleFunc("POST /api/chatgpt/recheck", s.chatGPTRecheck)
+	mux.HandleFunc("GET /api/chatgpt/models", s.chatGPTModels)
 	mux.HandleFunc("POST /api/llm/profiles", s.pgSaveProfile)
 	mux.HandleFunc("DELETE /api/llm/profiles/{id}", s.pgDeleteProfile)
 	mux.HandleFunc("POST /api/llm/profiles/active", s.pgActivateProfile)
@@ -967,6 +1034,12 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("GET /api/llm/pool", s.pgLLMPoolStatus)
 	mux.HandleFunc("POST /api/llm/pool/reset", s.pgLLMPoolReset)
 	mux.HandleFunc("POST /api/llm/models", s.pgListModels)
+	mux.HandleFunc("GET /api/workflows", s.pgListWorkflows)
+	mux.HandleFunc("POST /api/workflows", s.pgCreateWorkflow)
+	mux.HandleFunc("GET /api/workflows/{id}", s.pgGetWorkflow)
+	mux.HandleFunc("PATCH /api/workflows/{id}", s.pgUpdateWorkflow)
+	mux.HandleFunc("DELETE /api/workflows/{id}", s.pgDeleteWorkflow)
+	mux.HandleFunc("POST /api/workflows/{id}/run", s.pgRunWorkflow)
 
 	// Interception-rule management.
 	mux.HandleFunc("GET /api/intercept/rules", s.interceptListRules)
@@ -1001,6 +1074,7 @@ func (s *Server) Handler() http.Handler {
 	api := withLocale(cors(s.requireAuth(mux)))
 	root := http.NewServeMux()
 	root.Handle("/api/", api)
+	root.HandleFunc("GET /auth/callback", s.chatGPTCallback)
 	root.Handle("/", s.webuiHandler())
 	return s.trackHTTP(root)
 }
@@ -1456,6 +1530,12 @@ func (s *Server) testLLM(w http.ResponseWriter, r *http.Request) {
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		writeError(w, 400, err)
 		return
+	}
+	if req.ProfileID != nil {
+		if p, err := s.m.pg.ProfileByID(*req.ProfileID); err == nil && p != nil && p.AuthMode == "chatgpt_plan" {
+			writeJSON(w, 200, map[string]any{"ok": false, "error": "Use the ChatGPT plan recheck control for this profile"})
+			return
+		}
 	}
 	cfg := agent.ConfigFrom(req.Provider, req.Model, req.BaseURL, req.APIKey, req.Proxy)
 	cfg.KeepAlive, cfg.MaxConcurrent = req.KeepAlive, req.MaxConcurrent

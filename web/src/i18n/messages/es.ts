@@ -1,4 +1,10 @@
 // Spanish translations. English owns keys, placeholders and meaning.
+import type { en as chatgptSource } from "./chatgpt.ts";
+import type { en as workflowsSource } from "./workflows.ts";
+import type { en as proxygraphSource } from "./proxygraph.ts";
+import type { en as taskintelSource } from "./taskintel.ts";
+import type { en as browserSource } from "./browser.ts";
+import type { en as autowavesSource } from "./autowaves.ts";
 import type { en as providersSource } from './providers.ts';
 export const providers: Record<keyof typeof providersSource, string> = {
   "template": "Plantilla de configuración (solo para perfiles nuevos)",
@@ -3303,4 +3309,74 @@ export const common: Record<keyof typeof commonSource, string> = {
   "no": "No",
   "none": "Ninguna",
   "unknown": "Desconocido"
+};
+export const chatgpt: Record<keyof typeof chatgptSource, string> = {
+  title: "Plan de ChatGPT",
+  help: "Conecta una cuenta de ChatGPT para usar sus modelos disponibles mediante la API Responses oficial. El uso del plan es independiente de la facturación API. Las credenciales permanecen en este servidor.",
+  connect: "Conectar cuenta", reconnect: "Reconectar", disconnect: "Desconectar", account: "Cuenta", model: "Modelo",
+  profile: "Nombre del perfil", create: "Crear perfil del plan", update: "Actualizar perfil del plan", newProfile: "Nuevo perfil del plan",
+  statusConnected: "Conectado", statusSignedOut: "Sesión cerrada", statusBlocked: "Uso del plan pausado",
+  loadingModels: "Cargar modelos de la cuenta", recheck: "Volver a comprobar el uso",
+  openLogin: "Completa el inicio de sesión en la ventana abierta y vuelve aquí.",
+  noAccount: "Conecta una cuenta para ver sus modelos.", noModels: "Esta cuenta no devolvió modelos.",
+  saved: "Perfil de ChatGPT guardado", selectAccountModel: "Selecciona una cuenta conectada y un modelo.",
+};
+export const workflows: Record<keyof typeof workflowsSource, string> = {
+  title: "Flujos de trabajo", description: "Programa instrucciones para un agente o ejecútalas manualmente. El lienzo muestra la ruta de ejecución y guarda la posición de los nodos.",
+  create: "Crear flujo", empty: "Todavía no hay flujos.", name: "Nombre", details: "Descripción", agent: "Agente",
+  schedule: "Horario", manual: "Manual", interval: "Intervalo", daily: "Diario", minutes: "Cada (minutos)", hour: "Hora", minute: "Minuto",
+  timezone: "Zona horaria (IANA)", prompt: "Instrucciones del agente", enabled: "Activado", save: "Guardar flujo", run: "Ejecutar ahora",
+  delete: "Eliminar", canvas: "Lienzo del flujo", lastRun: "Última ejecución", select: "Selecciona un flujo para editarlo.",
+  saved: "Flujo guardado", started: "Flujo en cola", removed: "Flujo eliminado",
+};
+export const proxygraph: Record<keyof typeof proxygraphSource, string> = {
+  title: "Grafo de proxies", description: "Gestiona los proxies de salida del operador para las ejecuciones. La comprobación solo contacta al propio proxy.",
+  routing: "Ruta de los agentes", enabled: "Usar este grupo para la salida", policy: "Política de rotación", roundRobin: "Turnos",
+  asnDiverse: "ASN diversos", leastUsed: "Menos usado", captureNote: "La captura de tráfico tiene prioridad. Este grupo se usa solo con la captura desactivada. Sin nodos activos, la ejecución se detiene en vez de conectar directamente.",
+  add: "Añadir proxy", id: "ID", url: "URL del proxy (sin credenciales)", type: "Tipo", datacenter: "Centro de datos", residential: "Residencial",
+  nodes: "Nodos proxy", check: "Comprobar puertos", empty: "No hay proxies configurados.", active: "Activo", inactive: "Inactivo",
+  remove: "Eliminar", saved: "Ruta guardada", added: "Proxy añadido", removed: "Proxy eliminado", checked: "Comprobación completada",
+};
+export const taskintel: Record<keyof typeof taskintelSource, string> = {
+  accounts: "Cuentas de prueba", accountsHelp: "Las contraseñas se guardan cifradas. Revela solo una cuando haga falta; los agentes pueden solicitar cuentas de esta tarea.",
+  domain: "Dominio o host", username: "Usuario", password: "Contraseña", note: "Nota", add: "Guardar cuenta", remove: "Eliminar",
+  reveal: "Mostrar", hide: "Ocultar", emptyAccounts: "No hay cuentas de prueba para esta tarea.", pendingPassword: "Sin contraseña",
+  user: "Operador", agent: "Agente", learning: "Resultados y lecciones", outcome: "Resultado de la tarea", lessons: "Lecciones con evidencia", extract: "Extraer lecciones",
+  confirmed: "Hallazgos confirmados", open: "Hallazgos abiertos", toolCalls: "Llamadas a herramientas", skillMisses: "Habilidades ausentes", wallTime: "Duración (segundos)",
+  tokens: "Tokens de salida", emptyLessons: "Aún no hay lecciones derivadas de esta tarea.", evidence: "Evidencia", saved: "Cuenta guardada",
+  removed: "Cuenta eliminada", extracted: "Lecciones extraídas",
+  artifacts: "Archivos de evidencia locales", emptyArtifacts: "No se han indexado archivos de evidencia para esta tarea.",
+  c2Title: "Entregas C2 al operador", c2Help: "Estos registros preparan una revisión. La aplicación no ha entregado ni ejecutado ningún binario.",
+  c2Empty: "No hay entregas C2 para esta tarea.", c2Acknowledge: "Confirmar revisión", c2Cancel: "Cancelar entrega", c2Requested: "Esperando al operador", c2Acknowledged: "Confirmada", c2Cancelled: "Cancelada",
+  businessModel: "Modelo de negocio", emptyBusiness: "No hay entradas del modelo de negocio para esta tarea.",
+  attackChains: "Cadenas de ataque", emptyChains: "Aún no hay cadenas vinculadas a evidencias.",
+  compose: "Componer desde hallazgos", composeStarted: "Composición de cadenas iniciada", composeRunning: "Componiendo…", composeFailed: "Falló la composición. Revisa la actividad de la tarea.",
+  chainProposed: "Propuesta", chainVerified: "Verificada", chainRejected: "Rechazada", chainSource: "IDs de hallazgos confirmados",
+  verifyChain: "Iniciar tarea de verificación", verificationStarted: "Tarea de verificación iniciada", verificationTask: "Tarea de verificación {id}",
+  campaign: "Campaña de hipótesis", emptyCampaign: "No hay ramas de prueba planificadas para esta tarea.", branchUntested: "Sin probar", branchConfirmed: "Confirmada", branchClean: "Descartada con evidencia", branchProbe: "Prueba", branchSignal: "Señal esperada",
+  huntBoard: "Cobertura de pruebas", huntHelp: "Actívala para una auditoría web enfocada. Las clases abiertas y ramas sin probar impiden cerrar la tarea.",
+  huntEnable: "Activar cobertura", huntEmpty: "La cobertura no está activada para esta tarea.",
+  huntOpen: "Abierta", huntFound: "Hallazgo registrado", huntExhausted: "Auditada", huntGap: "Brecha de cobertura",
+  huntReason: "Qué se probó y cuál fue el resultado", huntReasonRequired: "Indica primero la prueba y el resultado.", huntGapType: "Tipo de brecha",
+  huntMarkGap: "Registrar brecha", huntMarkExhausted: "Marcar auditada", huntReopen: "Reabrir",
+};
+export const browser: Record<keyof typeof browserSource, string> = {
+  agentActive: "Agente activo", blankPage: "Página en blanco", browserChat: "Chat {id}", browserDelete: "Eliminar sesión",
+  browserDeleteConfirm: "¿Eliminar permanentemente esta sesión y sus cookies y datos de inicio de sesión?", browserIntent: " · Objetivo {id}",
+  browserSessions: "Sesiones del navegador", browserSessionsAppearHereWhenAnAgent: "Las sesiones aparecen aquí cuando un agente abre un navegador.",
+  browserTab: "Pestaña {index}", browserTask: "Tarea {id}", browserWaitingCount: "Sesiones del navegador · {count} esperando tu intervención",
+  chooseATabToControl: "Elige una pestaña", clickAFieldOnTheScreenThen: "Haz clic en un campo e introduce el texto",
+  completeSigninOTPOrVerificationInThe: "Completa el inicio de sesión, el código o la verificación en el navegador del agente y devuélvele el control. Si cierras este panel, el navegador seguirá esperando. El plazo de la tarea continúa.",
+  controlTheBrowserScreen: "Controlar la pantalla del navegador", currentAgentBrowserScreen: "Pantalla actual del navegador del agente",
+  doneReturnControlToAgent: "Listo · Devolver control al agente", idle: "Inactivo", loadingScreen: "Cargando pantalla…",
+  noBrowserSessionsAreOpen: "No hay sesiones abiertas", refreshSessions: "Actualizar sesiones", scrollDown: "Desplazar hacia abajo",
+  scrollUp: "Desplazar hacia arriba", selectAll: "Seleccionar todo", selectBrowserSession: "Seleccionar sesión", selectBrowserTab: "Seleccionar pestaña",
+  sendText: "Enviar texto", takeControl: "Tomar el control", textToSendToTheFocusedField: "Texto para el campo seleccionado",
+  waitingForYourInput: "Esperando tu intervención", yourInputIsNotSentToChat: "Tu entrada no se envía al chat. El inicio de sesión queda en la sesión del navegador de esta tarea.",
+};
+export const autowaves: Record<keyof typeof autowavesSource, string> = {
+  title: "Seguimiento automático", description: "Si una tarea agota el tiempo o deja trabajo pendiente, programa hasta tres tareas de seguimiento en todo su linaje. Cada una hereda el contexto autorizado y tiene un límite de tiempo.",
+  enabled: "Activar seguimiento", delay: "Espera antes de iniciar (minutos)", budget: "Tiempo máximo por seguimiento (minutos)", save: "Guardar política de seguimiento", saved: "Política de seguimiento guardada",
+  waves: "Tareas de seguimiento", empty: "Esta tarea no tiene seguimientos.", pending: "Programada", spawning: "Iniciando", spawned: "Iniciada", cancelled: "Cancelada",
+  wave: "Seguimiento {number}", reasonTimeout: "La tarea agotó el tiempo", reasonGoals: "Quedaron objetivos abiertos", reasonIntents: "Quedó trabajo abierto", child: "Abrir tarea de seguimiento {id}",
 };

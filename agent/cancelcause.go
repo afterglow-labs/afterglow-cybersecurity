@@ -50,6 +50,8 @@ var (
 		"The user deleted the running worker. This call was cancelled. After the worker leaves the write section, soft deletion marks the intent deleted and retains outputs; hard deletion removes it and downstream nodes supported only by it, according to the user's selected mode.")
 	AbortWorkFinished = cause("work_finished", "Worker finished normally",
 		"The worker finished normally and detachWork released its context resources. This is not an interruption; seeing it in an interruption message indicates a race between cancellation and completion events.")
+	AbortStallWatchdog = cause("stall_watchdog", "Stalled worker restarted",
+		"The watchdog stopped a worker after a prolonged period without activity. Saved evidence remains; the planner can choose a new direction.")
 	AbortPausedRaceGuard = cause("paused_race_guard", "New run blocked while paused",
 		"The engine refused a new execution context while the task was paused, preventing a claim/pause race from starting a worker. Claimed intents return to frontier.")
 
