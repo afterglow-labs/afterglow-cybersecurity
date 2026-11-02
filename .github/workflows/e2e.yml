@@ -1,0 +1,73 @@
+name: e2e
+# Essential browser smoke test against the real embedded binary. Runs alongside `checks`
+# before merge and after integration into dev or promotion to main.
+on:
+  push:
+    branches: [dev, main]
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: scopeweaver_test
+          POSTGRES_PASSWORD: test_only_password
+          POSTGRES_DB: scopeweaver_test_e2e
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U scopeweaver_test -d scopeweaver_test_e2e"
+          --health-interval 5s --health-timeout 3s --health-retries 10
+    env:
+      ARTEX_PG_DSN: postgres://scopeweaver_test:test_only_password@localhost:5432/scopeweaver_test_e2e?sslmode=disable
+      SCOPEWEAVER_URL: http://127.0.0.1:8787
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: |
+            web/package-lock.json
+            e2e/package-lock.json
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: Build embedded binary
+        run: |
+          (cd web && npm ci && npm run build:static)
+          mkdir -p server/webui/dist
+          rsync -a --delete web/out/ server/webui/dist/
+          go build -tags embedui -o "$RUNNER_TEMP/scopeweaver" ./cmd/artex
+      - name: Install browser
+        working-directory: e2e
+        run: npm ci && npx playwright install --with-deps chromium
+      - name: Start Afterglow
+        run: |
+          cd "$RUNNER_TEMP"
+          ./scopeweaver -addr 127.0.0.1:8787 -proxy "" > server.log 2>&1 &
+          for i in $(seq 1 60); do curl -sf "$SCOPEWEAVER_URL/api/auth/status" && exit 0; sleep 1; done
+          cat server.log; exit 1
+      - name: Smoke test
+        working-directory: e2e
+        env:
+          SCOPEWEAVER_BINARY: ${{ runner.temp }}/scopeweaver
+        run: npm run smoke
+      - if: failure()
+        run: cat "$RUNNER_TEMP/server.log" || true
+      - if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: e2e-results
+          path: e2e/e2e-results
+          if-no-files-found: ignore
