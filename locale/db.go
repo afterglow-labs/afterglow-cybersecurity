@@ -2,6 +2,7 @@ package locale
 
 // Database-owned messages and built-in metadata. Never apply these to arbitrary stored content.
 func init() {
+	Register("unsupported LLM authentication mode", "unsupported LLM authentication mode", "지원하지 않는 LLM 인증 방식입니다")
 	Register("\n\nAdditional notes for this retest:\n", "\n\nAdditional notes for this retest:\n", "\n\n이번 재검증의 추가 참고 사항:\n")
 	Register(" and %d more", " and %d more", " 외 %d개")
 	Register("%d assets have invalid IP fields and were skipped for IP/CIDR scope matching (network rules will not assign these assets to a company): %s", "%d assets have invalid IP fields and were skipped for IP/CIDR scope matching (network rules will not assign these assets to a company): %s", "자산 %d개의 ip 필드가 유효하지 않아 IP/CIDR 범위 매칭에서 제외했습니다(네트워크 규칙으로 기업에 배정되지 않습니다): %s")

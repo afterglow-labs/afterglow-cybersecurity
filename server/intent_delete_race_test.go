@@ -109,7 +109,7 @@ func TestCancelIntentLockedState(t *testing.T) {
 				workerCtx, cancel := context.WithCancelCause(t.Context())
 				defer cancel(nil)
 				if rerun {
-					s.engine.registerWork(iid, cancel)
+					s.engine.registerWork(task.ID, iid, cancel)
 					defer func() { _, complete := s.engine.detachWork(iid); complete(nil) }()
 				}
 				if err := tx.Commit(); err != nil {
@@ -196,7 +196,7 @@ func TestCancelRunningIntentWaitsForDrain(t *testing.T) {
 			}
 			workerCtx, cancel := context.WithCancelCause(t.Context())
 			defer cancel(nil)
-			s.engine.registerWork(iid, cancel)
+			s.engine.registerWork(task.ID, iid, cancel)
 			defer func() { _, complete := s.engine.detachWork(iid); complete(nil) }()
 			result := make(chan *httptest.ResponseRecorder, 1)
 			go func() { result <- deleteIntentHTTP(s, task, iid, mode) }()

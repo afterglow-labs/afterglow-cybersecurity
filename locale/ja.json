@@ -2024,5 +2024,6 @@
   "unknown OpenCode SDK event type": "不明な OpenCode SDK イベントタイプです",
   "unsupported OpenCode SDK bridge protocol, runtime version or capture-only capabilities": "この OpenCode SDK ブリッジプロトコル、ランタイムのバージョン、またはキャプチャ専用機能はサポートされていません",
   "unsupported OpenCode SDK content block": "サポートされていない OpenCode SDK のコンテンツブロックです",
-  "Retained for audit: output from the listed intents is withdrawn by the user; do not rely on that output or summaries containing it in further planning.": "監査用に保持された出力です。ユーザーは一覧のインテントの出力を撤回しました。今後の計画では、その出力やそれを含む要約を根拠にしないでください。"
+  "Retained for audit: output from the listed intents is withdrawn by the user; do not rely on that output or summaries containing it in further planning.": "監査用に保持された出力です。ユーザーは一覧のインテントの出力を撤回しました。今後の計画では、その出力やそれを含む要約を根拠にしないでください。",
+  "unsupported LLM authentication mode": "サポートされていない LLM 認証方式"
 }

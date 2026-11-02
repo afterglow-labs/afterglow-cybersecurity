@@ -33,7 +33,7 @@ func TestHardDeleteRefusesLiveDescendant(t *testing.T) {
 	}
 	workerCtx, cancel := context.WithCancelCause(t.Context())
 	defer cancel(nil)
-	s.engine.registerWork(child, cancel)
+	s.engine.registerWork(task.ID, child, cancel)
 	defer func() { _, complete := s.engine.detachWork(child); complete(nil) }()
 	w := deleteIntentHTTP(s, task, root, "hard")
 	if w.Code != http.StatusConflict || !strings.Contains(w.Body.String(), fmt.Sprint(child)) {

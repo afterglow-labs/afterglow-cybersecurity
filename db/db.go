@@ -151,7 +151,7 @@ func Open(dsn string) (*DB, error) {
 		sqlDB.Close()
 		return nil, locale.Errorf("ping postgres (%s): %w", config.Redact(dsn), err)
 	}
-	d := &DB{sqlDB}
+	d := &DB{DB: sqlDB}
 	// pgx runs multi-statement Exec via the simple protocol when there are no args.
 	// Keep the dedicated lock connection checked out until both DDL and seeding
 	// finish so concurrent application instances cannot initialize out of order.

@@ -35,7 +35,7 @@ func chatUpgradeFixture(t *testing.T) *DB {
 		}
 	})
 	cfg.RuntimeParams["search_path"] = schema
-	d := &DB{stdlib.OpenDB(*cfg)}
+	d := &DB{DB: stdlib.OpenDB(*cfg)}
 	t.Cleanup(func() { d.Close() })
 	baseline, err := os.ReadFile("testdata/chat_upgrade_6366429.sql")
 	if err != nil {

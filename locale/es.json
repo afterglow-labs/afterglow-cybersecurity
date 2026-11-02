@@ -2024,5 +2024,6 @@
   "unknown OpenCode SDK event type": "Tipo de evento de OpenCode SDK desconocido",
   "unsupported OpenCode SDK bridge protocol, runtime version or capture-only capabilities": "El protocolo del puente de OpenCode SDK, la versión del entorno de ejecución o las funciones de solo captura no son compatibles",
   "unsupported OpenCode SDK content block": "El bloque de contenido de OpenCode SDK no es compatible",
-  "Retained for audit: output from the listed intents is withdrawn by the user; do not rely on that output or summaries containing it in further planning.": "Salida conservada para auditoría: el usuario ha retirado la salida de las intenciones indicadas; no se base en esa salida ni en resúmenes que la contengan para planificar en adelante."
+  "Retained for audit: output from the listed intents is withdrawn by the user; do not rely on that output or summaries containing it in further planning.": "Salida conservada para auditoría: el usuario ha retirado la salida de las intenciones indicadas; no se base en esa salida ni en resúmenes que la contengan para planificar en adelante.",
+  "unsupported LLM authentication mode": "Modo de autenticación de LLM no compatible"
 }

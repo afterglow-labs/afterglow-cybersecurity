@@ -24,7 +24,7 @@ func TestKillWorkCancelsOnlyThatWorkWithNamedCause(t *testing.T) {
 	e := NewEngine(nil)
 	execCtx := e.execContextFor(context.Background(), "t1")
 	workCtx, workCancel := context.WithCancelCause(execCtx)
-	e.registerWork(42, workCancel)
+	e.registerWork("t1", 42, workCancel)
 	if err := e.KillWork(42); err != nil {
 		t.Fatal(err)
 	}
@@ -49,7 +49,7 @@ func TestControlWorkCarriesUserActionCause(t *testing.T) {
 		t.Run(tc.action, func(t *testing.T) {
 			e := NewEngine(nil)
 			ctx, cancel := context.WithCancelCause(context.Background())
-			e.registerWork(42, cancel)
+			e.registerWork("t1", 42, cancel)
 			done := make(chan error, 1)
 			go func() { done <- e.ControlWork(context.Background(), 42, tc.action) }()
 			<-ctx.Done()
@@ -71,7 +71,7 @@ func TestControlWorkCarriesUserActionCause(t *testing.T) {
 func TestControlWorkReturnsSettlementError(t *testing.T) {
 	e := NewEngine(nil)
 	ctx, cancel := context.WithCancelCause(context.Background())
-	e.registerWork(42, cancel)
+	e.registerWork("t1", 42, cancel)
 	done := make(chan error, 1)
 	go func() { done <- e.ControlWork(context.Background(), 42, "pause") }()
 	<-ctx.Done()
@@ -86,7 +86,7 @@ func TestControlWorkReturnsSettlementError(t *testing.T) {
 func TestControlWorkWaitHonorsContextAndReleasesReservation(t *testing.T) {
 	e := NewEngine(nil)
 	_, cancel := context.WithCancelCause(context.Background())
-	e.registerWork(42, cancel)
+	e.registerWork("t1", 42, cancel)
 	waitCtx, stop := context.WithTimeout(context.Background(), 20*time.Millisecond)
 	defer stop()
 	if err := e.ControlWork(waitCtx, 42, "pause"); !errors.Is(err, context.DeadlineExceeded) {
@@ -106,7 +106,7 @@ func TestControlWorkWaitHonorsContextAndReleasesReservation(t *testing.T) {
 func TestControlWorkRejectsConcurrentController(t *testing.T) {
 	e := NewEngine(nil)
 	ctx, cancel := context.WithCancelCause(context.Background())
-	e.registerWork(42, cancel)
+	e.registerWork("t1", 42, cancel)
 	first := make(chan error, 1)
 	go func() { first <- e.ControlWork(context.Background(), 42, "pause") }()
 	<-ctx.Done()

@@ -28,7 +28,7 @@ var askOperatorImageExt = map[string]bool{".png": true, ".jpg": true, ".jpeg": t
 // resumes the run with the answer as the next input (#41).
 func (s *Server) toolAskOperator() actool.CoreTool {
 	return wrTool("ask_operator",
-		"Ask the human operator for input you cannot obtain yourself (a captcha solution, an email/SMS OTP code, a 2FA answer, or a decision). The question appears in this intent's chat for the operator, optionally with a screenshot, and this intent then pauses; the operator's reply resumes this run with the answer as your next input. Ask precisely, and only when you are genuinely blocked. For environmental blocks, describe the blocker and wait for the operator to decide how to proceed.",
+		"Ask the human operator for input you cannot obtain yourself (a captcha solution, an email/SMS OTP code, a 2FA answer, or a decision). The question appears in this intent's chat for the operator, optionally with a screenshot, and this intent then pauses; the operator's reply resumes this run with the answer as your next input. Ask precisely, and only when you are genuinely blocked. For environmental blocks, describe the blocker, offer one copy-pastable diagnostic or setup command for the operator to review, and do not retry or work around the block.",
 		map[string]any{
 			"type": "object",
 			"properties": map[string]any{

@@ -1972,5 +1972,6 @@
   "unknown OpenCode SDK event type": "未知的 OpenCode SDK 事件类型",
   "unsupported OpenCode SDK bridge protocol, runtime version or capture-only capabilities": "不支持此 OpenCode SDK 桥接协议、运行时版本或仅捕获功能",
   "unsupported OpenCode SDK content block": "不支持此 OpenCode SDK 内容块",
-  "Retained for audit: output from the listed intents is withdrawn by the user; do not rely on that output or summaries containing it in further planning.": "为审计保留的输出：用户已撤回所列意图的输出；后续规划不得依赖这些输出或包含这些输出的摘要。"
+  "Retained for audit: output from the listed intents is withdrawn by the user; do not rely on that output or summaries containing it in further planning.": "为审计保留的输出：用户已撤回所列意图的输出；后续规划不得依赖这些输出或包含这些输出的摘要。",
+  "unsupported LLM authentication mode": "不支持的 LLM 认证方式"
 }

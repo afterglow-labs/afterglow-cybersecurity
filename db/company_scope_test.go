@@ -660,7 +660,7 @@ func TestHostScopeUpgrade(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	d := &DB{stdlib.OpenDB(*cfg)}
+	d := &DB{DB: stdlib.OpenDB(*cfg)}
 	t.Cleanup(func() { d.Close() })
 	if err := withSchemaMigrationLock(t.Context(), d.DB, func(conn *sql.Conn) error {
 		return applySchemaWithRetry(t.Context(), conn, time.Sleep)

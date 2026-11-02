@@ -17,7 +17,7 @@ func oldUsageDatabase(t *testing.T) *DB {
 		t.Fatal(err)
 	}
 	pool.SetMaxOpenConns(1)
-	d := &DB{pool}
+	d := &DB{DB: pool}
 	schema := fmt.Sprintf("usage_old_%d", time.Now().UnixNano())
 	if _, err := d.Exec(`CREATE SCHEMA ` + schema); err != nil {
 		t.Fatal(err)

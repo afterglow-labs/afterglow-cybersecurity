@@ -1,6 +1,6 @@
 # Afterglow merge decisions and verification
 
-This record covers the original checkout and the expanded integration. ScopeWeaver is the base because it has the broadest maintained Go and Next.js application, task graph, six-language UI, MCP management, interception controls, and test coverage. The initial import is commit `634e705`; the later feature work listed here is awaiting a full dependency-backed build.
+This record covers the original checkout and the expanded integration. ScopeWeaver is the base because it has the broadest maintained Go and Next.js application, task graph, six-language UI, MCP management, interception controls, and test coverage. The initial import is commit `634e705`; the verification below covers the combined application and later feature work.
 
 | Input | Inspected commit | Integrated capability |
 | --- | --- | --- |
@@ -28,14 +28,12 @@ This record covers the original checkout and the expanded integration. ScopeWeav
 
 | Check | Result |
 | --- | --- |
-| `node extension/background.test.mjs`; extension script syntax | Passed (five focused tests). |
-| Browser runtime script test | Could not bind `127.0.0.1` in this sandbox (`listen EPERM`); rerun where loopback sockets are allowed. |
-| Detection indicator, ATT&CK, harness-sync, and host-triage checks | Passed in the initial import. Full Docker detection suite unavailable here. |
-| Pure Go packages: `artifactindex`, `cloudassess`, `c2bridge`, `proxygraph` | Passed with `GOPROXY=off`. |
-| Native replay helper security tests | Passed in an isolated copy with local tool stubs; this checks URL/body escaping and fail-closed branches, not full worker integration. |
-| Frontend localization suite | 23 of 24 checks passed. The remaining formatter test cannot load absent `date-fns`; catalog parity and Han guards passed. |
-| Telegram helper Python syntax | Passed with `python3 -m py_compile`. |
-| Full Go backend tests/build | Not run successfully: required modules are missing from the local cache and network/module-cache writes are unavailable in this sandbox. Database-backed tests additionally need a disposable PostgreSQL instance. The native replay tests in the actual package still need to run there. |
-| Full frontend install/build | Not run successfully: the npm cache lacks required packages, including `date-fns`. Browser end-to-end and Docker checks remain outstanding. |
+| `go build ./...`; `go vet ./...` | Passed across the root application module. |
+| `go test ./... -count=1` | Passed across all root packages against a fresh disposable PostgreSQL database selected by `ARTEX_TEST_DSN`; the database was removed afterward. This includes the native replay and ChatGPT packages. |
+| `npm ci`; `npm test`; `npm run build:static` in `web/` | Passed; 81 frontend tests passed and the static export completed. |
+| `node extension/background.test.mjs`; extension script syntax | Passed; all five extension tests passed. |
+| `detections/tests/run-all.sh` | Passed all eight Docker suites: Sigma, Sigma matching, Sigma lint, backends, Suricata, ATT&CK, indicators, and MISP. The Sigma assertion now checks the actual ScopeWeaver self-update and guard strings in the integrated rules. |
+| Telegram helper Python syntax | Passed with `python3 -m py_compile` during the initial import. |
+| `node scripts/browser-runtime.test.cjs` | Passed using a temporary local Playwright/Chromium installation and the host's `certutil`. It verified isolated profiles, JS and screenshots, session restore, navigation, TLS rejection, trusted CA handling, and localhost proxy traversal. |
 
-The passing checks validate only the packages and static content named above. Run `go test ./... -count=1` with `ARTEX_TEST_DSN`, `npm ci && npm test && npm run build:static` in `web/`, and the Docker detection suite before treating this working tree as a release.
+These checks exercise the application packages, frontend, extension, and detection content. A full Compose deployment and browser-driven user journey have not been run as part of this verification.
