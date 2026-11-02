@@ -14,6 +14,8 @@ Afterglow Cybersecurity combines the main capabilities of five ARTEX-derived pro
 
 The source forks overlap and some source tools reported success without executing anything. Afterglow keeps the feature surface while making those paths explicit: cloud and lateral tools produce scoped assessment plans, `exfil_data` indexes real local artifacts without transferring bytes, and C2 tools create a disabled-by-default handoff for an operator. See [integration status](docs/INTEGRATION-TRACKER.md) and [merge decisions and verification](docs/AFTERGLOW-MERGE.md) for details and test limits.
 
+The source fork's executable credential loader, AMSI bypass, PHP web shells, bulk exploit scripts, and WAF mutation lists are preserved in [source assets](extras/source-assets/README.md) for review. They are outside the runtime skills directory and excluded from the Docker build context. The active playbooks cover scoped assessment and evidence collection.
+
 ## Start locally
 
 Docker and Docker Compose are required for the standard installation. Copy `.env.example` to `.env`, set `POSTGRES_PASSWORD`, then build this checkout:

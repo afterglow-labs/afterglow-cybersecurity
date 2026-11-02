@@ -15,7 +15,7 @@ The product goal is one application with the useful capabilities from ScopeWeave
 | Defensive rules, ATT&CK layer, indicators, host triage | Integrated in `634e705` | Docker detection suite remains. |
 | Proxy graph, artifact index, C2 handoff, cloud and lateral planning | Integrated with operator and scope controls | C2 is a handoff record; cloud/lateral tools do not claim to execute external actions. |
 | Optional Telegram MCP helper | Integrated as stdio plugin | Operator must install Python dependencies, supply credentials and destination allowlist, and connect it manually. No HTTP wizard. |
-| Additional source playbooks | 29 imported; embedded credentials removed and four risky playbooks rewritten | Tool-by-tool runtime review remains before enabling all for agents. |
+| Additional source playbooks | 29 imported; embedded credentials removed and seven risky playbooks rewritten | Runtime playbooks remain opt-in. Executable source payloads and WAF mutation lists live only in the archived source-assets directory. |
 | KSIR mocked offensive success tools | Not enabled as execution | Their source implementations returned success without performing the claimed action. Handoff, plans, and local artifact indexing replace those claims. |
 
 ## ChatGPT account path
