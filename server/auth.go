@@ -133,15 +133,21 @@ func signJWT(key []byte) (string, error) {
 	}).SignedString(key)
 }
 
-// verifyJWT returns true when tokenStr is a valid, non-expired HS256 token.
-func verifyJWT(tokenStr string, key []byte) bool {
-	t, err := jwt.Parse(tokenStr, func(t *jwt.Token) (any, error) {
-		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+func parseJWTClaims(tokenStr string, key []byte) (*jwt.RegisteredClaims, bool) {
+	claims := &jwt.RegisteredClaims{}
+	t, err := jwt.ParseWithClaims(tokenStr, claims, func(t *jwt.Token) (any, error) {
+		if t.Method != jwt.SigningMethodHS256 {
 			return nil, locale.Errorf("unexpected signing method")
 		}
 		return key, nil
 	})
-	return err == nil && t.Valid
+	return claims, err == nil && t.Valid && claims.ExpiresAt != nil
+}
+
+// verifyJWT accepts only administrator tokens, including existing signed sessions.
+func verifyJWT(tokenStr string, key []byte) bool {
+	claims, valid := parseJWTClaims(tokenStr, key)
+	return valid && claims.Subject == "ARTEX"
 }
 
 // extractToken reads the JWT from Authorization: Bearer header,
@@ -170,11 +176,22 @@ func (s *Server) requireAuth(h http.Handler) http.Handler {
 			writeErr(w, 401, locale.Text(responseLanguage(w), "Unauthorized"))
 			return
 		}
-		if !verifyJWT(tok, s.jwtKey) {
-			writeErr(w, 401, locale.Text(responseLanguage(w), "Invalid or expired token"))
+		if verifyJWT(tok, s.jwtKey) {
+			h.ServeHTTP(w, r)
 			return
 		}
-		h.ServeHTTP(w, r)
+		// The gateway credential is accepted only in an Authorization header.
+		// A cookie or query token must never grant service access.
+		headerToken, hasBearer := strings.CutPrefix(r.Header.Get("Authorization"), "Bearer ")
+		if hasBearer && verifyGatewayJWT(headerToken, s.jwtKey) {
+			if !gatewayRouteAllowed(r) {
+				writeErr(w, 403, "Gateway token cannot access this route")
+				return
+			}
+			h.ServeHTTP(w, r)
+			return
+		}
+		writeErr(w, 401, locale.Text(responseLanguage(w), "Invalid or expired token"))
 	})
 }
 

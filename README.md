@@ -27,6 +27,24 @@ docker compose up -d --build
 
 Open `http://localhost:8787` and create the administrator password at `/setup`. Compose binds the app to loopback by default. Configure a model in **System → LLM** before starting an agent task. The Docker service and executable still use the internal `scopeweaver` name, and environment variables retain `SCOPEWEAVER_*` and `ARTEX_*` names for compatibility with the base. `docker compose logs -f scopeweaver` shows startup logs.
 
+## Connect Odysseus Cybersecurity mode
+
+After administrator setup, send `POST /api/auth/gateway-token` with an
+administrator JWT in the `Authorization: Bearer` header. The response contains a
+gateway token and its expiration time. Set that token as `AFTERGLOW_TOKEN` on the
+Odysseus server. The gateway token lasts 30 days and can be renewed with the
+same administrator request; Odysseus does not need the administrator password.
+
+The gateway token is accepted only in a bearer header and only for the API
+methods and paths used by the Odysseus Cybersecurity workbench. It cannot read
+task credentials, change global settings, or issue another token. It still
+permits task control and interception decisions, so protect it and keep
+Afterglow on a private address. This token narrows access but does not isolate
+an Odysseus agent that can run arbitrary local commands from those permitted
+operations. Model discovery, testing, and profile creation through this token
+accept only the workbench's fixed local Ollama endpoints or ChatGPT-plan profile
+shape; an administrator JWT retains the full model setup API.
+
 ## Connect ChatGPT
 
 Open **System → LLM → ChatGPT**, connect a ChatGPT account from the local Afterglow page, then create or select a `ChatGPT plan` profile. The account connection and administrator login are separate. Docker stores account tokens in the `chatgpt_auth` volume; the database stores an account reference. The callback is fixed to `http://127.0.0.1:${ARTEX_PORT:-8787}/auth/callback`. When `SCOPEWEAVER_LOCAL_LLM_ONLY=true`, plan inference and the account model catalog are disabled. A disconnected or blocked plan profile fails closed instead of switching to an API-key profile.
