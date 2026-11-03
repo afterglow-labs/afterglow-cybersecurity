@@ -4,7 +4,7 @@ The product goal is one application with the useful capabilities from ScopeWeave
 
 | Capability | Current state | Release gate or intentional boundary |
 | --- | --- | --- |
-| ScopeWeaver task graph, agent routing, six-language UI, MCP, notifications, local LLM controls | Base | Full regression suite still needed. |
+| ScopeWeaver task graph, agent routing, six-language UI, MCP, notifications, local LLM controls | Base | The full root Go suite passed with a disposable PostgreSQL database; release QA remains. |
 | ChatGPT OAuth, account storage, refresh/recheck/quota, Responses adapter, profile routing, model catalog, UI | Integrated | End-to-end login, refresh, replay, quota, and blocked-plan cases need a real account and full build. |
 | Persistent browser sessions, operator control, screenshots and image compaction | Integrated | Browser tests need Playwright and an executable app. |
 | Authenticated browser traffic extension | Integrated in `634e705` | Full browser capture test remains. |
@@ -24,4 +24,10 @@ The plan profile stores only an account ID in PostgreSQL. The private OAuth stor
 
 ## Verification limits
 
-Pure Go package tests, Telegram Python syntax, translation parity, and the initial extension/detection checks pass. Full Go and Next.js builds are blocked by missing cached dependencies and unavailable network access. The formatter test requires `date-fns`. A complete run still needs PostgreSQL, Docker, and a browser; see [merge verification](AFTERGLOW-MERGE.md).
+The root Go build, vet, and full test suite now pass with a disposable PostgreSQL
+database. The Next.js static build, frontend tests, browser runtime test,
+extension tests, and Docker detection suites also passed; see [merge
+verification](AFTERGLOW-MERGE.md) for the exact checks. The Odysseus
+Cybersecurity integration has additionally completed a two-server browser
+journey using a scoped gateway token. A full Compose deployment and a real
+ChatGPT account sign-in and inference journey remain unverified.

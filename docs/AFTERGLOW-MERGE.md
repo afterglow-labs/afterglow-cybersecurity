@@ -36,4 +36,4 @@ This record covers the original checkout and the expanded integration. ScopeWeav
 | Telegram helper Python syntax | Passed with `python3 -m py_compile` during the initial import. |
 | `node scripts/browser-runtime.test.cjs` | Passed using a temporary local Playwright/Chromium installation and the host's `certutil`. It verified isolated profiles, JS and screenshots, session restore, navigation, TLS rejection, trusted CA handling, and localhost proxy traversal. |
 
-These checks exercise the application packages, frontend, extension, and detection content. A full Compose deployment and browser-driven user journey have not been run as part of this verification.
+These checks exercise the application packages, frontend, extension, and detection content. A full Compose deployment has not been run. A separate two-server browser journey through Odysseus Cybersecurity mode passed with a scoped gateway token; it covered mode switching, task creation, and goal and constraint changes. A real ChatGPT account sign-in and inference journey remains unverified.
