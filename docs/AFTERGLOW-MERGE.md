@@ -38,8 +38,12 @@ This record covers the original checkout and the expanded integration. ScopeWeav
 
 These checks exercise the application packages, frontend, extension, and detection content. A full Compose deployment has not been run. A separate two-server browser journey through Odysseus Cybersecurity mode passed with a scoped gateway token; it covered mode switching, task creation, and goal and constraint changes. A real ChatGPT account sign-in and inference journey remains unverified.
 
-The Odysseus gateway token additionally admits six task-scoped Learning reads
-(outcome, lessons, business map, campaign branches, hunt classes, and attack
-chains) plus lesson extraction. Chain composition, verification, and hunt-class
-edits remain outside that token's allowlist. Gateway authorization tests and a
-desktop/mobile Odysseus browser fixture cover the new view and lesson action.
+The Odysseus gateway token additionally admits nine task-scoped Learning reads
+(outcome, lessons, follow-up waves, indexed artifacts, C2 handoff summaries,
+business map, campaign branches, hunt classes, and attack chains) plus lesson
+extraction.
+The new summary endpoint omits C2 shell URLs, and Odysseus filters the response
+again before sending it to the browser. Handoff decisions, chain composition
+and verification, and hunt-class edits remain
+outside the token's allowlist. Gateway authorization tests and a desktop/mobile
+Odysseus browser fixture cover the new view and lesson action.

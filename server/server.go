@@ -754,6 +754,7 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("POST /api/tasks/{id}/attack-chains/compose", s.composeTaskChains)
 	mux.HandleFunc("POST /api/tasks/{id}/attack-chains/{chain}/verify", s.verifyTaskChain)
 	mux.HandleFunc("GET /api/tasks/{id}/c2-handoffs", s.taskC2Handoffs)
+	mux.HandleFunc("GET /api/tasks/{id}/c2-handoffs/summary", s.taskC2HandoffsSummary)
 	mux.HandleFunc("POST /api/tasks/{id}/c2-handoffs/{handoff}/status", s.c2HandoffStatus)
 
 	// Auth routes — exempt from JWT check (handled in requireAuth)

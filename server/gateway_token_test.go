@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/Autumn-27/artex/db"
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -44,6 +45,9 @@ func TestGatewayTokenCannotBecomeAdministrator(t *testing.T) {
 		{"gateway learning outcome", "GET", "/api/tasks/7/outcome", gateway, false, 204},
 		{"gateway learning lessons", "GET", "/api/tasks/7/lessons", gateway, false, 204},
 		{"gateway lesson extraction", "POST", "/api/tasks/7/lessons/extract", gateway, false, 204},
+		{"gateway follow-up waves", "GET", "/api/tasks/7/waves", gateway, false, 204},
+		{"gateway evidence artifacts", "GET", "/api/tasks/7/artifacts", gateway, false, 204},
+		{"gateway handoff metadata", "GET", "/api/tasks/7/c2-handoffs/summary", gateway, false, 204},
 		{"gateway business map", "GET", "/api/tasks/7/business-map", gateway, false, 204},
 		{"gateway campaign", "GET", "/api/tasks/7/campaign", gateway, false, 204},
 		{"gateway hunt classes", "GET", "/api/tasks/7/hunt-classes", gateway, false, 204},
@@ -51,6 +55,8 @@ func TestGatewayTokenCannotBecomeAdministrator(t *testing.T) {
 		{"gateway model test needs safe body", "POST", "/api/llm/test", gateway, false, 403},
 		{"gateway chain compose denied", "POST", "/api/tasks/7/attack-chains/compose", gateway, false, 403},
 		{"gateway hunt edit denied", "PUT", "/api/tasks/7/hunt-classes/auth", gateway, false, 403},
+		{"gateway handoff status denied", "POST", "/api/tasks/7/c2-handoffs/2/status", gateway, false, 403},
+		{"gateway raw handoffs denied", "GET", "/api/tasks/7/c2-handoffs", gateway, false, 403},
 		{"gateway settings denied", "GET", "/api/settings", gateway, false, 403},
 		{"gateway credential reveal denied", "GET", "/api/tasks/7/credentials/1/secret", gateway, false, 403},
 		{"gateway profile delete denied", "DELETE", "/api/llm/profiles/2", gateway, false, 403},
@@ -92,6 +98,23 @@ func TestGatewayTokenCannotBecomeAdministrator(t *testing.T) {
 	}
 	if verifyGatewayJWT(noExpiry, key) {
 		t.Fatal("gateway token without expiration was accepted")
+	}
+}
+
+func TestGatewayC2HandoffSummaryOmitsShellURL(t *testing.T) {
+	rows := []db.C2Handoff{{
+		ID: 7, Vector: "webshell_upload", TargetHost: "lab.test",
+		TargetPath: "/test", ShellURL: "https://secret.test/token", Status: "requested",
+	}}
+	encoded, err := json.Marshal(summarizeC2Handoffs(rows))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(encoded), "shell_url") || strings.Contains(string(encoded), "secret.test") {
+		t.Fatalf("scoped handoff summary disclosed shell URL: %s", encoded)
+	}
+	if !strings.Contains(string(encoded), `"id":"7"`) || !strings.Contains(string(encoded), `"status":"requested"`) {
+		t.Fatalf("scoped handoff summary lost status metadata: %s", encoded)
 	}
 }
 

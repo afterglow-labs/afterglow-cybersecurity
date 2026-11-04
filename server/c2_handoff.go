@@ -3,7 +3,31 @@ package server
 import (
 	"net/http"
 	"strconv"
+
+	"github.com/Autumn-27/artex/db"
 )
+
+type c2HandoffSummary struct {
+	ID           int64  `json:"id,string"`
+	Vector       string `json:"vector"`
+	TargetHost   string `json:"target_host"`
+	TargetPath   string `json:"target_path"`
+	BinaryArch   string `json:"binary_arch"`
+	BinarySHA256 string `json:"binary_sha256"`
+	Status       string `json:"status"`
+}
+
+func summarizeC2Handoffs(rows []db.C2Handoff) []c2HandoffSummary {
+	summaries := make([]c2HandoffSummary, 0, len(rows))
+	for _, row := range rows {
+		summaries = append(summaries, c2HandoffSummary{
+			ID: row.ID, Vector: row.Vector, TargetHost: row.TargetHost,
+			TargetPath: row.TargetPath, BinaryArch: row.BinaryArch,
+			BinarySHA256: row.BinarySHA256, Status: row.Status,
+		})
+	}
+	return summaries
+}
 
 func (s *Server) c2TaskID(w http.ResponseWriter, r *http.Request) (int64, bool) {
 	id, ok := canonicalTaskID(r.PathValue("id"))
@@ -30,6 +54,21 @@ func (s *Server) taskC2Handoffs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, 200, map[string]any{"handoffs": rows})
+}
+
+// taskC2HandoffsSummary is the read-only view exposed to the scoped Odysseus
+// gateway. The full route above remains an administrator-only console feature.
+func (s *Server) taskC2HandoffsSummary(w http.ResponseWriter, r *http.Request) {
+	taskID, ok := s.c2TaskID(w, r)
+	if !ok {
+		return
+	}
+	rows, err := s.m.pg.ListC2Handoffs(taskID)
+	if err != nil {
+		writeErr(w, 500, "Could not list C2 handoffs")
+		return
+	}
+	writeJSON(w, 200, map[string]any{"handoffs": summarizeC2Handoffs(rows)})
 }
 
 func (s *Server) c2HandoffStatus(w http.ResponseWriter, r *http.Request) {
