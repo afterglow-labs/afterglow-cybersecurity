@@ -37,3 +37,9 @@ This record covers the original checkout and the expanded integration. ScopeWeav
 | `node scripts/browser-runtime.test.cjs` | Passed using a temporary local Playwright/Chromium installation and the host's `certutil`. It verified isolated profiles, JS and screenshots, session restore, navigation, TLS rejection, trusted CA handling, and localhost proxy traversal. |
 
 These checks exercise the application packages, frontend, extension, and detection content. A full Compose deployment has not been run. A separate two-server browser journey through Odysseus Cybersecurity mode passed with a scoped gateway token; it covered mode switching, task creation, and goal and constraint changes. A real ChatGPT account sign-in and inference journey remains unverified.
+
+The Odysseus gateway token additionally admits six task-scoped Learning reads
+(outcome, lessons, business map, campaign branches, hunt classes, and attack
+chains) plus lesson extraction. Chain composition, verification, and hunt-class
+edits remain outside that token's allowlist. Gateway authorization tests and a
+desktop/mobile Odysseus browser fixture cover the new view and lesson action.
