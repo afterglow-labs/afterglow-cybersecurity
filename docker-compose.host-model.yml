@@ -1,0 +1,17 @@
+# Reuse a model already downloaded on the Docker host. Keep the model store
+# read-only and the Ollama service private to this Compose network.
+services:
+  ollama:
+    environment:
+      OLLAMA_MODELS: /models
+    volumes:
+      - type: bind
+        source: ${OLLAMA_MODELS_DIR:?Set OLLAMA_MODELS_DIR to the absolute existing model directory}
+        target: /models
+        read_only: true
+        bind:
+          create_host_path: false
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true

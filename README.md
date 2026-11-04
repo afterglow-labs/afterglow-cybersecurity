@@ -27,6 +27,22 @@ docker compose up -d --build
 
 Open `http://localhost:8787` and create the administrator password at `/setup`. Compose binds the app to loopback by default. Configure a model in **System → LLM** before starting an agent task. The Docker service and executable still use the internal `scopeweaver` name, and environment variables retain `SCOPEWEAVER_*` and `ARTEX_*` names for compatibility with the base. `docker compose logs -f scopeweaver` shows startup logs.
 
+If a local Ollama model is already downloaded on the Docker host, the optional
+[`docker-compose.host-model.yml`](docker-compose.host-model.yml) runs Ollama on
+the private Compose network with that existing model directory mounted read-only.
+Export `OLLAMA_MODELS_DIR` as the directory that actually contains the model's
+`blobs/` and `manifests/`, verify it exists, then start the `local-llm` profile:
+
+```sh
+test -d "$OLLAMA_MODELS_DIR"
+docker compose -f docker-compose.yml -f docker-compose.host-model.yml --profile local-llm up -d --build
+```
+
+Use `http://ollama:11434` as the model endpoint inside ScopeWeaver. The Ollama
+port is not published on the host, and the base Compose service disables Ollama
+cloud. With `SCOPEWEAVER_LOCAL_LLM_ONLY=true`, allowlist the Ollama container's
+actual `/32` address as described in the [local model network policy](docs/llm-providers.md#network-policy-local_llm_only). Container addresses can change when Compose recreates services.
+
 ## Connect Odysseus Cybersecurity mode
 
 After administrator setup, send `POST /api/auth/gateway-token` with an
