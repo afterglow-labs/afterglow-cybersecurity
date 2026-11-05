@@ -1,6 +1,6 @@
-# Afterglow Cybersecurity
+# APTEX — Autonomous Purple Team Execution
 
-Afterglow Cybersecurity combines the main capabilities of five ARTEX-derived projects in one self-hosted security research console. ScopeWeaver supplies the application base; the other forks contribute ChatGPT plan access, browser sessions, workflows, deeper hunting, defensive content, proxy controls, and operator-directed assessment tools. The application uses a Go backend, a Next.js frontend, PostgreSQL, a shared asset graph, and per-task exploration graphs. Use it only in locally isolated or explicitly authorized research environments.
+APTEX by Afterglow Labs combines the main capabilities of five ARTEX-derived projects in one self-hosted security research console. ScopeWeaver supplies the application base; the other forks contribute ChatGPT plan access, browser sessions, workflows, deeper hunting, defensive content, proxy controls, and operator-directed assessment tools. The application uses a Go backend, a Next.js frontend, PostgreSQL, a shared asset graph, and per-task exploration graphs. Use it only in locally isolated or explicitly authorized research environments.
 
 ## What is included
 
@@ -26,6 +26,12 @@ docker compose up -d --build
 ```
 
 Open `http://localhost:8787` and create the administrator password at `/setup`. Compose binds the app to loopback by default. Configure a model in **System → LLM** before starting an agent task. The Docker service and executable still use the internal `scopeweaver` name, and environment variables retain `SCOPEWEAVER_*` and `ARTEX_*` names for compatibility with the base. `docker compose logs -f scopeweaver` shows startup logs.
+
+The administrator username defaults to **Afterglow**. Set `AFTERGLOW_ADMIN_USERNAME`
+in `.env` to use a personal name on the login screen; **Afterglow** remains an
+alias. ARTEX is not a valid login name. Changing the
+configured name invalidates existing administrator sessions. Odysseus gateway
+tokens are separate from administrator sessions.
 
 If a local Ollama model is already downloaded on the Docker host, the optional
 [`docker-compose.host-model.yml`](docker-compose.host-model.yml) runs Ollama on
@@ -83,7 +89,7 @@ For other installation modes and detailed operation, consult the [ScopeWeaver ba
 ## Capture browser traffic
 
 1. Load [`extension/`](extension/) as an unpacked Chrome or Edge extension.
-2. Sign in to the local Afterglow app. In its browser developer console, read `localStorage.getItem("artex_token")`, then paste that value and the Afterglow URL into the extension popup.
+2. Sign in to the local Afterglow app. In its browser developer console, read `localStorage.getItem("afterglow_token")`, then paste that value and the Afterglow URL into the extension popup.
 3. Open the authorized test tab, choose **Start capture**, browse, then choose **Stop**. The extension sends batches of at most 10 exchanges and retries queued entries when you choose **Flush now**. Unsent exchanges survive service worker restarts in session storage; if its 7 MiB queue fills, the oldest entries are dropped and counted as failed. The server accepts at most 50 exchanges per request and truncates each body at 256 KiB.
 4. Review captured exchanges in **Traffic** and bind relevant entries to findings.
 

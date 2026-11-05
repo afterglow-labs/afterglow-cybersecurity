@@ -4,7 +4,7 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/Autumn-27/artex/locale"
+	"github.com/afterglow-labs/afterglow-cybersecurity/locale"
 )
 
 const updateLocalOnlyMessage = "Update checks and downloads are unavailable while local_llm_only is enabled"

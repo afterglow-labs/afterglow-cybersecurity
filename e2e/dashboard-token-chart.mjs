@@ -181,7 +181,7 @@ try {
   browser = await chromium.launch();
   for (const locale of ["en", "ko"]) {
     const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
-    await context.addInitScript(([l, t]) => { localStorage.setItem("scopeweaver.locale", l); localStorage.setItem("artex_token", t); }, [locale, token]);
+    await context.addInitScript(([l, t]) => { localStorage.setItem("scopeweaver.locale", l); localStorage.setItem("afterglow_token", t); }, [locale, token]);
     const page = await context.newPage(); page.on("pageerror", e => errors.push(`${locale}: ${e.message}`));
     await page.goto(`${base}/dashboard`);
     await page.getByRole("button", { name: `${prefix}-a`, exact: true }).waitFor();

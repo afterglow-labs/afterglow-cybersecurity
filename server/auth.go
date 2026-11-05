@@ -3,7 +3,7 @@ package server
 import (
 	"crypto/rand"
 	"errors"
-	"github.com/Autumn-27/artex/locale"
+	"github.com/afterglow-labs/afterglow-cybersecurity/locale"
 	"io"
 	"log"
 	"math/big"
@@ -22,6 +22,7 @@ const (
 	jwtKeyFilename   = "jwt.key"
 	authPassKey      = "auth.password_hash"
 	jwtTTL           = 7 * 24 * time.Hour
+	adminSubject     = "Afterglow"
 	keyChars         = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 	minPasswordRunes = 8
 	maxPasswordBytes = 72
@@ -124,10 +125,20 @@ func createJWTKeyFile(path string, key []byte) error {
 	return nil
 }
 
-// signJWT issues a 7-day HS256 token for user ARTEX.
+// adminUsername is deployment-specific. It can match an existing Odysseus
+// username without making that person's name the default for every install.
+func adminUsername() string {
+	name := strings.TrimSpace(os.Getenv("AFTERGLOW_ADMIN_USERNAME"))
+	if name == "" || strings.EqualFold(name, "ARTEX") || len(name) > 64 || strings.ContainsAny(name, "\r\n\t") {
+		return adminSubject
+	}
+	return name
+}
+
+// signJWT issues a 7-day administrator token under the configured identity.
 func signJWT(key []byte) (string, error) {
 	return jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.RegisteredClaims{
-		Subject:   "ARTEX",
+		Subject:   adminUsername(),
 		ExpiresAt: jwt.NewNumericDate(time.Now().Add(jwtTTL)),
 		IssuedAt:  jwt.NewNumericDate(time.Now()),
 	}).SignedString(key)
@@ -144,19 +155,26 @@ func parseJWTClaims(tokenStr string, key []byte) (*jwt.RegisteredClaims, bool) {
 	return claims, err == nil && t.Valid && claims.ExpiresAt != nil
 }
 
-// verifyJWT accepts only administrator tokens, including existing signed sessions.
+// verifyJWT accepts only the current administrator identity. Old ARTEX tokens
+// are intentionally invalidated with the login rename.
 func verifyJWT(tokenStr string, key []byte) bool {
 	claims, valid := parseJWTClaims(tokenStr, key)
-	return valid && claims.Subject == "ARTEX"
+	return valid && claims.Subject == adminUsername()
+}
+
+func adminLoginUsernameAllowed(username string) bool {
+	name := strings.TrimSpace(username)
+	return !strings.EqualFold(name, "ARTEX") &&
+		(strings.EqualFold(name, adminUsername()) || strings.EqualFold(name, adminSubject))
 }
 
 // extractToken reads the JWT from Authorization: Bearer header,
-// artex_token cookie, or ?token= query param (for SSE connections).
+// afterglow_token cookie, or ?token= query param (for SSE connections).
 func extractToken(r *http.Request) string {
 	if h := r.Header.Get("Authorization"); strings.HasPrefix(h, "Bearer ") {
 		return strings.TrimPrefix(h, "Bearer ")
 	}
-	if c, err := r.Cookie("artex_token"); err == nil && c.Value != "" {
+	if c, err := r.Cookie("afterglow_token"); err == nil && c.Value != "" {
 		return c.Value
 	}
 	return r.URL.Query().Get("token")
@@ -206,7 +224,7 @@ func (s *Server) authStatus(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, 503, errDataSourceUnavailable)
 		return
 	}
-	writeJSON(w, 200, map[string]any{"initialized": hash != ""})
+	writeJSON(w, 200, map[string]any{"initialized": hash != "", "username": adminUsername()})
 }
 
 // POST /api/auth/init — sets the password for the first time; rejected if already set.
@@ -325,7 +343,7 @@ func (s *Server) authLogin(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, 400, locale.Text(responseLanguage(w), "Invalid request format"))
 		return
 	}
-	if req.Username != "ARTEX" {
+	if !adminLoginUsernameAllowed(req.Username) {
 		writeErr(w, 401, locale.Text(responseLanguage(w), "Incorrect username or password"))
 		return
 	}

@@ -14,7 +14,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/Autumn-27/artex/locale"
+	"github.com/afterglow-labs/afterglow-cybersecurity/locale"
 )
 
 // IsLocalAddress accepts loopback, RFC1918, and IPv6 unique-local addresses.

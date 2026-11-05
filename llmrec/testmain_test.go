@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/Autumn-27/artex/internal/dbtest"
+	"github.com/afterglow-labs/afterglow-cybersecurity/internal/dbtest"
 )
 
 // Coordinate schema initialization and cleanup with every other DB-backed suite.

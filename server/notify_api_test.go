@@ -13,9 +13,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Autumn-27/artex/db"
-	"github.com/Autumn-27/artex/internal/dbtest"
-	"github.com/Autumn-27/artex/notify"
+	"github.com/afterglow-labs/afterglow-cybersecurity/db"
+	"github.com/afterglow-labs/afterglow-cybersecurity/internal/dbtest"
+	"github.com/afterglow-labs/afterglow-cybersecurity/notify"
 )
 
 // These tests cover finding persistence, event creation, dispatch, and actual HTTP delivery. Never

@@ -7,9 +7,11 @@ import (
 	"strings"
 	"sync"
 	"testing"
+	"time"
 
-	"github.com/Autumn-27/artex/internal/dbtest"
-	"github.com/Autumn-27/artex/locale"
+	"github.com/afterglow-labs/afterglow-cybersecurity/internal/dbtest"
+	"github.com/afterglow-labs/afterglow-cybersecurity/locale"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/jackc/pgx/v5"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -52,6 +54,46 @@ func authTestServer(t *testing.T) *Server {
 	return &Server{m: backportTestManager(t), jwtKey: []byte("01234567890123456789012345678901")}
 }
 
+func TestAfterglowAdminIdentityRejectsArtexLoginsAndSessions(t *testing.T) {
+	t.Setenv("AFTERGLOW_ADMIN_USERNAME", "Corey")
+	key := []byte("01234567890123456789012345678901")
+	current, err := signJWT(key)
+	if err != nil {
+		t.Fatal(err)
+	}
+	claims, valid := parseJWTClaims(current, key)
+	if !valid || claims.Subject != "Corey" || !verifyJWT(current, key) {
+		t.Fatal("new administrator token does not use the configured identity")
+	}
+	for _, tc := range []struct {
+		username string
+		allowed  bool
+	}{
+		{"Corey", true}, {"corey", true}, {"Afterglow", true},
+		{"afterglow", true}, {" ARTEX ", false}, {"ARTEX", false},
+		{"other", false}, {"", false},
+	} {
+		if got := adminLoginUsernameAllowed(tc.username); got != tc.allowed {
+			t.Errorf("username %q allowed=%t want %t", tc.username, got, tc.allowed)
+		}
+	}
+	for _, subject := range []string{"ARTEX", "Afterglow", "other"} {
+		token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.RegisteredClaims{
+			Subject: subject, ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour)),
+		}).SignedString(key)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if got := verifyJWT(token, key); got {
+			t.Errorf("subject %q was accepted", subject)
+		}
+	}
+	t.Setenv("AFTERGLOW_ADMIN_USERNAME", "ARTEX")
+	if adminUsername() != "Afterglow" || adminLoginUsernameAllowed("ARTEX") {
+		t.Fatal("ARTEX must never become the administrator username")
+	}
+}
+
 func TestAuthFailsClosedWhenDataSourceUnavailable(t *testing.T) {
 	for _, lang := range []locale.Lang{locale.En, locale.Ko} {
 		t.Run(string(lang), func(t *testing.T) {
@@ -65,7 +107,7 @@ func TestAuthFailsClosedWhenDataSourceUnavailable(t *testing.T) {
 			}
 			for _, route := range []string{"status", "init", "login", "change-password"} {
 				t.Run(route, func(t *testing.T) {
-					body := `{"password":"correct horse battery","username":"ARTEX","old_password":"correct horse battery","new_password":"another good password"}`
+					body := `{"password":"correct horse battery","username":"Afterglow","old_password":"correct horse battery","new_password":"another good password"}`
 					r := httptest.NewRequest("POST", "/api/auth/"+route, strings.NewReader(body))
 					r.Header.Set("Authorization", "Bearer "+token)
 					w := httptest.NewRecorder()

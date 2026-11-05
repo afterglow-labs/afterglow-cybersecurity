@@ -4,9 +4,9 @@ import packageJson from "../../package.json";
 const currentYear = new Date().getFullYear();
 
 export const APP_CONFIG = {
-  name: "Afterglow Cybersecurity",
+  name: "APTEX",
   version: packageJson.version,
-  copyright: `© ${currentYear}, Afterglow Cybersecurity. Based on ScopeWeaver and ARTEX by Autumn-27.`,
+  copyright: `© ${currentYear}, APTEX by Afterglow Labs.`,
   meta: {
     get title() { return swt("interface.m2410"); },
     get description() { return swt("interface.m2411"); },

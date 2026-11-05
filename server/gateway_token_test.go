@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Autumn-27/artex/db"
+	"github.com/afterglow-labs/afterglow-cybersecurity/db"
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -68,7 +68,7 @@ func TestGatewayTokenCannotBecomeAdministrator(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			r := httptest.NewRequest(tc.method, tc.target, nil)
 			if tc.cookie {
-				r.AddCookie(&http.Cookie{Name: "artex_token", Value: tc.token})
+				r.AddCookie(&http.Cookie{Name: "afterglow_token", Value: tc.token})
 			} else if tc.token != "" {
 				r.Header.Set("Authorization", "Bearer "+tc.token)
 			}
@@ -177,7 +177,7 @@ func TestGatewayTokenIssueRequiresAdminBearer(t *testing.T) {
 	request := func(token string, cookie bool) *httptest.ResponseRecorder {
 		r := httptest.NewRequest("POST", "/api/auth/gateway-token", strings.NewReader("{}"))
 		if cookie {
-			r.AddCookie(&http.Cookie{Name: "artex_token", Value: token})
+			r.AddCookie(&http.Cookie{Name: "afterglow_token", Value: token})
 		} else if token != "" {
 			r.Header.Set("Authorization", "Bearer "+token)
 		}

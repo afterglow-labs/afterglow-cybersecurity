@@ -83,7 +83,7 @@ export function UpdateCard() {
   // Poll /api/health until the version changes.
   //
   // Require a changed version, not merely connectivity: the old version briefly starts during swapping
-  // to install artex.new and exits again. Connectivity alone would falsely report success.
+  // to install scopeweaver.new and exits again. Connectivity alone would falsely report success.
   const waitForNewVersion = React.useCallback(async (fromVersion: string) => {
     setRestarting(true);
     const deadline = Date.now() + RESTART_TIMEOUT_MS;
@@ -291,7 +291,7 @@ export function UpdateCard() {
         {info?.mode === "docker" && info.has_update && (
           <p className="text-xs text-muted-foreground">
             {swt("interface.m1617")}<span className="font-mono"> docker compose up -d </span>
-            {swt("interface.m1618")}<span className="font-mono"> docker compose pull artex &amp;&amp; docker compose up -d artex</span>。
+            {swt("interface.m1618")}<span className="font-mono"> docker compose up -d --build scopeweaver</span>.
           </p>
         )}
 

@@ -5,16 +5,16 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"github.com/Autumn-27/artex/locale"
+	"github.com/afterglow-labs/afterglow-cybersecurity/locale"
 	"log"
 	"strings"
 	"time"
 
-	"github.com/Autumn-27/artex/notify"
+	"github.com/afterglow-labs/afterglow-cybersecurity/notify"
 )
 
 // IM notification channel configuration and event layer. Delivery claiming and transitions are in
-// db/notification_delivery.go。
+// db/notification_delivery.go.
 //
 // Preserve these two invariants when changing this file:
 //

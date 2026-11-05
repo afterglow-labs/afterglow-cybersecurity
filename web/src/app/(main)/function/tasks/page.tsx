@@ -3,6 +3,7 @@ import { getIntlLocale } from "@/i18n/runtime";
 
 import { translate as swt } from "@/i18n/runtime";
 import { useI18n } from "@/i18n";
+import { closingQuote, openingQuote, questionMark } from "@/i18n/punctuation";
 import * as React from "react";
 
 import Link from "next/link";
@@ -260,8 +261,8 @@ function taskControlAction(status: TaskStatus): "pause" | "resume" | null {
 type TaskSortField = "id" | "created" | "duration" | "status";
 
 const TASK_SORT_FIELDS: readonly TaskSortField[] = ["id", "created", "duration", "status"];
-const TASK_SORT_PREFERENCE_KEY = "artex_task_list_sort";
-const TASK_FILTER_PREFERENCE_KEY = "artex_task_list_filters";
+const TASK_SORT_PREFERENCE_KEY = "aptex_task_list_sort";
+const TASK_FILTER_PREFERENCE_KEY = "aptex_task_list_filters";
 
 const TASK_STATUS_RANK = new Map(STATUS_OPTIONS.map((option, index) => [option.value, index]));
 
@@ -2207,15 +2208,15 @@ function DeleteTaskDialog({
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>{swt("interface.m0955")}{task.id}？</AlertDialogTitle>
+          <AlertDialogTitle>{swt("interface.m0955")}{task.id}{questionMark(swLocale)}</AlertDialogTitle>
           <AlertDialogDescription className="break-words">
             {task.description ? (
               <>
-                「
+                {openingQuote(swLocale)}
                 <span className="break-all">
                   {task.description.length > 80 ? `${task.description.slice(0, 80)}…` : task.description}
                 </span>
-                」
+                {closingQuote(swLocale)}
               </>
             ) : (
               swt("interface.m0956")
@@ -2587,7 +2588,7 @@ function CategoryPicker({
               className="flex w-full items-center gap-2 px-2 py-2 text-left text-sm hover:bg-accent hover:text-accent-foreground disabled:opacity-50"
             >
               {creating ? <Spinner className="size-4" /> : <PlusIcon className="size-4" />}
-              {swt("interface.m0981")}{trimmed}」
+              {swt("interface.m0981")}{trimmed}{closingQuote(swLocale)}
             </button>
           ) : (
             <div className="px-2 py-2 text-sm text-muted-foreground">{swt("interface.m0982")}</div>
@@ -3086,7 +3087,7 @@ function CategoryManagementSheet({
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{swt("interface.m1020")}{selectedCategory?.name || swt("interface.m1021")}」？</AlertDialogTitle>
+            <AlertDialogTitle>{swt("interface.m1020")}{selectedCategory?.name || swt("interface.m1021")}{closingQuote(swLocale)}{questionMark(swLocale)}</AlertDialogTitle>
             <AlertDialogDescription>
               {swt("interface.m1022")}{" "}{selectedCategory?.task_count ?? 0} {swt("interface.m1023")}</AlertDialogDescription>
           </AlertDialogHeader>

@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Autumn-27/artex/db"
-	"github.com/Autumn-27/artex/locale"
+	"github.com/afterglow-labs/afterglow-cybersecurity/db"
+	"github.com/afterglow-labs/afterglow-cybersecurity/locale"
 )
 
 // Input bundles what the report needs.
@@ -64,9 +64,13 @@ func Markdown(in Input) string {
 		types = append(types, t)
 	}
 	sort.Strings(types)
+	separator := ", "
+	if lang == locale.ZhHans || lang == locale.ZhHant || lang == locale.Ja {
+		separator = "、"
+	}
 	for i, t := range types {
 		if i > 0 {
-			b.WriteString("、")
+			b.WriteString(separator)
 		}
 		fmt.Fprintf(&b, "%s %d", t, in.AssetCounts[t])
 	}

@@ -209,7 +209,7 @@ jobs:
           import (
             "log"
             "os"
-            "github.com/Autumn-27/artex/db"
+            "github.com/afterglow-labs/afterglow-cybersecurity/db"
           )
           func main() {
             store, err := db.Open(os.Getenv("ARTEX_PG_DSN"))

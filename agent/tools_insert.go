@@ -4,14 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/Autumn-27/artex/locale"
+	"github.com/afterglow-labs/afterglow-cybersecurity/locale"
 	"net"
 	"net/url"
 	"strconv"
 	"strings"
 
-	"github.com/Autumn-27/artex/db"
 	actool "github.com/Autumn-27/norma/tool"
+	"github.com/afterglow-labs/afterglow-cybersecurity/db"
 )
 
 // assetInterceptCandidates extracts domain/IP/URL candidates from an asset insertion.
@@ -652,7 +652,7 @@ func (t *ToolSet) WorkerTools() []actool.CoreTool {
 		// Keep list_findings so workers can check existing confirmed findings before reporting duplicates.
 		t.listFindings(),
 		t.addFinding(), t.recordFact(),
-		// asset management (handlers guard nil store internally)。
+		// Asset management handlers guard a nil store internally.
 		// Workers do not get add_company_scope; defining company scope belongs to planner/main/Auto.
 		t.insertAssets(), t.listAssets(),
 		t.saveTaskCredential(), t.listTaskCredentials(),

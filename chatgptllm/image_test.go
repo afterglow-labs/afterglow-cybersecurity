@@ -144,7 +144,7 @@ func TestVisualHistoryKeepsRecentImagesAndMissingArtifactIsRecoverable(t *testin
 	if err != nil {
 		t.Fatalf("missing artifact must not break resume: %v", err)
 	}
-	if !bytes.Contains(encoded, []byte("이미지를 다시 읽거나 캡처")) || bytes.Contains(encoded, []byte("base64")) {
+	if !bytes.Contains(encoded, []byte("The image must be read or captured again")) || bytes.Contains(encoded, []byte("base64")) {
 		t.Fatal("missing artifact guidance lost")
 	}
 }

@@ -4,9 +4,9 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
-	"github.com/Autumn-27/artex/llmnet"
-	"github.com/Autumn-27/artex/locale"
-	"github.com/Autumn-27/artex/opencodesdk"
+	"github.com/afterglow-labs/afterglow-cybersecurity/llmnet"
+	"github.com/afterglow-labs/afterglow-cybersecurity/locale"
+	"github.com/afterglow-labs/afterglow-cybersecurity/opencodesdk"
 	"time"
 )
 

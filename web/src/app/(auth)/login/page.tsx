@@ -22,6 +22,7 @@ export default function LoginPage() {
   const { t: swt, locale: swLocale } = useI18n();
 
   const router = useRouter();
+  const [username, setUsername] = useState("Afterglow");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -58,7 +59,8 @@ export default function LoginPage() {
     }
     api
       .authStatus()
-      .then(({ initialized }) => {
+      .then(({ initialized, username: configuredUsername }) => {
+        if (configuredUsername) setUsername(configuredUsername);
         if (!initialized) router.replace("/setup");
       })
       .catch(() => setError(swt("interface.m0001")))
@@ -74,7 +76,7 @@ export default function LoginPage() {
     setLoading(true);
     setError("");
     try {
-      const { token } = await api.login("ARTEX", password);
+      const { token } = await api.login(username, password);
       auth.setToken(token);
       window.location.replace("/function/tasks");
     } catch {
@@ -101,7 +103,7 @@ export default function LoginPage() {
           <div className="absolute size-60 rounded-full border border-primary-foreground/15" />
           <div className="absolute size-40 rounded-full border border-primary-foreground/20" />
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/afterglow.svg" alt="Afterglow Cybersecurity" width={160} height={160} className="relative" />
+          <img src="/afterglow.svg" alt="APTEX" width={160} height={160} className="relative" />
         </div>
       </div>
 
@@ -115,7 +117,7 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div className="space-y-1.5">
               <Label htmlFor="username">{swt("interface.m0007")}</Label>
-              <Input id="username" value="ARTEX" readOnly className="bg-muted text-muted-foreground" />
+              <Input id="username" value={username} onChange={(event) => setUsername(event.target.value)} autoComplete="username" />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="password">{swt("interface.m0008")}</Label>

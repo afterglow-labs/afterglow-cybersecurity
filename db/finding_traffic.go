@@ -8,11 +8,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/Autumn-27/artex/locale"
+	"github.com/afterglow-labs/afterglow-cybersecurity/locale"
 	"strings"
 	"time"
 
-	"github.com/Autumn-27/artex/notify"
+	"github.com/afterglow-labs/afterglow-cybersecurity/notify"
 )
 
 var (

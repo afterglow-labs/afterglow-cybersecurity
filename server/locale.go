@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/Autumn-27/artex/db"
-	"github.com/Autumn-27/artex/locale"
+	"github.com/afterglow-labs/afterglow-cybersecurity/db"
+	"github.com/afterglow-labs/afterglow-cybersecurity/locale"
 )
 
 const settingLanguage = "language"

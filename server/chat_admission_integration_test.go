@@ -2,8 +2,8 @@ package server
 
 import (
 	"context"
-	"github.com/Autumn-27/artex/chatstate"
-	"github.com/Autumn-27/artex/locale"
+	"github.com/afterglow-labs/afterglow-cybersecurity/chatstate"
+	"github.com/afterglow-labs/afterglow-cybersecurity/locale"
 	"github.com/Autumn-27/norma/llm"
 	"strings"
 	"testing"

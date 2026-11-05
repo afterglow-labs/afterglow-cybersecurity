@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Autumn-27/artex/notify"
+	"github.com/afterglow-labs/afterglow-cybersecurity/notify"
 )
 
 // These tests connect to PostgreSQL and skip if unavailable. Their SQL uses

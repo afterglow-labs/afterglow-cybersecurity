@@ -4,7 +4,7 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/Autumn-27/artex/chatgptllm"
+	"github.com/afterglow-labs/afterglow-cybersecurity/chatgptllm"
 )
 
 // saveChatGPTProfile keeps OAuth credentials out of PostgreSQL. A plan profile

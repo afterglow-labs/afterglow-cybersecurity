@@ -1,4 +1,4 @@
-// ARTEX domain model — types used across the UI.
+// APTEX domain model — types used across the UI.
 // Derived from functional specification section 7, key data shapes.
 
 export type TaskStatus = "created" | "queued" | "running" | "paused" | "done" | "failed" | "timeout";
@@ -1794,7 +1794,7 @@ export interface UpdateCheck {
   os: string;
   arch: string;
   repo: string;
-  /* Whether a previous binary (artex.old) is available for rollback. */
+  /* Whether a previous binary (scopeweaver.old) is available for rollback. */
   has_backup: boolean;
   /* Self-update bootstrap result, such as failed replacement or rollback; empty if nothing occurred. */
   boot_notice?: string;

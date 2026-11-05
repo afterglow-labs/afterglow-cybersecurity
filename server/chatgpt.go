@@ -11,11 +11,11 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/Autumn-27/artex/agent"
-	"github.com/Autumn-27/artex/chatgptauth"
-	"github.com/Autumn-27/artex/chatgptllm"
-	"github.com/Autumn-27/artex/db"
-	"github.com/Autumn-27/artex/llmnet"
+	"github.com/afterglow-labs/afterglow-cybersecurity/agent"
+	"github.com/afterglow-labs/afterglow-cybersecurity/chatgptauth"
+	"github.com/afterglow-labs/afterglow-cybersecurity/chatgptllm"
+	"github.com/afterglow-labs/afterglow-cybersecurity/db"
+	"github.com/afterglow-labs/afterglow-cybersecurity/llmnet"
 )
 
 const chatGPTCallbackEnv = "ARTEX_CHATGPT_CALLBACK_URL"
@@ -175,7 +175,7 @@ func (s *Server) chatGPTLogin(w http.ResponseWriter, r *http.Request) {
 	}
 	m, err := s.chatGPTManager()
 	if err != nil {
-		writeErr(w, 503, "ChatGPT 연결 저장소를 열 수 없습니다")
+		writeErr(w, 503, "Could not open the ChatGPT connection store")
 		return
 	}
 	start, err := m.Start(r.Context(), body.AccountID)
@@ -200,7 +200,7 @@ func (s *Server) chatGPTLogout(w http.ResponseWriter, r *http.Request) {
 	}
 	m, err := s.chatGPTManager()
 	if err != nil {
-		writeErr(w, 503, "ChatGPT 연결 저장소를 열 수 없습니다")
+		writeErr(w, 503, "Could not open the ChatGPT connection store")
 		return
 	}
 	ctx, cancel := context.WithTimeout(r.Context(), 25*time.Second)
@@ -225,7 +225,7 @@ func (s *Server) chatGPTModels(w http.ResponseWriter, r *http.Request) {
 	}
 	m, err := s.chatGPTManager()
 	if err != nil {
-		writeErr(w, 503, "ChatGPT 연결 저장소를 열 수 없습니다")
+		writeErr(w, 503, "Could not open the ChatGPT connection store")
 		return
 	}
 	ctx, cancel := context.WithTimeout(r.Context(), 30*time.Second)
@@ -237,7 +237,7 @@ func (s *Server) chatGPTModels(w http.ResponseWriter, r *http.Request) {
 	}
 	client, err := llmnet.NewClient("", false, nil)
 	if err != nil {
-		writeErr(w, 500, "연결을 준비할 수 없습니다")
+		writeErr(w, 500, "Could not prepare the connection")
 		return
 	}
 	models, err := chatgptllm.Models(ctx, func(ctx context.Context) (context.Context, context.CancelFunc, string, error) {
@@ -261,7 +261,7 @@ func (s *Server) chatGPTRecheck(w http.ResponseWriter, r *http.Request) {
 		ProfileID int64 `json:"profile_id"`
 	}
 	if err := decode(r, &body); err != nil || body.ProfileID <= 0 {
-		writeErr(w, 400, "재확인에 사용할 저장 프로필을 선택해 주세요")
+		writeErr(w, 400, "Select a saved profile for the usage limit recheck")
 		return
 	}
 	pg := s.pg(w)
@@ -280,7 +280,7 @@ func (s *Server) chatGPTRecheck(w http.ResponseWriter, r *http.Request) {
 	}
 	m, err := s.chatGPTManager()
 	if err != nil {
-		writeErr(w, 503, "ChatGPT 연결 저장소를 열 수 없습니다")
+		writeErr(w, 503, "Could not open the ChatGPT connection store")
 		return
 	}
 	var reply string

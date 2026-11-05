@@ -29,7 +29,7 @@ func encodeRequest(cfg Config, req llm.CompletionRequest) ([]byte, map[string]st
 	for _, tool := range req.Tools {
 		wire := wireToolName(tool.Name)
 		if tool.Name == "" || names[wire] != "" {
-			return nil, nil, failure("invalid_tool", "도구 이름이 비어 있거나 중복되었습니다", nil)
+			return nil, nil, failure("invalid_tool", "Tool names must be nonempty and unique.", nil)
 		}
 		names[wire] = tool.Name
 		parameters := tool.InputSchema
@@ -51,7 +51,7 @@ func encodeRequest(cfg Config, req llm.CompletionRequest) ([]byte, map[string]st
 	}
 	for _, msg := range req.Messages {
 		if msg.Role != llm.RoleUser && msg.Role != llm.RoleAssistant {
-			return nil, nil, failure("unsupported_role", "지원하지 않는 대화 역할입니다", nil)
+			return nil, nil, failure("unsupported_role", "Unsupported conversation role.", nil)
 		}
 		if len(msg.ProviderData) > 0 {
 			items, err := replayItems(msg)
@@ -83,18 +83,18 @@ func encodeRequest(cfg Config, req llm.CompletionRequest) ([]byte, map[string]st
 				input = append(input, map[string]any{"type": "message", "role": "user", "content": parts})
 			case llm.BlockToolUse:
 				if msg.Role != llm.RoleAssistant || block.ID == "" || block.Name == "" || !validArguments(block.Input) {
-					return nil, nil, failure("invalid_tool_call", "도구 호출 기록이 올바르지 않습니다", nil)
+					return nil, nil, failure("invalid_tool_call", "Malformed tool call record.", nil)
 				}
 				input = append(input, map[string]any{"type": "function_call", "call_id": block.ID, "name": wireToolName(block.Name), "namespace": "artex", "arguments": string(block.Input)})
 			case llm.BlockToolResult:
 				if msg.Role != llm.RoleUser || block.ToolUseID == "" {
-					return nil, nil, failure("invalid_tool_result", "도구 결과 기록이 올바르지 않습니다", nil)
+					return nil, nil, failure("invalid_tool_result", "Malformed tool result record.", nil)
 				}
 				var parts []string
 				var visualParts []any
 				hasImage := false
 				if block.IsError {
-					visualParts = append(visualParts, map[string]any{"type": "input_text", "text": "도구 실행 오류:"})
+					visualParts = append(visualParts, map[string]any{"type": "input_text", "text": "Tool execution error:"})
 				}
 				for _, content := range block.Content {
 					switch content.Type {
@@ -113,7 +113,7 @@ func encodeRequest(cfg Config, req llm.CompletionRequest) ([]byte, map[string]st
 				}
 				output := strings.Join(parts, "\n")
 				if block.IsError {
-					output = "도구 실행 오류:\n" + output
+					output = "Tool execution error:\n" + output
 				}
 				var wireOutput any = output
 				if hasImage {
@@ -127,14 +127,14 @@ func encodeRequest(cfg Config, req llm.CompletionRequest) ([]byte, map[string]st
 					continue
 				}
 				if msg.Role != llm.RoleAssistant || !strings.HasPrefix(block.Signature, reasoningPrefix) {
-					return nil, nil, failure("unsupported_reasoning", "이 제공자의 추론 기록을 OpenAI로 재전송할 수 없습니다. 새 대화를 시작해 주세요", nil)
+					return nil, nil, failure("unsupported_reasoning", "This provider's reasoning history cannot be replayed to OpenAI. Start a new conversation.", nil)
 				}
 				raw := json.RawMessage(strings.TrimPrefix(block.Signature, reasoningPrefix))
 				var item struct {
 					Type string `json:"type"`
 				}
 				if json.Unmarshal(raw, &item) != nil || item.Type != "reasoning" {
-					return nil, nil, failure("invalid_reasoning", "추론 기록이 올바르지 않습니다", nil)
+					return nil, nil, failure("invalid_reasoning", "Malformed reasoning record.", nil)
 				}
 				input = append(input, raw)
 			default:
@@ -170,7 +170,7 @@ func encodeRequest(cfg Config, req llm.CompletionRequest) ([]byte, map[string]st
 	}
 	encoded, err := json.Marshal(body)
 	if err != nil {
-		return nil, nil, failure("invalid_request", "요청을 JSON으로 변환할 수 없습니다", err)
+		return nil, nil, failure("invalid_request", "Could not serialize the request as JSON.", err)
 	}
 	return encoded, names, nil
 }
@@ -204,16 +204,16 @@ func prepareImageInputs(messages []llm.Message) ([]map[string]any, error) {
 	for i := len(sources) - 1; i >= 0; i-- {
 		source := sources[i]
 		if source == nil {
-			return nil, failure("invalid_image", "이미지 데이터가 없습니다", nil)
+			return nil, failure("invalid_image", "Image data is missing.", nil)
 		}
-		note := "이전 이미지는 현재 요청에서 생략했습니다. 필요하면 해당 파일을 Read로 다시 읽으세요. " + source.Description()
+		note := "An earlier image was omitted from this request. If needed, use Read to open its file again. " + source.Description()
 		if count < llm.MaxImagesPerRequest {
 			url, err := source.DataURL()
 			if err != nil {
 				if source.Path == "" {
 					return nil, failure("invalid_image", err.Error(), nil)
 				}
-				note = "이미지를 다시 읽거나 캡처해야 합니다: " + err.Error() + " " + source.Description()
+				note = "The image must be read or captured again: " + err.Error() + " " + source.Description()
 			} else if encodedBytes+len(url) <= 32<<20 {
 				parts[i] = map[string]any{"type": "input_image", "image_url": url, "detail": "auto"}
 				count++
@@ -227,7 +227,7 @@ func prepareImageInputs(messages []llm.Message) ([]map[string]any, error) {
 }
 
 func unsupportedBlock(kind llm.BlockType) error {
-	return failure("unsupported_content", fmt.Sprintf("현재 OpenAI 연결에서 지원하지 않는 콘텐츠입니다: %q", kind), nil)
+	return failure("unsupported_content", fmt.Sprintf("This content type is not supported by the current OpenAI connection: %q", kind), nil)
 }
 
 func validArguments(raw []byte) bool {

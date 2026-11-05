@@ -323,6 +323,19 @@ test("authored UI contains no untranslated Han literals; legacy parsers are expl
   assert.deepEqual(failures, []);
 });
 
+test("authored UI uses locale punctuation instead of fixed CJK punctuation", () => {
+  const failures = [];
+  for (const file of sourceFiles()) {
+    const rel = path.relative(SRC_ROOT, file).replaceAll("\\", "/");
+    if (rel.endsWith(".test.mjs") || rel.startsWith("i18n/messages/") || rel === "i18n/punctuation.ts") continue;
+    const lines = fs.readFileSync(file, "utf8").split("\n");
+    for (let index = 0; index < lines.length; index++) {
+      if (/[「」？。、【】]/u.test(lines[index])) failures.push(`${rel}:${index + 1}`);
+    }
+  }
+  assert.deepEqual(failures, []);
+});
+
 test("authored source and build configuration comments are English", async () => {
   const { hasHanComment } = await import("./han-scan.mjs");
   const files = [...sourceFiles(), path.resolve("next.config.mjs")];

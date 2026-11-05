@@ -4,6 +4,7 @@ import { getIntlLocale } from "@/i18n/runtime";
 
 import { translate as swt } from "@/i18n/runtime";
 import { useI18n } from "@/i18n";
+import { closingQuote, questionMark } from "@/i18n/punctuation";
 import * as React from "react";
 
 import {
@@ -106,7 +107,7 @@ const CONVERSATION_LIST_PAGE = 100;
 // Which agent groups the user has collapsed in the left rail. Persisted so the
 // rail looks the same after a reload; unknown keys are harmless (a deleted agent
 // simply never renders a group again).
-const COLLAPSED_AGENTS_KEY = "artex.chat.collapsed-agents";
+const COLLAPSED_AGENTS_KEY = "aptex.chat.collapsed-agents";
 
 function conversationIsPinned(conversation: Conversation): boolean {
   return conversation.pinned ?? Boolean(conversation.pinned_at);
@@ -958,7 +959,7 @@ const ConversationItem = React.memo(function ConversationItem({
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{swt("interface.m0102")}{conv.title || swt("interface.m0092")}」？</AlertDialogTitle>
+            <AlertDialogTitle>{swt("interface.m0102")}{conv.title || swt("interface.m0092")}{closingQuote(swLocale)}{questionMark(swLocale)}</AlertDialogTitle>
             <AlertDialogDescription>{swt("interface.m0103")}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

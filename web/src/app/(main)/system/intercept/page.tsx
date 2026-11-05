@@ -2,6 +2,7 @@
 
 import { translate as swt } from "@/i18n/runtime";
 import { useI18n } from "@/i18n";
+import { listSeparator } from "@/i18n/punctuation";
 import * as React from "react";
 import { toast } from "sonner";
 import {
@@ -648,8 +649,8 @@ export default function InterceptPage() {
           ) : (
             <>
               <Badge variant="secondary" className="shrink-0">{scopeTools.length} {swt("interface.m0464")}</Badge>
-              <span className="truncate text-muted-foreground" title={scopeTools.join("、")}>
-                {scopeTools.join("、")}
+              <span className="truncate text-muted-foreground" title={scopeTools.join(listSeparator(swLocale))}>
+                {scopeTools.join(listSeparator(swLocale))}
               </span>
             </>
           )}

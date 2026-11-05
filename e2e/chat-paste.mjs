@@ -176,7 +176,7 @@ if (process.argv[1]?.endsWith("chat-paste.mjs")) {
   try {
     await runChatPasteChecks({ base, token, mutation: process.env.PASTE_MUTATION === "1", check: assert.ok,
       step: async (name, fn) => { try { await fn(); console.log(`PASS ${name}`); } catch (error) { failures++; console.error(`FAIL ${name}: ${error.stack}`); if (process.env.PASTE_MUTATION === "1") throw error; } },
-      openPage: async (locale, jwt) => { const context = await browser.newContext(); await context.addInitScript(([l, t]) => { localStorage.setItem("scopeweaver.locale", l); localStorage.setItem("artex_token", t); }, [locale, jwt]); return context.newPage(); },
+      openPage: async (locale, jwt) => { const context = await browser.newContext(); await context.addInitScript(([l, t]) => { localStorage.setItem("scopeweaver.locale", l); localStorage.setItem("afterglow_token", t); }, [locale, jwt]); return context.newPage(); },
     });
   } finally { await browser.close(); await api.dispose(); }
   if (failures) process.exitCode = 1;

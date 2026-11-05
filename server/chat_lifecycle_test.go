@@ -2,7 +2,7 @@ package server
 
 import (
 	"errors"
-	"github.com/Autumn-27/artex/chatstate"
+	"github.com/afterglow-labs/afterglow-cybersecurity/chatstate"
 	"github.com/Autumn-27/norma/transcript"
 	"os"
 	"path/filepath"

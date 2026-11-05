@@ -93,10 +93,10 @@ func ValidateOptions(model, authMode, effort, cyber string) error {
 	}
 	if cyber != "" {
 		if !contains([]string{"standard", "daybreak_blue", "daybreak_red"}, cyber) {
-			return fail("invalid_access_program", "지원하지 않는 OpenAI 접근 프로그램입니다")
+			return fail("invalid_access_program", "Unsupported OpenAI access program.")
 		}
 		if authMode != "api_key" && cyber != "standard" {
-			return fail("unverified_access_program", "ChatGPT 구독의 Daybreak 명시 요청은 실제 적용값과 일치하지 않을 수 있습니다. 자동 선택 또는 Standard를 사용해 주세요")
+			return fail("unverified_access_program", "An explicit Daybreak selection for a ChatGPT subscription may not match the effective access program. Use automatic selection or Standard.")
 		}
 	}
 	return nil

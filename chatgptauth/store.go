@@ -50,7 +50,7 @@ func openStore(dir string) (diskState, *os.File, error) {
 	}
 	lock, err := acquireLock(lockPath)
 	if err != nil {
-		return state, nil, fmt.Errorf("ChatGPT 저장소를 열 수 없습니다. 다른 ARTEX가 같은 저장소를 사용 중인지 확인해 주세요.")
+		return state, nil, fmt.Errorf("Could not open the ChatGPT connection store. Check whether another APTEX process is using the same store.")
 	}
 	ok := false
 	defer func() {

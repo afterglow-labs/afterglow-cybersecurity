@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Autumn-27/artex/db"
+	"github.com/afterglow-labs/afterglow-cybersecurity/db"
 )
 
 func TestLLMProfileDTOAPIKeyOptionalMatchesEndpointReadiness(t *testing.T) {

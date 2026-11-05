@@ -53,7 +53,7 @@ func (g *streamIdleGuard) end() bool {
 }
 
 func streamIdleError() *Error {
-	return failure("stream_idle_timeout", "모델 연결에서 제한 시간 동안 데이터가 수신되지 않아 요청을 종료했습니다. 기존 도구 실행은 자동으로 반복하지 않습니다", context.DeadlineExceeded)
+	return failure("stream_idle_timeout", "No data arrived from the model connection before the idle timeout, so the request was stopped. Existing tool executions will not be repeated automatically.", context.DeadlineExceeded)
 }
 
 type idleResponseBody struct {

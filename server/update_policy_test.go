@@ -13,7 +13,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Autumn-27/artex/selfupdate"
+	"github.com/afterglow-labs/afterglow-cybersecurity/selfupdate"
 )
 
 type policyRoundTrip func(*http.Request) (*http.Response, error)

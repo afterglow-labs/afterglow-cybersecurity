@@ -32,7 +32,7 @@ for(const [index,p] of pages.entries()){
   try{await capture()}catch(captureError){console.error("diagnostic-capture-failure",JSON.stringify({case:name,page:index,kind,error:String(captureError.stack||captureError)}))}
  }
 }
-if(process.env.CHAT_QUEUE_RED||process.env.CHAT_CONTEXT_MUTATION)throw error}},openPage:async(locale,jwt)=>{const context=await browser.newContext();context.setDefaultTimeout(15000);await context.addInitScript(([locale,jwt])=>{localStorage.setItem("scopeweaver.locale",locale);localStorage.setItem("artex_token",jwt)},[locale,jwt]);const p=await context.newPage();p.on("pageerror",error=>errors.push(error.message));pages.push(p);return p}};
+if(process.env.CHAT_QUEUE_RED||process.env.CHAT_CONTEXT_MUTATION)throw error}},openPage:async(locale,jwt)=>{const context=await browser.newContext();context.setDefaultTimeout(15000);await context.addInitScript(([locale,jwt])=>{localStorage.setItem("scopeweaver.locale",locale);localStorage.setItem("afterglow_token",jwt)},[locale,jwt]);const p=await context.newPage();p.on("pageerror",error=>errors.push(error.message));pages.push(p);return p}};
 export async function runChatControlsChecks({base,token,restart,fixture,step,check,openPage}){
  const options={base,token,fixture,step,check,openPage};const only=process.env.CHAT_E2E_SUITE;const standard=!only||only==="standard";
  if(!only||only==="draft")await runChatDraftRetentionChecks(options);

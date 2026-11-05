@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/Autumn-27/artex/internal/dbtest"
+	"github.com/afterglow-labs/afterglow-cybersecurity/internal/dbtest"
 )
 
 // TestMain routes the evidence test suite through dbtest.Main, which refuses to

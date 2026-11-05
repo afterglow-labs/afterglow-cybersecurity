@@ -10,7 +10,7 @@ import (
 	"sync/atomic"
 	"testing"
 
-	"github.com/Autumn-27/artex/opencodesdk"
+	"github.com/afterglow-labs/afterglow-cybersecurity/opencodesdk"
 	"github.com/Autumn-27/norma/llm"
 )
 

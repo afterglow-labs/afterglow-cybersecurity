@@ -5,7 +5,7 @@ import (
 	"net"
 	"strings"
 
-	"github.com/Autumn-27/artex/db"
+	"github.com/afterglow-labs/afterglow-cybersecurity/db"
 )
 
 // Prior findings are scoped to the task's concrete declared hosts. Broad

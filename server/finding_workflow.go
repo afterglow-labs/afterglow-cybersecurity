@@ -6,10 +6,10 @@ import (
 	"log"
 	"strconv"
 
-	"github.com/Autumn-27/artex/agent"
-	"github.com/Autumn-27/artex/db"
-	"github.com/Autumn-27/artex/locale"
-	"github.com/Autumn-27/artex/traffic"
+	"github.com/afterglow-labs/afterglow-cybersecurity/agent"
+	"github.com/afterglow-labs/afterglow-cybersecurity/db"
+	"github.com/afterglow-labs/afterglow-cybersecurity/locale"
+	"github.com/afterglow-labs/afterglow-cybersecurity/traffic"
 	actool "github.com/Autumn-27/norma/tool"
 )
 

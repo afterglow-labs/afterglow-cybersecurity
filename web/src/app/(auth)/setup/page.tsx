@@ -74,7 +74,7 @@ export default function SetupPage() {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/afterglow.svg"
-            alt="Afterglow Cybersecurity"
+            alt="APTEX"
             width={160}
             height={160}
             className="relative"

@@ -3,6 +3,7 @@ import { getIntlLocale } from "@/i18n/runtime";
 
 import { translate as swt } from "@/i18n/runtime";
 import { useI18n } from "@/i18n";
+import { listSeparator } from "@/i18n/punctuation";
 import * as React from "react";
 import { toast } from "sonner";
 import { EyeIcon, GitCompareIcon, InfoIcon, PencilIcon, RotateCcwIcon, SaveIcon, Trash2Icon, XIcon } from "lucide-react";
@@ -1125,7 +1126,7 @@ function AgentTriggersTab({ agentKey, agent }: { agentKey: string; agent?: Agent
                 {t.on_task_create && t.task_create_message && <div className="line-clamp-1">{swt("interface.m2031")}{t.task_create_message}</div>}
                 {t.on_tool_call && (
                   <>
-                    <div className="line-clamp-1">{swt("interface.m2032")}{t.tool_names.join("、") || swt("interface.m2033")}</div>
+                    <div className="line-clamp-1">{swt("interface.m2032")}{t.tool_names.join(listSeparator(swLocale)) || swt("interface.m2033")}</div>
                     {t.tool_call_message && <div className="line-clamp-1">{swt("interface.m2034")}{t.tool_call_message}</div>}
                   </>
                 )}

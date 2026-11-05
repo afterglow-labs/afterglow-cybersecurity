@@ -2,6 +2,7 @@
 
 import { translate as swt } from "@/i18n/runtime";
 import { useI18n } from "@/i18n";
+import { closingQuote, questionMark } from "@/i18n/punctuation";
 import * as React from "react";
 import { toast } from "sonner";
 import { Bot, PlusIcon, Trash2Icon } from "lucide-react";
@@ -107,7 +108,7 @@ function AgentGridCard({
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>{swt("interface.m1137")}{agent.name}」？</AlertDialogTitle>
+              <AlertDialogTitle>{swt("interface.m1137")}{agent.name}{closingQuote(swLocale)}{questionMark(swLocale)}</AlertDialogTitle>
               <AlertDialogDescription>
                 {swt("interface.m1138")}</AlertDialogDescription>
             </AlertDialogHeader>

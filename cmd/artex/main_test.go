@@ -15,11 +15,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Autumn-27/artex/internal/dbtest"
-	"github.com/Autumn-27/artex/selfupdate"
+	"github.com/afterglow-labs/afterglow-cybersecurity/internal/dbtest"
+	"github.com/afterglow-labs/afterglow-cybersecurity/selfupdate"
 	"testing"
 
-	"github.com/Autumn-27/artex/agent"
+	"github.com/afterglow-labs/afterglow-cybersecurity/agent"
 )
 
 func TestMain(m *testing.M) {

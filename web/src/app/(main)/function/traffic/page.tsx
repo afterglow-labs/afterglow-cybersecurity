@@ -3,6 +3,7 @@ import { getIntlLocale } from "@/i18n/runtime";
 
 import { translate as swt } from "@/i18n/runtime";
 import { useI18n } from "@/i18n";
+import { listSeparator } from "@/i18n/punctuation";
 import * as React from "react";
 
 import {
@@ -792,7 +793,7 @@ export default function TrafficPage() {
               {deleteMode === "selected" && (
                 <>
                   {swt("interface.m0252")}<span className="font-semibold tabular-nums">{selectedHosts.length}</span> {swt("interface.m1106")}<span className="font-mono">
-                    {selectedHosts.slice(0, 3).join("、")}
+                    {selectedHosts.slice(0, 3).join(listSeparator(swLocale))}
                     {selectedHosts.length > 3 ? "…" : ""}
                   </span>
                   {swt("interface.m1107")}</>

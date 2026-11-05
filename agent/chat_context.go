@@ -10,8 +10,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Autumn-27/artex/chatstate"
-	"github.com/Autumn-27/artex/sidequestion"
+	"github.com/afterglow-labs/afterglow-cybersecurity/chatstate"
+	"github.com/afterglow-labs/afterglow-cybersecurity/sidequestion"
 	"github.com/Autumn-27/norma/agentcore"
 	"github.com/Autumn-27/norma/compaction"
 	"github.com/Autumn-27/norma/harness"

@@ -62,7 +62,7 @@ async function openPage(locale, token) {
   const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
   await context.addInitScript(([l, t]) => {
     localStorage.setItem("scopeweaver.locale", l);
-    if (t) localStorage.setItem("artex_token", t);
+    if (t) localStorage.setItem("afterglow_token", t);
   }, [locale, token]);
   const page = await context.newPage();
   page.on("pageerror", (err) => pageErrors.push(`${locale}: ${err.message}`));
@@ -127,13 +127,13 @@ await step("[en] setup creates the password and login accepts it", async () => {
   const second = await page.request.post(`${base}/api/auth/init`, { data: { password: "another-pass-99" } });
   check(second.status() === 403, `second setup returned ${second.status()}`);
 
-  await page.evaluate(() => localStorage.removeItem("artex_token"));
+  await page.evaluate(() => localStorage.removeItem("afterglow_token"));
   await page.goto(`${base}/login`);
   await page.fill("#password", PASSWORD);
   await page.locator("#agree-terms").click();
   await page.locator('button[type="submit"]').click();
   await page.waitForURL(/\/function\/tasks/);
-  token = await page.evaluate(() => localStorage.getItem("artex_token"));
+  token = await page.evaluate(() => localStorage.getItem("afterglow_token"));
   check(token, "login stored no token");
 });
 
