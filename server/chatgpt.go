@@ -62,6 +62,7 @@ func (s *Server) chatGPTManager() (*chatgptauth.Manager, error) {
 
 func (s *Server) configureChatGPT(cfg *agent.Config, p *db.LLMProfile) {
 	cfg.AuthMode, cfg.ChatGPTAccountID = p.AuthMode, p.ChatGPTAccountID
+	cfg.AccessProgramCyber = p.AccessProgramCyber
 	if p.AuthMode != "chatgpt_plan" {
 		return
 	}

@@ -54,8 +54,8 @@ func TestDaybreakOptionsAndObservedSelection(t *testing.T) {
 			t.Errorf("API documentation incorrectly advertises Red for %s", model)
 		}
 	}
-	if _, err := New(Config{Model: "catalog-model", Authorize: auth, AccessProgramCyber: "daybreak_blue"}); err == nil {
-		t.Fatal("unverified subscription option accepted")
+	if _, err := New(Config{Model: "catalog-model", Authorize: auth, AccessProgramCyber: "daybreak_blue"}); err != nil {
+		t.Fatal("explicit Blue subscription option rejected", err)
 	}
 }
 

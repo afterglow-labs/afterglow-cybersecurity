@@ -7,6 +7,13 @@ import type { en as browserSource } from "./browser.ts";
 import type { en as autowavesSource } from "./autowaves.ts";
 import type { en as providersSource } from './providers.ts';
 export const providers: Record<keyof typeof providersSource, string> = {
+  openaiModel: "Modelo de OpenAI",
+  chooseModel: "Selecciona un modelo",
+  openaiModelHelp: "Selecciona un modelo o introduce su ID. La cuenta conectada o el proyecto de API verifica su disponibilidad.",
+  daybreakBlue: "Daybreak Blue",
+  daybreakBlueHelp: "Usa el acceso aprobado a Daybreak Blue para este modelo. Desactívalo para usar el acceso estándar.",
+  standardAccessOnly: "Este modelo tiene seleccionado el acceso estándar.",
+
   "template": "Plantilla de configuración (solo para perfiles nuevos)",
   "chooseTemplate": "Elige una plantilla…",
   "general": "Z.ai GLM-5.3 · API general (recomendada)",
@@ -17,7 +24,7 @@ export const providers: Record<keyof typeof providersSource, string> = {
   "modelHelp": "GLM-5.3 solo admite texto y tiene un contexto de 1M de tokens. El razonamiento debe permanecer activado; admite los niveles low, high y max. Esta plantilla selecciona esfuerzo low, un límite de salida de 16,384 tokens y una ventana de contexto de 0 (200K por defecto). En la medición de ScopeWeaver de una tarea pequeña, low usó menos de la mitad de los tokens de max con el mismo hallazgo. Aumenta el esfuerzo para tareas más difíciles y revisa estos ajustes si cambias de modelo.",
   "deepseek": "DeepSeek · deepseek-flash (económico)",
   "claude": "Anthropic Claude · Haiku 5.5 (económico)",
-  "openai": "OpenAI · GPT-6 Luna, Responses API (económico)",
+  "openai": "OpenAI · Responses API",
   "qwen": "Alibaba Qwen · qwen3.8-flash, internacional (económico)",
   "kimi": "Moonshot Kimi · kimi-k3 (económico)",
   "openrouter": "OpenRouter · DeepSeek Flash (económico)",
@@ -3312,8 +3319,8 @@ export const common: Record<keyof typeof commonSource, string> = {
 };
 export const chatgpt: Record<keyof typeof chatgptSource, string> = {
   title: "Plan de ChatGPT",
-  help: "Conecta una cuenta de ChatGPT para usar sus modelos disponibles mediante la API Responses oficial. El uso del plan es independiente de la facturación API. Las credenciales permanecen en este servidor.",
-  connect: "Conectar cuenta", reconnect: "Reconectar", disconnect: "Desconectar", account: "Cuenta", model: "Modelo",
+  help: "Inicia sesión con tu cuenta de ChatGPT para usar los modelos disponibles en ella. No necesitas una clave API. El uso del plan es independiente de la facturación API. Las credenciales permanecen en este servidor.",
+  connect: "Iniciar sesión con ChatGPT", reconnect: "Reconectar", disconnect: "Desconectar", account: "Cuenta", model: "Modelo",
   profile: "Nombre del perfil", create: "Crear perfil del plan", update: "Actualizar perfil del plan", newProfile: "Nuevo perfil del plan",
   statusConnected: "Conectado", statusSignedOut: "Sesión cerrada", statusBlocked: "Uso del plan pausado",
   loadingModels: "Cargar modelos de la cuenta", recheck: "Volver a comprobar el uso",

@@ -119,10 +119,11 @@ def prepare_backend(backend: Path) -> dict[str, str]:
     model_path = model_directory(backend, settings)
     updates = {
         "OLLAMA_MODELS_DIR": str(model_path),
-        "SCOPEWEAVER_LOCAL_LLM_ONLY": "true",
         "SCOPEWEAVER_LLM_PROVIDER": "ollama",
         "SCOPEWEAVER_LLM_BASE_URL": "http://ollama:11434",
     }
+    if fresh or "SCOPEWEAVER_LOCAL_LLM_ONLY" not in settings:
+        updates["SCOPEWEAVER_LOCAL_LLM_ONLY"] = "true"
     if not settings.get("POSTGRES_PASSWORD"):
         updates["POSTGRES_PASSWORD"] = secrets.token_urlsafe(32)
     if not settings.get("SCOPEWEAVER_LLM_MODEL"):

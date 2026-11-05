@@ -3380,6 +3380,13 @@ export { interfaceMessages as interface };
 
 import type { en as providersSource } from "./providers.ts";
 export const providers: Record<keyof typeof providersSource, string> = {
+  openaiModel: "OpenAI モデル",
+  chooseModel: "モデルを選択",
+  openaiModelHelp: "モデルを選択するか ID を入力してください。利用可否は接続したアカウントまたは API プロジェクトで確認されます。",
+  daybreakBlue: "Daybreak Blue",
+  daybreakBlueHelp: "このモデルで承認済みの Daybreak Blue アクセスを使用します。オフにすると標準アクセスを使用します。",
+  standardAccessOnly: "このモデルでは標準アクセスが選択されています。",
+
   template: "設定テンプレート（新規プロファイルのみ）",
   chooseTemplate: "テンプレートを選択…",
   general: "Z.ai GLM-5.3 · General API（推奨）",
@@ -3393,7 +3400,7 @@ export const providers: Record<keyof typeof providersSource, string> = {
     "GLM-5.3 はテキスト専用で、コンテキストは 1M トークンです。推論は有効のままにする必要があり、対応する推論強度は low、high、max です。このテンプレートは low、出力上限 16,384 トークン、コンテキストウィンドウ 0（既定 200K）を選択します。ScopeWeaver の小規模なタスク 1 件の測定では、同じ検出事項に到達した際に low が使ったトークンは max の半分未満でした。難しいタスクでは推論強度を上げ、モデルを変更する場合はこれらの設定も見直してください。",
   deepseek: "DeepSeek · deepseek-flash（節約）",
   claude: "Anthropic Claude · Haiku 5.5（節約）",
-  openai: "OpenAI · GPT-6 Luna、Responses API（節約）",
+  openai: "OpenAI · Responses API",
   qwen: "Alibaba Qwen · qwen3.8-flash、国際版（節約）",
   kimi: "Moonshot Kimi · kimi-k3（節約）",
   openrouter: "OpenRouter · DeepSeek Flash（節約）",
@@ -3556,8 +3563,8 @@ export const settings: Record<keyof typeof settingsSource, string> = {
 };
 export const chatgpt: Record<keyof typeof chatgptSource, string> = {
   title: "ChatGPT プラン",
-  help: "ChatGPT アカウントを接続し、公式 Responses API で利用可能なモデルを使います。プラン利用量と API 請求は別です。認証情報はこのサーバーに保存されます。",
-  connect: "アカウントを接続", reconnect: "再接続", disconnect: "接続解除", account: "アカウント", model: "モデル",
+  help: "ChatGPT アカウントでログインし、アカウントで利用可能なモデルを使います。API キーは不要です。プラン利用量と API 請求は別です。認証情報はこのサーバーに保存されます。",
+  connect: "ChatGPT でログイン", reconnect: "再接続", disconnect: "接続解除", account: "アカウント", model: "モデル",
   profile: "プロファイル名", create: "プランプロファイルを作成", update: "プランプロファイルを更新", newProfile: "新しいプランプロファイル",
   statusConnected: "接続済み", statusSignedOut: "サインアウト", statusBlocked: "プラン利用を一時停止",
   loadingModels: "アカウントのモデルを読み込む", recheck: "プラン利用を再確認",

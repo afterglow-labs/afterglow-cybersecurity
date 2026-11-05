@@ -3283,6 +3283,13 @@ export { interfaceMessages as interface };
 
 import type { en as providersSource } from "./providers.ts";
 export const providers: Record<keyof typeof providersSource, string> = {
+  openaiModel: "OpenAI 模型",
+  chooseModel: "選擇模型",
+  openaiModelHelp: "選擇模型或輸入其 ID。可用性由已連線的帳號或 API 專案驗證。",
+  daybreakBlue: "Daybreak Blue 模式",
+  daybreakBlueHelp: "對此模型使用已核准的 Daybreak Blue 權限。關閉後使用標準存取。",
+  standardAccessOnly: "此模型已選擇標準存取。",
+
   template: "設定模板（僅用於新設定）",
   chooseTemplate: "選擇模板…",
   general: "Z.ai GLM-5.3 · 通用 API（推薦）",
@@ -3296,7 +3303,7 @@ export const providers: Record<keyof typeof providersSource, string> = {
     "GLM-5.3 僅支援文字，上下文為 100 萬token。必須保持推理開啟；支援 low、high、max 推理強度。此模板選擇 low 強度、16,384 token輸出上限和上下文視窗 0（預設 200K）。ScopeWeaver 對一個小任務的測量中，low 得到相同結果，所用token不到 max 的一半。較難的任務請提高強度；更換模型時請重新檢查這些設定。",
   deepseek: "DeepSeek · deepseek-flash（經濟型）",
   claude: "Anthropic Claude · Haiku 5.5（經濟型）",
-  openai: "OpenAI · GPT-6 Luna，Responses API（經濟型）",
+  openai: "OpenAI Responses 介面",
   qwen: "阿里雲通義千問 · qwen3.8-flash，國際站（經濟型）",
   kimi: "月之暗面 Kimi · kimi-k3（經濟型）",
   openrouter: "OpenRouter · DeepSeek Flash（經濟型）",
@@ -3450,8 +3457,8 @@ export const settings: Record<keyof typeof settingsSource, string> = {
 };
 export const chatgpt: Record<keyof typeof chatgptSource, string> = {
   title: "ChatGPT 訂閱方案",
-  help: "連結 ChatGPT 帳戶，透過官方 Responses API 使用帳戶可用的模型。訂閱用量與 API 帳單分開，憑證儲存在此伺服器。",
-  connect: "連結帳戶", reconnect: "重新連結", disconnect: "中斷連結", account: "帳戶", model: "模型",
+  help: "使用 ChatGPT 帳戶登入，即可使用該帳戶可用的模型。無需 API 金鑰。訂閱用量與 API 帳單分開，憑證儲存在此伺服器。",
+  connect: "使用 ChatGPT 登入", reconnect: "重新連結", disconnect: "中斷連結", account: "帳戶", model: "模型",
   profile: "設定名稱", create: "建立訂閱設定", update: "更新訂閱設定", newProfile: "新增訂閱設定",
   statusConnected: "已連結", statusSignedOut: "未登入", statusBlocked: "訂閱使用已暫停",
   loadingModels: "載入帳戶模型", recheck: "重新檢查訂閱用量",

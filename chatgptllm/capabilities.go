@@ -20,7 +20,7 @@ type ModelCapabilities struct {
 	CheckedAt              string   `json:"checked_at"`
 }
 
-const capabilityCheckedAt = "2026-10-22"
+const capabilityCheckedAt = "2026-11-05"
 
 // Access-program options: https://developers.openai.com/api/docs/guides/daybreak
 // SIWC contract: https://developers.openai.com/siwc/token-sharing-open-source/models-and-inference
@@ -41,7 +41,7 @@ func Capabilities(model, authMode string) ModelCapabilities {
 		return c // Account catalog capabilities take precedence over API model docs.
 	}
 	name := strings.ToLower(strings.TrimSpace(model))
-	for _, prefix := range []string{"gpt-6.1-sol", "gpt-6-astra", "gpt-6-sol", "gpt-6-luna"} {
+	for _, prefix := range []string{"gpt-6.1-sol", "gpt-6-astra", "gpt-6-sol", "gpt-5.6-sol", "gpt-6-luna"} {
 		if documentedModel(name, prefix) {
 			c.ReasoningEffortsKnown = true
 			c.ReasoningEfforts = []string{"low", "medium", "high", "xhigh", "max"}
@@ -51,7 +51,7 @@ func Capabilities(model, authMode string) ModelCapabilities {
 			break
 		}
 	}
-	for _, prefix := range []string{"gpt-6.1-sol", "gpt-6-astra", "gpt-6-sol", "gpt-5.6-cyber"} {
+	for _, prefix := range []string{"gpt-6.1-sol", "gpt-6-astra", "gpt-6-sol", "gpt-5.6-sol", "gpt-5.6-cyber", "gpt-daybreak-blue-latest"} {
 		if documentedModel(name, prefix) {
 			c.AccessProgramsCyber = []string{"standard", "daybreak_blue"}
 			if prefix == "gpt-5.6-cyber" {
@@ -82,7 +82,8 @@ func documentedModel(name, family string) bool {
 	return err == nil
 }
 
-// ValidateOptions checks the program enum and the verified subscription modes.
+// ValidateOptions checks the request program enum for both authentication modes.
+// OpenAI enforces the connected account or project's access for each request.
 // Model-specific documentation is a UI fallback, never an execution gate: an
 // account catalog can advertise newer options. OpenAI validates those combinations.
 func ValidateOptions(model, authMode, effort, cyber string) error {
@@ -94,9 +95,6 @@ func ValidateOptions(model, authMode, effort, cyber string) error {
 	if cyber != "" {
 		if !contains([]string{"standard", "daybreak_blue", "daybreak_red"}, cyber) {
 			return fail("invalid_access_program", "Unsupported OpenAI access program.")
-		}
-		if authMode != "api_key" && cyber != "standard" {
-			return fail("unverified_access_program", "An explicit Daybreak selection for a ChatGPT subscription may not match the effective access program. Use automatic selection or Standard.")
 		}
 	}
 	return nil

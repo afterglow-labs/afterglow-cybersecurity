@@ -3283,6 +3283,13 @@ export { interfaceMessages as interface };
 
 import type { en as providersSource } from "./providers.ts";
 export const providers: Record<keyof typeof providersSource, string> = {
+  openaiModel: "OpenAI 模型",
+  chooseModel: "选择模型",
+  openaiModelHelp: "选择模型或输入其 ID。可用性由已连接的账号或 API 项目验证。",
+  daybreakBlue: "Daybreak Blue 模式",
+  daybreakBlueHelp: "对此模型使用已获批准的 Daybreak Blue 权限。关闭后使用标准访问。",
+  standardAccessOnly: "此模型已选择标准访问。",
+
   template: "配置模板（仅用于新配置）",
   chooseTemplate: "选择模板…",
   general: "Z.ai GLM-5.3 · 通用 API（推荐）",
@@ -3296,7 +3303,7 @@ export const providers: Record<keyof typeof providersSource, string> = {
     "GLM-5.3 仅支持文本，上下文为 100 万令牌。必须保持推理开启；支持 low、high、max 推理强度。此模板选择 low 强度、16,384 令牌输出上限和上下文窗口 0（默认 200K）。ScopeWeaver 对一个小任务的测量中，low 得到相同结果，所用令牌不到 max 的一半。较难的任务请提高强度；更换模型时请重新检查这些设置。",
   deepseek: "DeepSeek · deepseek-flash（经济型）",
   claude: "Anthropic Claude · Haiku 5.5（经济型）",
-  openai: "OpenAI · GPT-6 Luna，Responses API（经济型）",
+  openai: "OpenAI Responses 接口",
   qwen: "阿里云通义千问 · qwen3.8-flash，国际站（经济型）",
   kimi: "月之暗面 Kimi · kimi-k3（经济型）",
   openrouter: "OpenRouter · DeepSeek Flash（经济型）",
@@ -3450,8 +3457,8 @@ export const settings: Record<keyof typeof settingsSource, string> = {
 };
 export const chatgpt: Record<keyof typeof chatgptSource, string> = {
   title: "ChatGPT 订阅计划",
-  help: "连接 ChatGPT 账户，通过官方 Responses API 使用账户可用的模型。订阅额度与 API 账单分开，凭据保存在本服务器。",
-  connect: "连接账户", reconnect: "重新连接", disconnect: "断开连接", account: "账户", model: "模型",
+  help: "使用 ChatGPT 账户登录，即可使用该账户可用的模型。无需 API 密钥。订阅额度与 API 账单分开，凭据保存在本服务器。",
+  connect: "使用 ChatGPT 登录", reconnect: "重新连接", disconnect: "断开连接", account: "账户", model: "模型",
   profile: "配置名称", create: "创建订阅配置", update: "更新订阅配置", newProfile: "新建订阅配置",
   statusConnected: "已连接", statusSignedOut: "未登录", statusBlocked: "订阅使用已暂停",
   loadingModels: "加载账户模型", recheck: "重新检查订阅额度",

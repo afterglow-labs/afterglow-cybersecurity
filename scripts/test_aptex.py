@@ -41,7 +41,7 @@ class AptexLauncherTests(unittest.TestCase):
         with patch.dict(aptex.os.environ, {"OLLAMA_MODELS_DIR": str(models)}):
             settings = aptex.prepare_backend(self.repo)
         self.assertEqual(settings["PERSONAL_SETTING"], "retained")
-        self.assertEqual(settings["SCOPEWEAVER_LOCAL_LLM_ONLY"], "true")
+        self.assertEqual(settings["SCOPEWEAVER_LOCAL_LLM_ONLY"], "false")
         self.assertEqual(settings["SCOPEWEAVER_LLM_MODEL"], "qwen3:32b")
         self.assertEqual(settings["OLLAMA_MODELS_DIR"], str(models))
         self.assertTrue(settings["POSTGRES_PASSWORD"])

@@ -32,7 +32,8 @@ func DecodeModels(body io.Reader, mode string) ([]Model, error) {
 		return nil, failure("invalid_catalog", "Could not read the OpenAI model catalog.", err)
 	}
 	entries := catalog.Models
-	if mode == "api_key" {
+	usingCodexCatalog := mode != "api_key" && entries != nil
+	if !usingCodexCatalog {
 		entries = catalog.Data
 	}
 	if entries == nil {
@@ -41,7 +42,7 @@ func DecodeModels(body io.Reader, mode string) ([]Model, error) {
 	out := make([]Model, 0, len(entries))
 	for _, entry := range entries {
 		id := entry.ID
-		if mode != "api_key" {
+		if usingCodexCatalog {
 			if entry.Visibility != "list" {
 				continue
 			}

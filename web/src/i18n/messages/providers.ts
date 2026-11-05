@@ -1,4 +1,11 @@
 export const en = {
+  openaiModel: "OpenAI model",
+  chooseModel: "Choose a model",
+  openaiModelHelp: "Choose a model or enter its ID. Availability is checked by your connected account or API project.",
+  daybreakBlue: "Daybreak Blue",
+  daybreakBlueHelp: "Use your approved Daybreak Blue access for this model. Turn off to use standard access.",
+  standardAccessOnly: "Standard access is selected for this model.",
+
   template: "Configuration template (new profile only)",
   chooseTemplate: "Choose a template…",
   general: "Z.ai GLM-5.3 · General API (recommended)",
@@ -9,7 +16,7 @@ export const en = {
   modelHelp: "GLM-5.3 is text-only with a 1M-token context. Reasoning must stay enabled; supported effort levels are low, high, and max. This template selects low effort, an output limit of 16,384 tokens and context window 0 (200K default). In ScopeWeaver's measurement of one small task, low used under half the tokens of max with the same finding. Raise effort for harder tasks, and review these settings if you change the model.",
   deepseek: "DeepSeek · deepseek-flash (economy)",
   claude: "Anthropic Claude · Haiku 5.5 (economy)",
-  openai: "OpenAI · GPT-6 Luna, Responses API (economy)",
+  openai: "OpenAI · Responses API",
   qwen: "Alibaba Qwen · qwen3.8-flash, international (economy)",
   kimi: "Moonshot Kimi · kimi-k3 (economy)",
   openrouter: "OpenRouter · DeepSeek Flash (economy)",
@@ -81,6 +88,13 @@ export const en = {
   missingModel: "The model is not available on this Ollama server. Run this on the server, then test again:",
 };
 export const ko: Record<keyof typeof en, string> = {
+  openaiModel: "OpenAI 모델",
+  chooseModel: "모델 선택",
+  openaiModelHelp: "모델을 선택하거나 ID를 입력하세요. 연결된 계정 또는 API 프로젝트에서 사용 가능 여부를 확인합니다.",
+  daybreakBlue: "Daybreak Blue",
+  daybreakBlueHelp: "이 모델에 승인된 Daybreak Blue 권한을 사용합니다. 끄면 표준 액세스를 사용합니다.",
+  standardAccessOnly: "이 모델에는 표준 액세스가 선택되어 있습니다.",
+
   template: "설정 템플릿(새 프로필 전용)",
   chooseTemplate: "템플릿 선택…",
   general: "Z.ai GLM-5.3 · 일반 API(권장)",
@@ -91,7 +105,7 @@ export const ko: Record<keyof typeof en, string> = {
   modelHelp: "GLM-5.3은 텍스트 전용이며 문맥 한도는 100만 토큰입니다. 추론은 항상 켜야 하며 지원 강도는 low, high, max입니다. 템플릿은 강도 low, 출력 한도 16,384 토큰, 문맥 창 0(기본 200K)을 선택합니다. ScopeWeaver가 작은 작업 하나로 측정했을 때 low는 같은 결과를 내면서 max의 절반 미만 토큰을 썼습니다. 어려운 작업에는 강도를 올리고, 모델을 바꾸면 이 설정도 확인하세요.",
   deepseek: "DeepSeek · deepseek-flash(절약형)",
   claude: "Anthropic Claude · Haiku 5.5(절약형)",
-  openai: "OpenAI · GPT-6 Luna, Responses API(절약형)",
+  openai: "OpenAI · Responses API",
   qwen: "Alibaba Qwen · qwen3.8-flash, 국제 엔드포인트(절약형)",
   kimi: "Moonshot Kimi · kimi-k3(절약형)",
   openrouter: "OpenRouter · DeepSeek Flash(절약형)",
