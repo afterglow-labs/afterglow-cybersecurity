@@ -27,7 +27,8 @@ The plan profile stores only an account ID in PostgreSQL. The private OAuth stor
 The root Go build, vet, and full test suite now pass with a disposable PostgreSQL
 database. The Next.js static build, frontend tests, browser runtime test,
 extension tests, and Docker detection suites also passed; see [merge
-verification](AFTERGLOW-MERGE.md) for the exact checks. The Odysseus
-Cybersecurity integration has additionally completed a two-server browser
-journey using a scoped gateway token. A full Compose deployment and a real
-ChatGPT account sign-in and inference journey remain unverified.
+verification](AFTERGLOW-MERGE.md) for the exact checks. The local Compose
+deployment and native APTEX launcher have also been verified with the existing
+local model. APTEX and Odysseus now use separate clients and server lifecycles;
+the earlier embedded-mode browser journey is retained as historical evidence.
+A real ChatGPT account sign-in and inference journey remains unverified.

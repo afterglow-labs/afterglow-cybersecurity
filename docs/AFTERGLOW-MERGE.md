@@ -30,13 +30,30 @@ This record covers the original checkout and the expanded integration. ScopeWeav
 | --- | --- |
 | `go build ./...`; `go vet ./...` | Passed across the root application module. |
 | `go test ./... -count=1` | Passed across all root packages against a fresh disposable PostgreSQL database selected by `ARTEX_TEST_DSN`; the database was removed afterward. This includes the native replay and ChatGPT packages. |
-| `npm ci`; `npm test`; `npm run build:static` in `web/` | Passed; 81 frontend tests passed and the static export completed. |
+| `npm ci`; `npm test`; `npm run build:static` in `web/` | Passed; 84 frontend tests passed and the static export completed on the English-primary branch. |
 | `node extension/background.test.mjs`; extension script syntax | Passed; all five extension tests passed. |
 | `detections/tests/run-all.sh` | Passed all eight Docker suites: Sigma, Sigma matching, Sigma lint, backends, Suricata, ATT&CK, indicators, and MISP. The Sigma assertion now checks the actual ScopeWeaver self-update and guard strings in the integrated rules. |
 | Telegram helper Python syntax | Passed with `python3 -m py_compile` during the initial import. |
 | `node scripts/browser-runtime.test.cjs` | Passed using a temporary local Playwright/Chromium installation and the host's `certutil`. It verified isolated profiles, JS and screenshots, session restore, navigation, TLS rejection, trusted CA handling, and localhost proxy traversal. |
 
-These checks exercise the application packages, frontend, extension, and detection content. A full Compose deployment has not been run. A separate two-server browser journey through Odysseus Cybersecurity mode passed with a scoped gateway token; it covered mode switching, task creation, and goal and constraint changes. A real ChatGPT account sign-in and inference journey remains unverified.
+These checks exercise the application packages, frontend, extension, and detection content. The local Compose deployment has run with PostgreSQL, APTEX, and private Ollama using the existing host model read-only. Cold start and repeated start were verified. A real ChatGPT account sign-in and inference journey remains unverified.
+
+## Independent client and server, 2026-11-05
+
+APTEX now has its own `aptex`, `aptex-start`, and `aptex-stop` commands and
+desktop entry. The full console opens with an independent browser profile.
+The launcher owns only the APTEX Compose services, initializes only its own
+administrator, and does not create or install an Odysseus gateway credential.
+It retains the existing Docker project and data volumes. Eight launcher tests
+passed, including lifecycle targeting, local model configuration, private
+credential setup, and separate client/shortcut installation. A live repeated
+start kept Odysseus's PID, its configuration, and all APTEX container IDs.
+
+The earlier embedded Odysseus Cybersecurity mode completed a two-server browser
+journey using a scoped gateway token, including mode switching, task creation,
+and goal/constraint changes. That result describes the earlier interface;
+the current architecture uses separate clients. The scoped gateway API remains
+available for optional custom integrations.
 
 The Odysseus gateway token additionally admits nine task-scoped Learning reads
 (outcome, lessons, follow-up waves, indexed artifacts, C2 handoff summaries,

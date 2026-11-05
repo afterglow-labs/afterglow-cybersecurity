@@ -18,6 +18,22 @@ The source fork's executable credential loader, AMSI bypass, PHP web shells, bul
 
 ## Start locally
 
+APTEX has its own client and server. From this repository root, install the
+native shortcuts once, start its services, and open its dedicated app window:
+
+```sh
+python3 scripts/aptex.py install
+aptex-start
+aptex
+```
+
+`aptex-stop` stops only APTEX, PostgreSQL, and its private Ollama service while
+retaining their data. Odysseus uses its own `odysseus-start`, `odysseus`, and
+`odysseus-stop` commands. The [standalone client guide](docs/standalone-client.md)
+covers login, the existing local model, configuration, and image rebuilds.
+
+For a manual Compose deployment:
+
 Docker and Docker Compose are required for the standard installation. Copy `.env.example` to `.env`, set `POSTGRES_PASSWORD`, then build this checkout:
 
 ```sh
@@ -30,8 +46,7 @@ Open `http://localhost:8787` and create the administrator password at `/setup`. 
 The administrator username defaults to **Afterglow**. Set `AFTERGLOW_ADMIN_USERNAME`
 in `.env` to use a personal name on the login screen; **Afterglow** remains an
 alias. ARTEX is not a valid login name. Changing the
-configured name invalidates existing administrator sessions. Odysseus gateway
-tokens are separate from administrator sessions.
+configured name invalidates existing administrator sessions.
 
 If a local Ollama model is already downloaded on the Docker host, the optional
 [`docker-compose.host-model.yml`](docker-compose.host-model.yml) runs Ollama on
@@ -49,23 +64,11 @@ port is not published on the host, and the base Compose service disables Ollama
 cloud. With `SCOPEWEAVER_LOCAL_LLM_ONLY=true`, allowlist the Ollama container's
 actual `/32` address as described in the [local model network policy](docs/llm-providers.md#network-policy-local_llm_only). Container addresses can change when Compose recreates services.
 
-## Connect Odysseus Cybersecurity mode
+## Optional integration API
 
-After administrator setup, send `POST /api/auth/gateway-token` with an
-administrator JWT in the `Authorization: Bearer` header. The response contains a
-gateway token and its expiration time. Set that token as `AFTERGLOW_TOKEN` on the
-Odysseus server. The gateway token lasts 30 days and can be renewed with the
-same administrator request; Odysseus does not need the administrator password.
-
-The gateway token is accepted only in a bearer header and only for the API
-methods and paths used by the Odysseus Cybersecurity workbench. It cannot read
-task credentials, change global settings, or issue another token. It still
-permits task control and interception decisions, so protect it and keep
-Afterglow on a private address. This token narrows access but does not isolate
-an Odysseus agent that can run arbitrary local commands from those permitted
-operations. Model discovery, testing, and profile creation through this token
-accept only the workbench's fixed local Ollama endpoints or ChatGPT-plan profile
-shape; an administrator JWT retains the full model setup API.
+APTEX retains its [scoped gateway token API](docs/gateway-api.md) for custom
+integrations. Its independent client uses its own administrator session;
+running APTEX does not configure credentials on Odysseus.
 
 ## Connect ChatGPT
 

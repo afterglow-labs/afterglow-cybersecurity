@@ -7,6 +7,12 @@ on:
 permissions:
   contents: read
 jobs:
+  native-client:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: python3 -m unittest discover -s scripts -p 'test_aptex.py' -v
+      - run: python3 -m py_compile scripts/aptex.py
   agent-adapter:
     runs-on: ubuntu-latest
     services:
