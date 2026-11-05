@@ -106,7 +106,7 @@ export async function runChatPasteChecks({ base, token, step, check, openPage, m
           check(await p.getByRole("button", { name: labels[locale].chatUploadRetry, exact: true }).count() === 0, "retry did not finish");
           check(await input.inputValue() === `later edits${normalized}`, "failed upload changed draft");
           for (const mode of ["enter", "ctrl-enter"]) {
-            await p.evaluate((value) => { localStorage.setItem("artex_chat_send_mode", value); window.dispatchEvent(new Event("storage")); }, mode);
+            await p.evaluate((value) => { localStorage.setItem("aptex_chat_send_mode", value); window.dispatchEvent(new Event("storage")); }, mode);
             await input.fill("@");
           await input.press("End");
           await input.press("ArrowLeft");
@@ -168,7 +168,7 @@ if (process.argv[1]?.endsWith("chat-paste.mjs")) {
   assert.ok(dsn.pathname.slice(1).startsWith("scopeweaver_test_"), "requires disposable database");
   const api = await request.newContext({ baseURL: base });
   await api.post("/api/auth/init", { data: { password: "chat-test-pass-1234" } });
-  const login = await api.post("/api/auth/login", { data: { username: "ARTEX", password: "chat-test-pass-1234" } });
+  const login = await api.post("/api/auth/login", { data: { username: "Afterglow", password: "chat-test-pass-1234" } });
   assert.ok(login.ok(), `login ${login.status()}`);
   const { token } = await login.json();
   const browser = await chromium.launch();

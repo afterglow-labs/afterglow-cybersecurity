@@ -26,6 +26,7 @@ export function configFromEnv(env = process.env) {
     throw new Error(t("config.writes"));
   }
   return { baseURL, language, timeoutMs, token, password: env.SCOPEWEAVER_PASSWORD || "",
+    username: env.AFTERGLOW_ADMIN_USERNAME || "Afterglow",
     allowWrites: env.SCOPEWEAVER_ALLOW_WRITES === "true" };
 }
 
@@ -50,7 +51,7 @@ export class ScopeWeaverClient {
     // Share a single login when an agent calls multiple read tools concurrently.
     if (!this.login) {
       this.login = this.request("/api/auth/login", {
-        method: "POST", body: { username: "ARTEX", password: this.config.password }, auth: false, signal,
+        method: "POST", body: { username: this.config.username, password: this.config.password }, auth: false, signal,
       }).then((result) => {
         if (typeof result.token !== "string" || !result.token) throw new Error(this.t("auth.token_missing"));
         this.token = result.token;

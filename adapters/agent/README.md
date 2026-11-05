@@ -15,7 +15,7 @@ export SCOPEWEAVER_URL=http://127.0.0.1:8787
 export SCOPEWEAVER_PASSWORD='your-existing-admin-password'
 ```
 
-The password is used to log in as the backend's existing `ARTEX` admin user. The returned JWT stays in memory. Alternatively set `SCOPEWEAVER_TOKEN` to an existing login JWT; a supplied token takes precedence. Expired/invalid tokens produce an error and are not silently replaced. Keep credentials in your environment or secret manager; do not commit them to client configuration.
+The password is used to log in as the backend's **Afterglow** administrator by default. If the backend uses a different `AFTERGLOW_ADMIN_USERNAME`, set the same value for this adapter. The returned JWT stays in memory. Alternatively set `SCOPEWEAVER_TOKEN` to an existing login JWT; a supplied token takes precedence. Expired/invalid tokens produce an error and are not silently replaced. Keep credentials in your environment or secret manager; do not commit them to client configuration.
 
 Reads are enabled by default. To enable task creation and pause/resume, explicitly set `SCOPEWEAVER_ALLOW_WRITES=true` before starting the adapter. Task creation schedules work immediately when the backend has an LLM configured. Retain the project's [locally isolated usage restrictions](../../README.md#license-and-disclaimer) and confirm the intended scope before creating a task.
 
@@ -41,7 +41,7 @@ Verify with `codex mcp list` and `/mcp`. For explicit environment forwarding in 
 [mcp_servers.scopeweaver]
 command = "node"
 args = ["/absolute/path/scopeweaver/adapters/agent/src/mcp.js"]
-env_vars = ["SCOPEWEAVER_URL", "SCOPEWEAVER_TOKEN", "SCOPEWEAVER_PASSWORD", "SCOPEWEAVER_LANGUAGE", "SCOPEWEAVER_ALLOW_WRITES"]
+env_vars = ["SCOPEWEAVER_URL", "SCOPEWEAVER_TOKEN", "SCOPEWEAVER_PASSWORD", "AFTERGLOW_ADMIN_USERNAME", "SCOPEWEAVER_LANGUAGE", "SCOPEWEAVER_ALLOW_WRITES"]
 ```
 
 Use the credential variable that you set; omit unused entries. [Official OpenAI MCP documentation](https://developers.openai.com/codex/mcp).

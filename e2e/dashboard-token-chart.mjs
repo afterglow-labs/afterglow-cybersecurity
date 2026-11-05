@@ -150,7 +150,7 @@ try {
   ownedUsage.push(Number(sql(`INSERT INTO llm_usage(ts,worker,profile_name,input_tokens,output_tokens,cache_read,reasoning_tokens,status) VALUES ('${day(-4)}T12:00:00Z','judge','${prefix}-judge',3000000,600000,0,200000,'ok') RETURNING id`)));
   assert.equal(sql(`SELECT count(*) FROM llm_usage WHERE profile_name LIKE '${prefix}-%'`), "7", "seed read-back");
   await startServer();
-  const login = await api.post(`${base}/api/auth/login`, { data: { username: "ARTEX", password: "e2e-pass-1234" } });
+  const login = await api.post(`${base}/api/auth/login`, { data: { username: "Afterglow", password: "e2e-pass-1234" } });
   assert.equal(login.status(), 200, "run smoke first to initialize password");
   const { token } = await login.json();
   const usage = await get("tokens/usage?days=365", token);

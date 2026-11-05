@@ -9,7 +9,7 @@ import {runChatDraftRetentionChecks} from "./chat-draft-retention.mjs";
 const base=process.env.SCOPEWEAVER_E2E_URL;assert.ok(base?.startsWith("http://127.0.0.1:"),"loopback test listener required");
 const api=await request.newContext({baseURL:base});
 const init=await api.post("/api/auth/init",{data:{password:"chat-controls-pass-1234"}});assert.ok(init.ok(),await init.text());
-const login=await api.post("/api/auth/login",{data:{username:"ARTEX",password:"chat-controls-pass-1234"}});assert.ok(login.ok(),await login.text());const {token}=await login.json();
+const login=await api.post("/api/auth/login",{data:{username:"Afterglow",password:"chat-controls-pass-1234"}});assert.ok(login.ok(),await login.text());const {token}=await login.json();
 const fixtureRequest=async(action,body)=>{const response=await api.post(`/__fixture/${action}`,{headers:{"X-Chat-Fixture":process.env.SCOPEWEAVER_E2E_FIXTURE},data:body??{}});assert.ok(response.ok(),await response.text());return response.json()};
 let activeCase="setup",readSequence=0,countSequence=0;
 const fixtureStats=(kind,metadata={})=>{
