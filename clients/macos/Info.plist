@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+<key>CFBundleName</key><string>APTEX</string>
+<key>CFBundleDisplayName</key><string>APTEX by Afterglow Labs</string>
+<key>CFBundleIdentifier</key><string>com.afterglowlabs.aptex.client</string>
+<key>CFBundleExecutable</key><string>APTEX</string>
+<key>CFBundlePackageType</key><string>APPL</string>
+<key>CFBundleVersion</key><string>1</string>
+<key>CFBundleShortVersionString</key><string>1.0.0</string>
+<key>CFBundleIconFile</key><string>APTEX</string>
+<key>LSMinimumSystemVersion</key><string>13.3</string>
+<key>NSHighResolutionCapable</key><true/>
+<key>NSLocalNetworkUsageDescription</key><string>Connect to the APTEX server running on your desktop.</string>
+<key>NSAppTransportSecurity</key><dict><key>NSAllowsArbitraryLoadsInWebContent</key><true/></dict>
+<key>NSHumanReadableCopyright</key><string>APTEX by Afterglow Labs. AGPL-3.0.</string>
+</dict></plist>

@@ -66,3 +66,6 @@ Thumbs.db
 /scopeweaver.old
 /scopeweaver.failed
 /scopeweaver.upgrade.json
+
+# Native macOS client build products.
+/clients/macos/.build/

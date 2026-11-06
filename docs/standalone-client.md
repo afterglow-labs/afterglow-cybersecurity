@@ -1,5 +1,10 @@
 # Independent APTEX client and server
 
+The [native macOS client](../clients/macos/README.md) connects to the server on
+your desktop. It needs no Mac server, Docker installation, or model runtime.
+See the [startup measurements and server comparison](client-startup.md) for the
+delivery changes and the decision to retain APTEX's existing execution engine.
+
 APTEX opens its full console in a dedicated app window with a separate browser
 profile, login, and backend. The server normally listens on
 `http://127.0.0.1:8787`; Odysseus runs independently on its configured port.

@@ -1,0 +1,36 @@
+name: macOS client
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['clients/macos/**', '.github/workflows/macos-client.yml']
+  pull_request:
+    paths: ['clients/macos/**', '.github/workflows/macos-client.yml']
+permissions:
+  contents: read
+jobs:
+  macos-client:
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [macos-15, macos-15-intel]
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - name: Test desktop URL boundaries and build native sources
+        run: swift test --package-path clients/macos
+      - name: Package universal Mac client
+        run: clients/macos/build.sh
+      - name: Run the real native WebKit client
+        env:
+          APTEX_SMOKE_SCREENSHOT: ${{ runner.temp }}/aptex-native-client.png
+        run: python3 clients/macos/tools/smoke.py dist/macos/APTEX.app
+      - uses: actions/upload-artifact@v6
+        with:
+          name: APTEX-macOS-universal-${{ matrix.runner }}
+          path: |
+            dist/macos/APTEX-macOS-universal.zip
+            dist/macos/SHA256SUMS.txt
+            ${{ runner.temp }}/aptex-native-client.png
+          if-no-files-found: error
