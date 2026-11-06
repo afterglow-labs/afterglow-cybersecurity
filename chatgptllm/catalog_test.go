@@ -103,8 +103,21 @@ func TestAPIModelCatalogUsesMetadataBeforeDocumentedCompatibility(t *testing.T) 
 	}
 }
 
-func TestSubscriptionAutomaticAndStandardProgramsReachResponses(t *testing.T) {
-	for _, cyber := range []string{"", "standard"} {
+func TestSubscriptionCatalogAcceptsResponsesDataWithoutInventingEntitlements(t *testing.T) {
+	models, err := DecodeModels(strings.NewReader(`{"data":[{"id":"gpt-6-sol"},{"id":"gpt-6.1-sol","available_access_programs":{"cyber":["standard"]}}]}`), "chatgpt_plan")
+	if err != nil || len(models) != 2 {
+		t.Fatalf("Responses account catalog: %+v %v", models, err)
+	}
+	if models[0].ID != "gpt-6-sol" || models[0].Capabilities.Known || models[0].Capabilities.DaybreakAvailable != nil {
+		t.Fatalf("plain account model gained documented entitlements: %+v", models[0])
+	}
+	if models[1].Capabilities.Source != "account_catalog" || !reflect.DeepEqual(models[1].Capabilities.AccessProgramsCyber, []string{"standard"}) {
+		t.Fatalf("account metadata lost: %+v", models[1])
+	}
+}
+
+func TestSubscriptionProgramsReachResponses(t *testing.T) {
+	for _, cyber := range []string{"", "standard", "daybreak_blue"} {
 		t.Run(cyber, func(t *testing.T) {
 			client := fakeClient(t, func(w http.ResponseWriter, r *http.Request) {
 				var request map[string]json.RawMessage
@@ -115,8 +128,8 @@ func TestSubscriptionAutomaticAndStandardProgramsReachResponses(t *testing.T) {
 					if _, present := request["access_programs"]; present {
 						t.Fatal("automatic subscription selection must omit access_programs")
 					}
-				} else if string(request["access_programs"]) != `{"cyber":"standard"}` {
-					t.Fatalf("explicit Standard lost: %s", request["access_programs"])
+				} else if string(request["access_programs"]) != `{"cyber":"`+cyber+`"}` {
+					t.Fatalf("explicit %s lost: %s", cyber, request["access_programs"])
 				}
 				w.Header().Set("Content-Type", "text/event-stream")
 				completed(w, textItem("OK"))
@@ -130,7 +143,7 @@ func TestSubscriptionAutomaticAndStandardProgramsReachResponses(t *testing.T) {
 			}
 		})
 	}
-	for _, cyber := range []string{"daybreak_blue", "daybreak_red", "invented"} {
+	for _, cyber := range []string{"invented"} {
 		if err := ValidateOptions("gpt-6-sol", "chatgpt_plan", "", cyber); err == nil {
 			t.Fatalf("unverified subscription program accepted: %s", cyber)
 		}

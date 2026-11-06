@@ -1,6 +1,8 @@
-# Afterglow Cybersecurity
+# APTEX by Afterglow Labs
 
-Afterglow Cybersecurity combines the main capabilities of five ARTEX-derived projects in one self-hosted security research console. ScopeWeaver supplies the application base; the other forks contribute ChatGPT plan access, browser sessions, workflows, deeper hunting, defensive content, proxy controls, and operator-directed assessment tools. The application uses a Go backend, a Next.js frontend, PostgreSQL, a shared asset graph, and per-task exploration graphs. Use it only in locally isolated or explicitly authorized research environments.
+Autonomous Purple Team Execution.
+
+APTEX by Afterglow Labs combines the main capabilities of five ARTEX-derived projects in one self-hosted security research console. ScopeWeaver supplies the application base; the other forks contribute ChatGPT plan access, browser sessions, workflows, deeper hunting, defensive content, proxy controls, and operator-directed assessment tools. The application uses a Go backend, a Next.js frontend, PostgreSQL, a shared asset graph, and per-task exploration graphs. Use it only in locally isolated or explicitly authorized research environments.
 
 ## What is included
 
@@ -18,6 +20,22 @@ The source fork's executable credential loader, AMSI bypass, PHP web shells, bul
 
 ## Start locally
 
+APTEX has its own client and server. From this repository root, install the
+native shortcuts once, start its services, and open its dedicated app window:
+
+```sh
+python3 scripts/aptex.py install
+aptex-start
+aptex
+```
+
+`aptex-stop` stops only APTEX, PostgreSQL, and its private Ollama service while
+retaining their data. Odysseus uses its own `odysseus-start`, `odysseus`, and
+`odysseus-stop` commands. The [standalone client guide](docs/standalone-client.md)
+covers login, the existing local model, configuration, and image rebuilds.
+
+For a manual Compose deployment:
+
 Docker and Docker Compose are required for the standard installation. Copy `.env.example` to `.env`, set `POSTGRES_PASSWORD`, then build this checkout:
 
 ```sh
@@ -27,9 +45,38 @@ docker compose up -d --build
 
 Open `http://localhost:8787` and create the administrator password at `/setup`. Compose binds the app to loopback by default. Configure a model in **System → LLM** before starting an agent task. The Docker service and executable still use the internal `scopeweaver` name, and environment variables retain `SCOPEWEAVER_*` and `ARTEX_*` names for compatibility with the base. `docker compose logs -f scopeweaver` shows startup logs.
 
+The administrator username defaults to **Afterglow**. Set `AFTERGLOW_ADMIN_USERNAME`
+in `.env` to use a personal name on the login screen; **Afterglow** remains an
+alias. ARTEX is not a valid login name. Changing the
+configured name invalidates existing administrator sessions.
+
+If a local Ollama model is already downloaded on the Docker host, the optional
+[`docker-compose.host-model.yml`](docker-compose.host-model.yml) runs Ollama on
+the private Compose network with that existing model directory mounted read-only.
+Export `OLLAMA_MODELS_DIR` as the directory that actually contains the model's
+`blobs/` and `manifests/`, verify it exists, then start the `local-llm` profile:
+
+```sh
+test -d "$OLLAMA_MODELS_DIR"
+docker compose -f docker-compose.yml -f docker-compose.host-model.yml --profile local-llm up -d --build
+```
+
+Use `http://ollama:11434` as the model endpoint inside ScopeWeaver. The Ollama
+port is not published on the host, and the base Compose service disables Ollama
+cloud. With `SCOPEWEAVER_LOCAL_LLM_ONLY=true`, allowlist the Ollama container's
+actual `/32` address as described in the [local model network policy](docs/llm-providers.md#network-policy-local_llm_only). Container addresses can change when Compose recreates services.
+
+## Optional integration API
+
+APTEX retains its [scoped gateway token API](docs/gateway-api.md) for custom
+integrations. Its independent client uses its own administrator session;
+running APTEX does not configure credentials on Odysseus.
+
 ## Connect ChatGPT
 
-Open **System → LLM → ChatGPT**, connect a ChatGPT account from the local Afterglow page, then create or select a `ChatGPT plan` profile. The account connection and administrator login are separate. Docker stores account tokens in the `chatgpt_auth` volume; the database stores an account reference. The callback is fixed to `http://127.0.0.1:${ARTEX_PORT:-8787}/auth/callback`. When `SCOPEWEAVER_LOCAL_LLM_ONLY=true`, plan inference and the account model catalog are disabled. A disconnected or blocked plan profile fails closed instead of switching to an API-key profile.
+Open **System → LLM**, press **Sign in with ChatGPT**, finish the browser sign-in, then create or select a `ChatGPT plan` profile. No API key is required for this account flow. The account connection and administrator login are separate. Docker stores account tokens in the `chatgpt_auth` volume; the database stores an account reference. The callback is fixed to `http://127.0.0.1:${ARTEX_PORT:-8787}/auth/callback`. When `SCOPEWEAVER_LOCAL_LLM_ONLY=true`, plan inference and the account model catalog are disabled. Set it to `false` and apply the configuration with `aptex-start` to use remote models; the launcher preserves this choice and keeps the local model available. A disconnected or blocked plan profile fails closed instead of switching to an API-key profile.
+
+Both account and API-key profiles offer GPT-6 Astra, GPT-6.1 Sol, GPT-6 Sol, GPT-5.6 Sol, and Daybreak Blue Latest, alongside models returned by the provider. The Blue controls apply to GPT-6 Sol, GPT-5.6 Sol, and `gpt-daybreak-blue-latest`; Astra and GPT-6.1 Sol explicitly use standard access for a Blue-only installation. A Blue selection persists with the profile and sends `access_programs.cyber=daybreak_blue` without changing the selected model. These choices do not grant account or project access; OpenAI checks authorization on each request. See the [Daybreak request documentation](https://developers.openai.com/api/docs/guides/daybreak).
 
 Plan use follows the account's available models and limits. [OpenAI's Sign in with ChatGPT documentation](https://developers.openai.com/siwc/token-sharing-open-source/sign-in) describes the account connection; [OpenAI's plan guidance](https://help.openai.com/en/articles/20001542-using-your-chatgpt-plan-in-other-apps-and-sites) explains plan availability in other apps.
 
@@ -49,7 +96,7 @@ For other installation modes and detailed operation, consult the [ScopeWeaver ba
 ## Capture browser traffic
 
 1. Load [`extension/`](extension/) as an unpacked Chrome or Edge extension.
-2. Sign in to the local Afterglow app. In its browser developer console, read `localStorage.getItem("artex_token")`, then paste that value and the Afterglow URL into the extension popup.
+2. Sign in to the local Afterglow app. In its browser developer console, read `localStorage.getItem("afterglow_token")`, then paste that value and the Afterglow URL into the extension popup.
 3. Open the authorized test tab, choose **Start capture**, browse, then choose **Stop**. The extension sends batches of at most 10 exchanges and retries queued entries when you choose **Flush now**. Unsent exchanges survive service worker restarts in session storage; if its 7 MiB queue fills, the oldest entries are dropped and counted as failed. The server accepts at most 50 exchanges per request and truncates each body at 256 KiB.
 4. Review captured exchanges in **Traffic** and bind relevant entries to findings.
 

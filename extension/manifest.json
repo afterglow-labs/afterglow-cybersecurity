@@ -1,10 +1,10 @@
 {
   "manifest_version": 3,
-  "name": "Afterglow Traffic Capture",
+  "name": "APTEX Traffic Capture by Afterglow Labs",
   "version": "1.0.0",
-  "description": "Capture an authorized tab's traffic as evidence in your Afterglow instance.",
+  "description": "Capture an authorized tab's traffic as evidence in your APTEX instance.",
   "permissions": ["alarms", "debugger", "storage", "tabs"],
   "host_permissions": ["<all_urls>"],
   "background": { "service_worker": "background.js" },
-  "action": { "default_popup": "popup.html", "default_title": "Afterglow Traffic Capture" }
+  "action": { "default_popup": "popup.html", "default_title": "APTEX Traffic Capture by Afterglow Labs" }
 }

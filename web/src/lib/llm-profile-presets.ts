@@ -100,7 +100,7 @@ const CLOUD_TARGETS: Record<string, CloudTarget> = {
   // Haiku allows disabled thinking at effort low; omitting it means adaptive thinking,
   // whose thinking blocks the pinned SDK drops when replaying tool history.
   claude: { format: "anthropic", base_url: "https://api.anthropic.com", model: "claude-haiku-5-5", thinking_type: "disabled", reasoning_effort: "low", max_tokens_field: "" },
-  openai: { format: "openai-responses", base_url: "https://api.openai.com/v1", model: "gpt-6-luna", thinking_type: "", reasoning_effort: "low", max_tokens_field: "" },
+  openai: { format: "openai-responses", base_url: "https://api.openai.com/v1", model: "gpt-6-sol", thinking_type: "", reasoning_effort: "low", max_tokens_field: "" },
   qwen: { format: "openai", base_url: "https://dashscope-intl.aliyuncs.com/compatible-mode/v1", model: "qwen3.8-flash", thinking_type: "", reasoning_effort: "low", max_tokens_field: "max_completion_tokens" },
   kimi: { format: "openai", base_url: "https://api.moonshot.ai/v1", model: "kimi-k3", thinking_type: "", reasoning_effort: "low", max_tokens_field: "max_completion_tokens" },
   // OpenRouter lists reasoning_effort among this model's supported parameters.

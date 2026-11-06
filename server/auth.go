@@ -3,7 +3,7 @@ package server
 import (
 	"crypto/rand"
 	"errors"
-	"github.com/Autumn-27/artex/locale"
+	"github.com/afterglow-labs/afterglow-cybersecurity/locale"
 	"io"
 	"log"
 	"math/big"
@@ -22,6 +22,7 @@ const (
 	jwtKeyFilename   = "jwt.key"
 	authPassKey      = "auth.password_hash"
 	jwtTTL           = 7 * 24 * time.Hour
+	adminSubject     = "Afterglow"
 	keyChars         = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 	minPasswordRunes = 8
 	maxPasswordBytes = 72
@@ -124,33 +125,55 @@ func createJWTKeyFile(path string, key []byte) error {
 	return nil
 }
 
-// signJWT issues a 7-day HS256 token for user ARTEX.
+// adminUsername belongs to this APTEX deployment and defaults to Afterglow.
+func adminUsername() string {
+	name := strings.TrimSpace(os.Getenv("AFTERGLOW_ADMIN_USERNAME"))
+	if name == "" || strings.EqualFold(name, "ARTEX") || len(name) > 64 || strings.ContainsAny(name, "\r\n\t") {
+		return adminSubject
+	}
+	return name
+}
+
+// signJWT issues a 7-day administrator token under the configured identity.
 func signJWT(key []byte) (string, error) {
 	return jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.RegisteredClaims{
-		Subject:   "ARTEX",
+		Subject:   adminUsername(),
 		ExpiresAt: jwt.NewNumericDate(time.Now().Add(jwtTTL)),
 		IssuedAt:  jwt.NewNumericDate(time.Now()),
 	}).SignedString(key)
 }
 
-// verifyJWT returns true when tokenStr is a valid, non-expired HS256 token.
-func verifyJWT(tokenStr string, key []byte) bool {
-	t, err := jwt.Parse(tokenStr, func(t *jwt.Token) (any, error) {
-		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+func parseJWTClaims(tokenStr string, key []byte) (*jwt.RegisteredClaims, bool) {
+	claims := &jwt.RegisteredClaims{}
+	t, err := jwt.ParseWithClaims(tokenStr, claims, func(t *jwt.Token) (any, error) {
+		if t.Method != jwt.SigningMethodHS256 {
 			return nil, locale.Errorf("unexpected signing method")
 		}
 		return key, nil
 	})
-	return err == nil && t.Valid
+	return claims, err == nil && t.Valid && claims.ExpiresAt != nil
+}
+
+// verifyJWT accepts only the current administrator identity. Old ARTEX tokens
+// are intentionally invalidated with the login rename.
+func verifyJWT(tokenStr string, key []byte) bool {
+	claims, valid := parseJWTClaims(tokenStr, key)
+	return valid && claims.Subject == adminUsername()
+}
+
+func adminLoginUsernameAllowed(username string) bool {
+	name := strings.TrimSpace(username)
+	return !strings.EqualFold(name, "ARTEX") &&
+		(strings.EqualFold(name, adminUsername()) || strings.EqualFold(name, adminSubject))
 }
 
 // extractToken reads the JWT from Authorization: Bearer header,
-// artex_token cookie, or ?token= query param (for SSE connections).
+// afterglow_token cookie, or ?token= query param (for SSE connections).
 func extractToken(r *http.Request) string {
 	if h := r.Header.Get("Authorization"); strings.HasPrefix(h, "Bearer ") {
 		return strings.TrimPrefix(h, "Bearer ")
 	}
-	if c, err := r.Cookie("artex_token"); err == nil && c.Value != "" {
+	if c, err := r.Cookie("afterglow_token"); err == nil && c.Value != "" {
 		return c.Value
 	}
 	return r.URL.Query().Get("token")
@@ -170,11 +193,22 @@ func (s *Server) requireAuth(h http.Handler) http.Handler {
 			writeErr(w, 401, locale.Text(responseLanguage(w), "Unauthorized"))
 			return
 		}
-		if !verifyJWT(tok, s.jwtKey) {
-			writeErr(w, 401, locale.Text(responseLanguage(w), "Invalid or expired token"))
+		if verifyJWT(tok, s.jwtKey) {
+			h.ServeHTTP(w, r)
 			return
 		}
-		h.ServeHTTP(w, r)
+		// The gateway credential is accepted only in an Authorization header.
+		// A cookie or query token must never grant service access.
+		headerToken, hasBearer := strings.CutPrefix(r.Header.Get("Authorization"), "Bearer ")
+		if hasBearer && verifyGatewayJWT(headerToken, s.jwtKey) {
+			if !gatewayRouteAllowed(r) {
+				writeErr(w, 403, "Gateway token cannot access this route")
+				return
+			}
+			h.ServeHTTP(w, r)
+			return
+		}
+		writeErr(w, 401, locale.Text(responseLanguage(w), "Invalid or expired token"))
 	})
 }
 
@@ -189,7 +223,7 @@ func (s *Server) authStatus(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, 503, errDataSourceUnavailable)
 		return
 	}
-	writeJSON(w, 200, map[string]any{"initialized": hash != ""})
+	writeJSON(w, 200, map[string]any{"initialized": hash != "", "username": adminUsername()})
 }
 
 // POST /api/auth/init — sets the password for the first time; rejected if already set.
@@ -308,7 +342,7 @@ func (s *Server) authLogin(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, 400, locale.Text(responseLanguage(w), "Invalid request format"))
 		return
 	}
-	if req.Username != "ARTEX" {
+	if !adminLoginUsernameAllowed(req.Username) {
 		writeErr(w, 401, locale.Text(responseLanguage(w), "Incorrect username or password"))
 		return
 	}

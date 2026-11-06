@@ -10,10 +10,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Autumn-27/artex/db"
-	"github.com/Autumn-27/artex/evidence"
-	"github.com/Autumn-27/artex/locale"
-	"github.com/Autumn-27/artex/report"
+	"github.com/afterglow-labs/afterglow-cybersecurity/db"
+	"github.com/afterglow-labs/afterglow-cybersecurity/evidence"
+	"github.com/afterglow-labs/afterglow-cybersecurity/locale"
+	"github.com/afterglow-labs/afterglow-cybersecurity/report"
 )
 
 func writeFindingsEvidenceZip(out io.Writer, findings []*db.DBFinding, stage string, now time.Time, langs ...locale.Lang) error {

@@ -7,7 +7,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"github.com/Autumn-27/artex/locale"
+	"github.com/afterglow-labs/afterglow-cybersecurity/locale"
 	"io"
 	"iter"
 	"mime"
@@ -18,7 +18,7 @@ import (
 	"time"
 	"unicode"
 
-	"github.com/Autumn-27/artex/llmnet"
+	"github.com/afterglow-labs/afterglow-cybersecurity/llmnet"
 	"github.com/Autumn-27/norma/llm"
 	"github.com/Autumn-27/norma/transcript"
 	"github.com/google/uuid"

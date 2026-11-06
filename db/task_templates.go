@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
-	"github.com/Autumn-27/artex/locale"
+	"github.com/afterglow-labs/afterglow-cybersecurity/locale"
 	"strings"
 	"time"
 	"unicode/utf8"

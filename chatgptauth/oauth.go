@@ -140,7 +140,7 @@ func (m *Manager) Start(ctx context.Context, accountID string) (LoginStart, erro
 	if p.redirectURI == "" {
 		ln, err = net.Listen("tcp4", "127.0.0.1:0")
 		if err != nil {
-			return LoginStart{}, errors.New("ChatGPT 로그인용 로컬 포트를 열 수 없습니다.")
+			return LoginStart{}, errors.New("Could not open a local port for ChatGPT sign-in.")
 		}
 		p.redirectURI = "http://" + ln.Addr().String() + callbackPath
 		srv = &http.Server{ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 10 * time.Second, WriteTimeout: 60 * time.Second, MaxHeaderBytes: 16 << 10}
@@ -183,7 +183,7 @@ func (m *Manager) Start(ctx context.Context, accountID string) (LoginStart, erro
 		if notify {
 			m.pending = nil
 			if !m.closed {
-				m.lastError = "ChatGPT 로그인 시간이 만료되었거나 취소되었습니다. 다시 연결해 주세요."
+				m.lastError = "ChatGPT sign-in timed out or was canceled. Reconnect and try again."
 			}
 		}
 		m.mu.Unlock()
@@ -200,7 +200,7 @@ func (m *Manager) Start(ctx context.Context, accountID string) (LoginStart, erro
 	}
 	query := url.Values{"client_id": {clientID}, "ext_agent_host_id": {hostID}, "redirect_uri": {p.redirectURI}, "response_type": {"code"}, "scope": {requestedScopes}, "resource": {resource}, "state": {p.state}, "nonce": {p.nonce}, "code_challenge_method": {"S256"}, "code_challenge": {base64.RawURLEncoding.EncodeToString(challenge[:])}}
 	if accountID == "" {
-		query.Set("agent_name_hint", "Afterglow Cybersecurity")
+		query.Set("agent_name_hint", "APTEX")
 	} else {
 		if r.IDToken != "" {
 			query.Set("id_token_hint", r.IDToken)
@@ -229,7 +229,7 @@ func validateCallbackURL(raw string) error {
 			return nil
 		}
 	}
-	return errors.New("ChatGPT 콜백 주소는 http://127.0.0.1:<포트>/auth/callback 형식이어야 합니다.")
+	return errors.New("The ChatGPT callback URL must use http://127.0.0.1:<port>/auth/callback.")
 }
 
 // ServeCallback handles the current shared-server login without an ARTEX JWT.
@@ -241,11 +241,11 @@ func (m *Manager) ServeCallback(w http.ResponseWriter, req *http.Request) {
 	p, closed, shared := m.pending, m.closed, m.callbackURL != ""
 	m.mu.Unlock()
 	if closed {
-		http.Error(w, "연결 관리자가 종료되었습니다.", http.StatusGone)
+		http.Error(w, "The connection manager is closed.", http.StatusGone)
 		return
 	}
 	if !shared || p == nil {
-		http.Error(w, "진행 중인 ChatGPT 로그인이 없습니다.", http.StatusNotFound)
+		http.Error(w, "No ChatGPT sign-in is in progress.", http.StatusNotFound)
 		return
 	}
 	m.callback(p, w, req)
@@ -262,7 +262,7 @@ func (m *Manager) callback(p *pendingLogin, w http.ResponseWriter, req *http.Req
 	m.mu.Lock()
 	if m.closed {
 		m.mu.Unlock()
-		http.Error(w, "연결 관리자가 종료되었습니다.", http.StatusGone)
+		http.Error(w, "The connection manager is closed.", http.StatusGone)
 		return
 	}
 	m.wg.Add(1)
@@ -270,18 +270,18 @@ func (m *Manager) callback(p *pendingLogin, w http.ResponseWriter, req *http.Req
 	defer m.wg.Done()
 	u, _ := url.Parse(p.redirectURI)
 	if req.Method != http.MethodGet || req.URL.Path != callbackPath || req.Host != u.Host || len(req.URL.RawQuery) > 16<<10 {
-		http.Error(w, "잘못된 로그인 응답입니다.", http.StatusBadRequest)
+		http.Error(w, "Invalid sign-in response.", http.StatusBadRequest)
 		return
 	}
 	q, err := url.ParseQuery(req.URL.RawQuery)
 	if err != nil || len(q["state"]) != 1 || subtle.ConstantTimeCompare([]byte(q.Get("state")), []byte(p.state)) != 1 {
-		http.Error(w, "로그인 상태를 확인할 수 없습니다.", http.StatusBadRequest)
+		http.Error(w, "Could not verify the sign-in state.", http.StatusBadRequest)
 		return
 	}
 	p.mu.Lock()
 	if p.used || p.ctx.Err() != nil {
 		p.mu.Unlock()
-		http.Error(w, "이미 처리되었거나 만료된 로그인입니다.", http.StatusBadRequest)
+		http.Error(w, "This sign-in was already processed or has expired.", http.StatusBadRequest)
 		return
 	}
 	p.used = true
@@ -302,7 +302,7 @@ func (m *Manager) callback(p *pendingLogin, w http.ResponseWriter, req *http.Req
 		w.WriteHeader(http.StatusBadRequest)
 		_, _ = io.WriteString(w, err.Error())
 	} else {
-		_, _ = io.WriteString(w, "ChatGPT 연결을 확인했습니다. ARTEX 화면으로 돌아가 주세요.")
+		_, _ = io.WriteString(w, "ChatGPT connection confirmed. Return to APTEX.")
 	}
 	if f, ok := w.(http.Flusher); ok {
 		f.Flush()
@@ -330,7 +330,7 @@ func (m *Manager) completeLogin(p *pendingLogin, q url.Values) error {
 		return errLogin
 	}
 	if q.Get("error") != "" {
-		return errors.New("ChatGPT 연결이 승인되지 않았습니다. 필요하면 다시 연결해 주세요.")
+		return errors.New("The ChatGPT connection was not authorized. Reconnect if needed.")
 	}
 	id := q.Get("client_id")
 	if p.accountID != "" {
@@ -414,12 +414,12 @@ type oauthError struct {
 	status int
 }
 
-func (e *oauthError) Error() string { return "OpenAI 인증 요청을 완료하지 못했습니다." }
+func (e *oauthError) Error() string { return "Could not complete the OpenAI authentication request." }
 
 func safeOAuthError(err error) error {
 	var e *oauthError
 	if errors.As(err, &e) && e.code == "invalid_client" {
-		return errors.New("ChatGPT 앱 등록 정보를 확인해 주세요.")
+		return errors.New("Check the ChatGPT app registration.")
 	}
 	if errors.As(err, &e) && e.code == "invalid_grant" {
 		return ErrLoginRequired

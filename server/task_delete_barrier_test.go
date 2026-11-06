@@ -12,8 +12,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Autumn-27/artex/agent"
-	"github.com/Autumn-27/artex/internal/dbtest"
+	"github.com/afterglow-labs/afterglow-cybersecurity/agent"
+	"github.com/afterglow-labs/afterglow-cybersecurity/internal/dbtest"
 )
 
 func TestEngineDeleteBarrierRejectsNewTaskOperations(t *testing.T) {

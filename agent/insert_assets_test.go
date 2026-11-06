@@ -6,8 +6,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Autumn-27/artex/db"
-	"github.com/Autumn-27/artex/internal/dbtest"
+	"github.com/afterglow-labs/afterglow-cybersecurity/db"
+	"github.com/afterglow-labs/afterglow-cybersecurity/internal/dbtest"
 )
 
 // testDB opens a DB connection, skipping if PG is unavailable.

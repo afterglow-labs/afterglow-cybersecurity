@@ -1,7 +1,7 @@
 export const en = {
   title: "ChatGPT plan",
-  help: "Connect a ChatGPT account to use its eligible models through the official Responses API. Plan usage is separate from API billing. Credentials stay on this server.",
-  connect: "Connect account",
+  help: "Sign in with your ChatGPT account to use its eligible models. No API key is required. Plan usage is separate from API billing. Credentials stay on this server.",
+  connect: "Sign in with ChatGPT",
   reconnect: "Reconnect",
   disconnect: "Disconnect",
   account: "Account",
@@ -24,8 +24,8 @@ export const en = {
 
 export const ko: Record<keyof typeof en, string> = {
   title: "ChatGPT 플랜",
-  help: "ChatGPT 계정을 연결해 공식 Responses API에서 사용 가능한 모델을 사용하세요. 플랜 사용량은 API 결제와 별도이며, 자격 증명은 이 서버에 저장됩니다.",
-  connect: "계정 연결", reconnect: "다시 연결", disconnect: "연결 해제", account: "계정", model: "모델",
+  help: "ChatGPT 계정으로 로그인해 계정에서 이용 가능한 모델을 사용하세요. API 키는 필요하지 않습니다. 플랜 사용량은 API 결제와 별도이며, 자격 증명은 이 서버에 저장됩니다.",
+  connect: "ChatGPT로 로그인", reconnect: "다시 연결", disconnect: "연결 해제", account: "계정", model: "모델",
   profile: "프로필 이름", create: "플랜 프로필 만들기", update: "플랜 프로필 수정", newProfile: "새 플랜 프로필",
   statusConnected: "연결됨", statusSignedOut: "로그아웃됨", statusBlocked: "플랜 사용 일시 중지",
   loadingModels: "계정 모델 불러오기", recheck: "플랜 사용량 다시 확인",

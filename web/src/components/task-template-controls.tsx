@@ -2,6 +2,7 @@
 
 import { translate as swt } from "@/i18n/runtime";
 import { useI18n } from "@/i18n";
+import { closingQuote, questionMark } from "@/i18n/punctuation";
 import * as React from "react";
 
 import { LibraryIcon, PlusIcon, SaveIcon, Settings2Icon, Trash2Icon } from "lucide-react";
@@ -322,7 +323,7 @@ function TaskTemplateManager({
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{swt("interface.m2352")}{draft.name || swt("interface.m2353")}」？</AlertDialogTitle>
+            <AlertDialogTitle>{swt("interface.m2352")}{draft.name || swt("interface.m2353")}{closingQuote(swLocale)}{questionMark(swLocale)}</AlertDialogTitle>
             <AlertDialogDescription>{swt("interface.m2354")}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -513,7 +514,7 @@ export function TaskTemplateControls({
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{swt("interface.m2364")}{pendingTemplate?.name}」？</AlertDialogTitle>
+            <AlertDialogTitle>{swt("interface.m2364")}{pendingTemplate?.name}{closingQuote(swLocale)}{questionMark(swLocale)}</AlertDialogTitle>
             <AlertDialogDescription>{swt("interface.m2365")}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

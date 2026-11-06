@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Autumn-27/artex/locale"
+	"github.com/afterglow-labs/afterglow-cybersecurity/locale"
 	actool "github.com/Autumn-27/norma/tool"
 )
 

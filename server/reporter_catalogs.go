@@ -4,7 +4,7 @@ import (
 	"embed"
 	"encoding/json"
 
-	"github.com/Autumn-27/artex/locale"
+	"github.com/afterglow-labs/afterglow-cybersecurity/locale"
 )
 
 //go:embed reporter_zh-Hant.json reporter_ja.json reporter_es.json

@@ -13,7 +13,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Autumn-27/artex/agent"
+	"github.com/afterglow-labs/afterglow-cybersecurity/agent"
 	actool "github.com/Autumn-27/norma/tool"
 )
 

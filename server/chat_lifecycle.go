@@ -3,9 +3,9 @@ package server
 import (
 	"context"
 	"crypto/rand"
-	"github.com/Autumn-27/artex/agent"
-	"github.com/Autumn-27/artex/chatstate"
-	"github.com/Autumn-27/artex/sidequestion"
+	"github.com/afterglow-labs/afterglow-cybersecurity/agent"
+	"github.com/afterglow-labs/afterglow-cybersecurity/chatstate"
+	"github.com/afterglow-labs/afterglow-cybersecurity/sidequestion"
 	"strconv"
 	"time"
 )

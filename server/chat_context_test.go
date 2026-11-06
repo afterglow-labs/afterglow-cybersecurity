@@ -2,9 +2,9 @@ package server
 
 import (
 	"encoding/json"
-	"github.com/Autumn-27/artex/agent"
-	"github.com/Autumn-27/artex/chatstate"
-	"github.com/Autumn-27/artex/db"
+	"github.com/afterglow-labs/afterglow-cybersecurity/agent"
+	"github.com/afterglow-labs/afterglow-cybersecurity/chatstate"
+	"github.com/afterglow-labs/afterglow-cybersecurity/db"
 	"net/http/httptest"
 	"testing"
 )

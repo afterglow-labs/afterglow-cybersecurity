@@ -8,7 +8,7 @@ import (
 	"iter"
 	"strings"
 
-	"github.com/Autumn-27/artex/llmrec"
+	"github.com/afterglow-labs/afterglow-cybersecurity/llmrec"
 	"github.com/Autumn-27/norma/llm"
 )
 

@@ -6,8 +6,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Autumn-27/artex/internal/dbtest"
-	"github.com/Autumn-27/artex/locale"
+	"github.com/afterglow-labs/afterglow-cybersecurity/internal/dbtest"
+	"github.com/afterglow-labs/afterglow-cybersecurity/locale"
 )
 
 func TestShippedSettingsPersistenceAndValidation(t *testing.T) {

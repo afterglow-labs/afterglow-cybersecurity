@@ -1,6 +1,6 @@
 package db
 
-import "github.com/Autumn-27/artex/proxygraph"
+import "github.com/afterglow-labs/afterglow-cybersecurity/proxygraph"
 
 func (d *DB) ProxyGraphNodes() ([]proxygraph.Proxy, error) {
 	rows, err := d.Query(`SELECT id, url, kind, asn, active, score FROM proxy_graph_nodes ORDER BY id`)

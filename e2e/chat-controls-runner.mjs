@@ -9,7 +9,7 @@ import {runChatDraftRetentionChecks} from "./chat-draft-retention.mjs";
 const base=process.env.SCOPEWEAVER_E2E_URL;assert.ok(base?.startsWith("http://127.0.0.1:"),"loopback test listener required");
 const api=await request.newContext({baseURL:base});
 const init=await api.post("/api/auth/init",{data:{password:"chat-controls-pass-1234"}});assert.ok(init.ok(),await init.text());
-const login=await api.post("/api/auth/login",{data:{username:"ARTEX",password:"chat-controls-pass-1234"}});assert.ok(login.ok(),await login.text());const {token}=await login.json();
+const login=await api.post("/api/auth/login",{data:{username:"Afterglow",password:"chat-controls-pass-1234"}});assert.ok(login.ok(),await login.text());const {token}=await login.json();
 const fixtureRequest=async(action,body)=>{const response=await api.post(`/__fixture/${action}`,{headers:{"X-Chat-Fixture":process.env.SCOPEWEAVER_E2E_FIXTURE},data:body??{}});assert.ok(response.ok(),await response.text());return response.json()};
 let activeCase="setup",readSequence=0,countSequence=0;
 const fixtureStats=(kind,metadata={})=>{
@@ -32,7 +32,7 @@ for(const [index,p] of pages.entries()){
   try{await capture()}catch(captureError){console.error("diagnostic-capture-failure",JSON.stringify({case:name,page:index,kind,error:String(captureError.stack||captureError)}))}
  }
 }
-if(process.env.CHAT_QUEUE_RED||process.env.CHAT_CONTEXT_MUTATION)throw error}},openPage:async(locale,jwt)=>{const context=await browser.newContext();context.setDefaultTimeout(15000);await context.addInitScript(([locale,jwt])=>{localStorage.setItem("scopeweaver.locale",locale);localStorage.setItem("artex_token",jwt)},[locale,jwt]);const p=await context.newPage();p.on("pageerror",error=>errors.push(error.message));pages.push(p);return p}};
+if(process.env.CHAT_QUEUE_RED||process.env.CHAT_CONTEXT_MUTATION)throw error}},openPage:async(locale,jwt)=>{const context=await browser.newContext();context.setDefaultTimeout(15000);await context.addInitScript(([locale,jwt])=>{localStorage.setItem("scopeweaver.locale",locale);localStorage.setItem("afterglow_token",jwt)},[locale,jwt]);const p=await context.newPage();p.on("pageerror",error=>errors.push(error.message));pages.push(p);return p}};
 export async function runChatControlsChecks({base,token,restart,fixture,step,check,openPage}){
  const options={base,token,fixture,step,check,openPage};const only=process.env.CHAT_E2E_SUITE;const standard=!only||only==="standard";
  if(!only||only==="draft")await runChatDraftRetentionChecks(options);

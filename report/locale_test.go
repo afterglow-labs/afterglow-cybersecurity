@@ -1,8 +1,8 @@
 package report
 
 import (
-	"github.com/Autumn-27/artex/db"
-	"github.com/Autumn-27/artex/locale"
+	"github.com/afterglow-labs/afterglow-cybersecurity/db"
+	"github.com/afterglow-labs/afterglow-cybersecurity/locale"
 	"strings"
 	"testing"
 	"time"
@@ -37,6 +37,17 @@ func TestEmptyReportLanguages(t *testing.T) {
 		if !strings.Contains(text, tc.want) || !strings.Contains(text, "保留目标") {
 			t.Fatalf("wrong language or altered goal: %q", text)
 		}
+	}
+}
+
+func TestAssetListPunctuationMatchesLanguage(t *testing.T) {
+	in := Input{GeneratedAt: time.Unix(0, 0), AssetCounts: map[string]int{"app": 1, "service": 2}}
+	if got := Markdown(in); !strings.Contains(got, "- Assets: app 1, service 2") {
+		t.Fatalf("English report used non-English punctuation: %q", got)
+	}
+	in.Language = locale.ZhHans
+	if got := Markdown(in); !strings.Contains(got, "app 1、service 2") {
+		t.Fatalf("Chinese report lost localized punctuation: %q", got)
 	}
 }
 

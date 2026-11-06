@@ -6,6 +6,10 @@
 @import "../styles/presets/brutalist.css";
 @import "../styles/presets/soft-pop.css";
 @import "../styles/presets/tangerine.css";
+@import "../styles/presets/aptex-obsidian.css";
+@import "../styles/presets/aptex-phosphor.css";
+@import "../styles/presets/aptex-afterglow.css";
+@import "../styles/cyber-shell.css";
 
 @custom-variant dark (&:is(.dark *));
 

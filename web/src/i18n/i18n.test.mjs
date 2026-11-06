@@ -95,16 +95,16 @@ function checkCatalog(source, translated, locale) {
 
 test("every shipped catalog is complete and preserves placeholders and rich tags", () => {
   // Includes the ChatGPT, workflow, proxy, task intelligence, and managed browser controls.
-  assert.equal(Object.keys(catalogs.en).length, 3482);
+  assert.equal(Object.keys(catalogs.en).length, 3496);
   assert.deepEqual(catalogLocales.sort(), [...LOCALES].sort());
   assert.deepEqual(Object.keys(catalogs).sort(), [...LOCALES].sort());
   for (const locale of LOCALES) checkCatalog(catalogs.en, catalogs[locale], locale);
-  // Punctuation-only formatting and the literal host placeholder have no translatable prose.
+  // Formatting, host placeholders, and named APTEX theme brands have no translatable prose.
   // No other Chinese resource value may silently become an English fallback copy.
   const unchangedChinese = Object.entries(catalogs.en)
     .filter(([key, value]) => catalogs["zh-Hans"][key] === value)
     .map(([key]) => key);
-  assert.deepEqual(unchangedChinese.sort(), ["app.metricValue", "interface.m0460", "proxygraph.id"]);
+  assert.deepEqual(unchangedChinese.sort(), ["app.metricValue", "app.themeAfterglow", "app.themeObsidian", "app.themePhosphor", "interface.m0460", "proxygraph.id"]);
   assert.equal(
     interpolate("Task {id}: {name}", { id: 7, name: "사용자 原文 {unchanged}" }),
     "Task 7: 사용자 原文 {unchanged}",
@@ -318,6 +318,19 @@ test("authored UI contains no untranslated Han literals; legacy parsers are expl
     for (const hit of scanFile(file)) {
       if (isLegacyHanLiteral(rel, hit.text)) continue;
       failures.push(`${rel}:${hit.line} ${hit.text}`);
+    }
+  }
+  assert.deepEqual(failures, []);
+});
+
+test("authored UI uses locale punctuation instead of fixed CJK punctuation", () => {
+  const failures = [];
+  for (const file of sourceFiles()) {
+    const rel = path.relative(SRC_ROOT, file).replaceAll("\\", "/");
+    if (rel.endsWith(".test.mjs") || rel.startsWith("i18n/messages/") || rel === "i18n/punctuation.ts") continue;
+    const lines = fs.readFileSync(file, "utf8").split("\n");
+    for (let index = 0; index < lines.length; index++) {
+      if (/[「」？。、【】]/u.test(lines[index])) failures.push(`${rel}:${index + 1}`);
     }
   }
   assert.deepEqual(failures, []);

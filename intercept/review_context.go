@@ -3,7 +3,7 @@ package intercept
 import (
 	"context"
 	"encoding/json"
-	"github.com/Autumn-27/artex/locale"
+	"github.com/afterglow-labs/afterglow-cybersecurity/locale"
 	"strings"
 )
 

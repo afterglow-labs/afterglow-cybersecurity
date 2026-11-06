@@ -1,6 +1,6 @@
 package db
 
-import "github.com/Autumn-27/artex/locale"
+import "github.com/afterglow-labs/afterglow-cybersecurity/locale"
 
 // legacyBuiltinMetadata contains exact upstream seed values solely for compatibility.
 // Stored user text is never rewritten; only known defaults are rendered differently.

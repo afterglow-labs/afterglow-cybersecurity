@@ -24,6 +24,8 @@ async function fixture(t, handler) {
 }
 
 test("configuration rejects unsafe origins and invalid options without printing credentials", () => {
+  assert.equal(configFromEnv({}).username, "Afterglow");
+  assert.equal(configFromEnv({ AFTERGLOW_ADMIN_USERNAME: "Corey" }).username, "Corey");
   for (const url of ["http://example.com", "https://secret@example.com", "https://example.com/api/", "https://example.com?token=secret", "file:///tmp/x"]) {
     assert.throws(() => configFromEnv({ SCOPEWEAVER_URL: url }), (error) => !error.message.includes("secret"));
   }
@@ -83,7 +85,7 @@ test("concurrent calls share login, send authorization and Korean locale, and pa
       logins++;
       let body = "";
       for await (const chunk of req) body += chunk;
-      assert.deepEqual(JSON.parse(body), { username: "ARTEX", password: "fixture-password" });
+      assert.deepEqual(JSON.parse(body), { username: "Afterglow", password: "fixture-password" });
       return res.end(JSON.stringify({ token: "fixture-token" }));
     }
     assert.equal(req.headers.authorization, "Bearer fixture-token");

@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Autumn-27/artex/agent"
+	"github.com/afterglow-labs/afterglow-cybersecurity/agent"
 )
 
 func waitForShutdownTaskWrite(t *testing.T, m *Manager, queryPattern string) {

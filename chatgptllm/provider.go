@@ -52,7 +52,7 @@ func New(cfg Config) (llm.Provider, error) {
 	cfg.Model = strings.TrimSpace(cfg.Model)
 	cfg.APIKey = strings.TrimSpace(cfg.APIKey)
 	if cfg.Model == "" || (cfg.Authorize == nil) == (cfg.APIKey == "") {
-		e := failure("invalid_config", "모델과 하나의 OpenAI API 키 또는 ChatGPT 연결이 필요합니다", nil)
+		e := failure("invalid_config", "A model and either one OpenAI API key or a ChatGPT connection are required.", nil)
 		e.APIKeyMode = cfg.APIKey != ""
 		return nil, e
 	}
@@ -145,7 +145,7 @@ func (p *provider) Stream(parent context.Context, req llm.CompletionRequest) ite
 					errorObserved = true
 				}, func(ev llm.StreamEvent, err error) bool {
 					if !budget.accept(ev) {
-						budgetErr = failure("auxiliary_output_limit", "판정·요약 출력이 로컬 길이 제한을 초과했습니다", nil)
+						budgetErr = failure("auxiliary_output_limit", "The review or summary output exceeded the local length limit.", nil)
 						return false
 					}
 					if ev.Text != "" || ev.Type == llm.SEToolUseStart || ev.Type == llm.SEMessageFinal {
@@ -172,9 +172,9 @@ func (p *provider) Stream(parent context.Context, req llm.CompletionRequest) ite
 				}
 			}
 			if budget.limit > 0 && parent.Err() == nil && errors.Is(ctx.Err(), context.DeadlineExceeded) {
-				err = failure("auxiliary_timeout", "판정·요약 응답이 90초 제한을 초과했습니다", ctx.Err())
+				err = failure("auxiliary_timeout", "The review or summary response exceeded the 90-second limit.", ctx.Err())
 			} else if ctx.Err() != nil && (err == nil || !errors.Is(err, ctx.Err())) {
-				err = failure("canceled", "요청이 취소되었습니다", ctx.Err())
+				err = failure("canceled", "The request was canceled.", ctx.Err())
 			}
 			e := p.annotate(err, stage, shape, attempts, emitted)
 			e.Metadata = observed
@@ -202,7 +202,7 @@ func (p *provider) Stream(parent context.Context, req llm.CompletionRequest) ite
 			select {
 			case <-ctx.Done():
 				timer.Stop()
-				e := p.annotate(failure("canceled", "요청이 취소되었습니다", ctx.Err()), "backoff", shape, attempt+1, false)
+				e := p.annotate(failure("canceled", "The request was canceled.", ctx.Err()), "backoff", shape, attempt+1, false)
 				e.Metadata = observed
 				yield(llm.StreamEvent{}, e)
 				return
@@ -258,7 +258,7 @@ func (p *provider) open(ctx context.Context, body []byte) (*http.Response, conte
 		if contentType == "" || strings.HasPrefix(contentType, "text/event-stream") {
 			return resp, release, nil
 		}
-		err = failure("invalid_stream", "서버가 이벤트 스트림을 반환하지 않았습니다", nil)
+		err = failure("invalid_stream", "The server did not return an event stream.", nil)
 	} else {
 		err = httpFailure(resp)
 	}
@@ -269,7 +269,7 @@ func (p *provider) open(ctx context.Context, body []byte) (*http.Response, conte
 
 func authorizedRequest(ctx context.Context, authorize Authorize, client *http.Client, method, url string, body []byte) (*http.Response, context.CancelFunc, error) {
 	if authorize == nil {
-		return nil, nil, failure("not_connected", "ChatGPT 연결이 필요합니다", nil)
+		return nil, nil, failure("not_connected", "A ChatGPT connection is required.", nil)
 	}
 	rctx, release, token, err := authorize(ctx)
 	if err != nil {
@@ -278,21 +278,21 @@ func authorizedRequest(ctx context.Context, authorize Authorize, client *http.Cl
 		}
 		var blocked interface{ ChatGPTPlanBlocked() bool }
 		if errors.As(err, &blocked) && blocked.ChatGPTPlanBlocked() {
-			return nil, nil, failure("plan_usage_blocked", "이 ChatGPT 연결의 사용 한도가 중지되어 있습니다. Usage 설정을 확인한 뒤 한도 재확인을 실행해 주세요", err)
+			return nil, nil, failure("plan_usage_blocked", "Usage for this ChatGPT connection is blocked. Check Usage settings, then run a limit recheck.", err)
 		}
-		return nil, nil, failure("authorization_failed", "ChatGPT 연결을 확인해 주세요", err)
+		return nil, nil, failure("authorization_failed", "Check the ChatGPT connection.", err)
 	}
 	if release == nil {
 		release = func() {}
 	}
 	if rctx == nil || token == "" {
 		release()
-		return nil, nil, failure("not_connected", "ChatGPT 연결이 필요합니다", nil)
+		return nil, nil, failure("not_connected", "A ChatGPT connection is required.", nil)
 	}
 	req, err := http.NewRequestWithContext(rctx, method, url, bytes.NewReader(body))
 	if err != nil {
 		release()
-		return nil, nil, failure("invalid_request", "요청을 만들 수 없습니다", err)
+		return nil, nil, failure("invalid_request", "Could not create the request.", err)
 	}
 	req.Header.Set("Authorization", "Bearer "+token)
 	req.Header.Set("Accept", "application/json")
@@ -303,7 +303,7 @@ func authorizedRequest(ctx context.Context, authorize Authorize, client *http.Cl
 	resp, err := client.Do(req)
 	if err != nil {
 		release()
-		e := failure("transport_error", "OpenAI에 연결할 수 없습니다", err)
+		e := failure("transport_error", "Could not connect to OpenAI.", err)
 		e.Attempts = 1
 		return nil, nil, e
 	}

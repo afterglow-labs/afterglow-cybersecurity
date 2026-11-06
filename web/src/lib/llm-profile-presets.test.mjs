@@ -59,7 +59,7 @@ test("cloud economy templates fill the documented endpoint, model and opt-in out
   const expected = {
     deepseek: ["openai", "https://api.deepseek.com", "deepseek-flash", "", "low", ""],
     claude: ["anthropic", "https://api.anthropic.com", "claude-haiku-5-5", "disabled", "low", ""],
-    openai: ["openai-responses", "https://api.openai.com/v1", "gpt-6-luna", "", "low", ""],
+    openai: ["openai-responses", "https://api.openai.com/v1", "gpt-6-sol", "", "low", ""],
     qwen: ["openai", "https://dashscope-intl.aliyuncs.com/compatible-mode/v1", "qwen3.8-flash", "", "low", "max_completion_tokens"],
     kimi: ["openai", "https://api.moonshot.ai/v1", "kimi-k3", "", "low", "max_completion_tokens"],
     openrouter: ["openai", "https://openrouter.ai/api/v1", "deepseek/deepseek-v4.1-flash", "", "low", ""],

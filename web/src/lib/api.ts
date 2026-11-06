@@ -130,7 +130,7 @@ import type {
 
 function getToken(): string | null {
   if (typeof window === "undefined") return null;
-  return localStorage.getItem("artex_token");
+  return localStorage.getItem("afterglow_token");
 }
 
 export class HTTPError extends Error { constructor(message:string,readonly status:number){super(message);this.name="HTTPError";} }
@@ -148,8 +148,8 @@ export async function http<T>(path: string, init?: RequestInit): Promise<T> {
   });
   if (r.status === 401) {
     if (typeof window !== "undefined") {
-      localStorage.removeItem("artex_token");
-      document.cookie = "artex_token=; path=/; max-age=0";
+      localStorage.removeItem("afterglow_token");
+      document.cookie = "afterglow_token=; path=/; max-age=0";
       window.location.href = "/login";
     }
     throw new Error(swt("interface.m2413"));
@@ -243,7 +243,7 @@ export const api = {
   health: () => get<{ ok: boolean; service: string; version: string }>("/health"),
 
   // ---- auth ----
-  authStatus: () => get<{ initialized: boolean }>("/auth/status"),
+  authStatus: () => get<{ initialized: boolean; username: string }>("/auth/status"),
   login: (username: string, password: string) => post<{ token: string }>("/auth/login", { username, password }),
   initPassword: (password: string) => post<{ token: string }>("/auth/init", { password }),
   changePassword: (oldPassword: string, newPassword: string) =>
@@ -1008,8 +1008,8 @@ export const api = {
     profile_id?: number,
     streaming = true, // Test the profile's actual transport mode so nonstreaming failures are caught before conversations.
     session_header_key = "", // Nonempty sends this custom header on test requests with a one-time session ID.
-    // Native Ollama uses these for num_ctx, residency and num_predict; other formats ignore them.
-    native: { context_window_k?: number; keep_alive?: string; max_tokens?: number; llm_max_concurrent?: number } = {},
+    // Optional Responses access program plus output and native Ollama controls.
+    native: { access_program_cyber?: string; context_window_k?: number; keep_alive?: string; max_tokens?: number; llm_max_concurrent?: number } = {},
   ) =>
     // reply contains truncated actual model output; an entirely empty response fails the backend test.
     post<LLMTestResult>("/llm/test", {

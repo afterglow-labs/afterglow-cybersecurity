@@ -2,6 +2,7 @@
 
 import { translate as swt } from "@/i18n/runtime";
 import { useI18n } from "@/i18n";
+import { sentenceStop } from "@/i18n/punctuation";
 // Shared LLM retry controls: count and interval for each of five layers.
 //
 // Inside out: connection (SDK), empty response (SDK), same-provider safe window, rotation breaker, intent rerun.
@@ -225,7 +226,7 @@ export function RetryRuleFields({
           <span className="text-muted-foreground text-xs">{human ? swt("interface.m1316", { p0: human }) : meta.defInterval}</span>
         </div>
       </div>
-      {!compact && <p className="text-muted-foreground text-xs">{swt("interface.m1317")}{meta.offHint}。</p>}
+      {!compact && <p className="text-muted-foreground text-xs">{swt("interface.m1317")}{meta.offHint}{sentenceStop(swLocale)}</p>}
     </div>
   );
 }

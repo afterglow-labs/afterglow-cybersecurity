@@ -7,13 +7,13 @@ import (
 	"database/sql"
 	_ "embed"
 	"errors"
-	"github.com/Autumn-27/artex/locale"
+	"github.com/afterglow-labs/afterglow-cybersecurity/locale"
 	"net/url"
 	"strings"
 	"sync"
 	"time"
 
-	"github.com/Autumn-27/artex/config"
+	"github.com/afterglow-labs/afterglow-cybersecurity/config"
 	"github.com/jackc/pgx/v5/pgconn"
 	_ "github.com/jackc/pgx/v5/stdlib" // pgx database/sql driver ("pgx")
 )

@@ -3,6 +3,7 @@ import { getIntlLocale } from "@/i18n/runtime";
 
 import { translate as swt } from "@/i18n/runtime";
 import { useI18n } from "@/i18n";
+import { openingQuote } from "@/i18n/punctuation";
 import * as React from "react";
 
 import Link from "next/link";
@@ -311,7 +312,7 @@ export function FindingsTable({
                           <AlertDialogHeader>
                             <AlertDialogTitle>{swt("interface.m0335")}</AlertDialogTitle>
                             <AlertDialogDescription className="break-words">
-                              「
+                              {openingQuote(swLocale)}
                               <span className="break-all">
                                 {f.name || f.vulnclass || f.summary || `#${f.finding_id}`}
                               </span>

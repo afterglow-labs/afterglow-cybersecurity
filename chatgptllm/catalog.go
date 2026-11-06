@@ -29,19 +29,20 @@ func DecodeModels(body io.Reader, mode string) ([]Model, error) {
 		Data   []catalogModel `json:"data"`
 	}
 	if err := json.NewDecoder(io.LimitReader(body, 4<<20)).Decode(&catalog); err != nil {
-		return nil, failure("invalid_catalog", "OpenAI 모델 목록을 읽을 수 없습니다", err)
+		return nil, failure("invalid_catalog", "Could not read the OpenAI model catalog.", err)
 	}
 	entries := catalog.Models
-	if mode == "api_key" {
+	usingCodexCatalog := mode != "api_key" && entries != nil
+	if !usingCodexCatalog {
 		entries = catalog.Data
 	}
 	if entries == nil {
-		return nil, failure("invalid_catalog", "OpenAI 모델 목록이 응답에 없습니다", nil)
+		return nil, failure("invalid_catalog", "The OpenAI response did not include a model catalog.", nil)
 	}
 	out := make([]Model, 0, len(entries))
 	for _, entry := range entries {
 		id := entry.ID
-		if mode != "api_key" {
+		if usingCodexCatalog {
 			if entry.Visibility != "list" {
 				continue
 			}

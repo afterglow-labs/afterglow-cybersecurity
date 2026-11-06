@@ -37,6 +37,8 @@ import { cn } from "@/lib/utils";
 
 import { ProfileRetryFields, RetryPolicyPanel, ZERO_OVERRIDE } from "./_components/retry";
 import { ChatGPTPanel } from "./_components/chatgpt";
+import { OpenAIModelControls } from "./_components/openai-model-controls";
+import { defaultOpenAIAccess, isOpenAIEndpoint, openAIAccessProgram } from "@/lib/openai-models";
 
 // thinking.type and reasoning_effort are independent fields and must be set separately;
 // some APIs have no thinking field and enable reasoning through effort alone.
@@ -346,6 +348,7 @@ function ProfileSheet({
   const [name, setName] = React.useState("");
   const [format, setFormat] = React.useState<ProfileFormat>("anthropic");
   const [model, setModel] = React.useState("");
+  const [accessProgram, setAccessProgram] = React.useState("standard");
   const [baseUrl, setBaseUrl] = React.useState("");
   const [proxy, setProxy] = React.useState("");
   const [apiKey, setApiKey] = React.useState("");
@@ -398,6 +401,7 @@ function ProfileSheet({
     setName(profile?.name ?? "");
     setFormat(profile && FORMATS.includes(profile.format) ? profile.format : "anthropic");
     setModel(profile?.model ?? "");
+    setAccessProgram(profile?.access_program_cyber || "standard");
     setBaseUrl(profile?.base_url ?? "");
     setProxy(profile?.proxy ?? "");
     setRps(String(profile?.rate_per_second ?? 0));
@@ -431,6 +435,7 @@ function ProfileSheet({
     setApiKey(next.api_key);
     setFormat(next.format);
     setModel(next.model);
+    setAccessProgram(defaultOpenAIAccess(next.model));
     setBaseUrl(next.base_url);
     setThinkingType(fromStore(next.thinking_type));
     setEffort(fromStore(next.reasoning_effort));
@@ -458,6 +463,8 @@ function ProfileSheet({
   const detailOf = (m: string) => modelDetails.find((d) => (d.name ?? d.model) === m || d.model === m);
   // Warn only for explicit metadata: the model list or a native test reported capabilities without tools.
   const isSDK = format === "opencode-sdk";
+  const isOpenAI = format === "openai-responses" && isOpenAIEndpoint(baseUrl);
+  const selectedAccess = isOpenAI ? openAIAccessProgram(model.trim(), accessProgram) : "";
   const retainedKeyHint = isSDK || profile?.format === "opencode-sdk"
     ? (canReuseSDKBridgeToken(profile, format, baseUrl) ? keyHint : "") : keyHint;
   const keyPlaceholder = isSDK ? swt("providers.sdkTokenPlaceholder") : format === "ollama" ? swt("providers.keyOptional") : "sk-…";
@@ -553,6 +560,7 @@ function ProfileSheet({
         streaming,
         sessionHeaderKey.trim(),
         {
+          access_program_cyber: selectedAccess,
           context_window_k: Number(cw) || 0,
           keep_alive: keepAlive.trim(),
           max_tokens: Math.max(0, Number(maxTokens) || 0),
@@ -586,6 +594,7 @@ function ProfileSheet({
         name: name.trim(),
         format,
         model: model.trim(),
+        access_program_cyber: selectedAccess,
         base_url: baseUrl.trim(),
         proxy: proxy.trim(),
         api_key: apiKey,
@@ -734,6 +743,10 @@ function ProfileSheet({
               <p className="text-amber-700 dark:text-amber-400">{swt("providers.sdkSecurity")}</p>
             </div>
           )}
+
+          {isOpenAI && <OpenAIModelControls id="p-openai" model={model} accessProgram={accessProgram} onAccessChange={setAccessProgram}
+            onModelChange={(next) => { invalidateModels(); setModel(next); setAccessProgram(defaultOpenAIAccess(next)); }}
+            catalog={models.map((id) => ({ id }))} />}
 
           <div className="grid gap-2">
             <Label htmlFor="p-model">{swt("interface.m0627")}</Label>

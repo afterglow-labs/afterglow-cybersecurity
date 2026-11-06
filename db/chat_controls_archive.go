@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"github.com/Autumn-27/artex/chatstate"
+	"github.com/afterglow-labs/afterglow-cybersecurity/chatstate"
 )
 
 var chatArchiveTables = []string{"main_sessions", "chat_control_gates", "chat_control_sessions", "chat_control_inputs", "chat_control_runs", "chat_transcript_revisions", "chat_history_changes", "chat_context_changes"}

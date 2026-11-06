@@ -18,6 +18,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { api } from "@/lib/api";
+import { useCurrentUser } from "@/hooks/use-current-user";
 
 export function ChangePasswordDialog({
   open,
@@ -28,6 +29,7 @@ export function ChangePasswordDialog({
 }) {
   "use no memo";
   const { t: swt, locale: swLocale } = useI18n();
+  const currentUser = useCurrentUser();
 
   const [oldPassword, setOldPassword] = React.useState("");
   const [newPassword, setNewPassword] = React.useState("");
@@ -71,7 +73,7 @@ export function ChangePasswordDialog({
           <DialogHeader>
             <DialogTitle>{swt("interface.m0053")}</DialogTitle>
             <DialogDescription>
-              {swt("interface.m0059")}<b>ARTEX</b>{swt("interface.m0060")}</DialogDescription>
+              {swt("interface.m0059")}<b>{currentUser.username}</b>{swt("interface.m0060")}</DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-3 py-4">
             <div className="flex flex-col gap-1.5">

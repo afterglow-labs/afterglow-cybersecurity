@@ -3,6 +3,7 @@ import { getIntlLocale } from "@/i18n/runtime";
 
 import { translate as swt } from "@/i18n/runtime";
 import { useI18n } from "@/i18n";
+import { bracketLabel } from "@/i18n/punctuation";
 import * as React from "react";
 import {
   CheckIcon,
@@ -413,7 +414,7 @@ function ToolBlock({
       if (!live) return;
       setDetail(
         segs
-          .map((x, i) => `【${x.label}】\n${x.label === swt("interface.m1459") ? toolInputText(toolName, parts[i]) : parts[i]}`)
+          .map((x, i) => `${bracketLabel(x.label, swLocale)}\n${x.label === swt("interface.m1459") ? toolInputText(toolName, parts[i]) : parts[i]}`)
           .join("\n\n"),
       );
       loadedKey.current = detailKey;
@@ -527,7 +528,7 @@ function MessageBlock({
       ),
     ).then((parts) => {
       if (!live) return;
-      setDetail(group.steps.map((s, i) => `【${kindLabel(s.kind)}】\n${parts[i]}`).join("\n\n"));
+      setDetail(group.steps.map((s, i) => `${bracketLabel(kindLabel(s.kind), swLocale)}\n${parts[i]}`).join("\n\n"));
       loadedKey.current = detailKey;
     });
     return () => {

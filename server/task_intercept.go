@@ -3,8 +3,8 @@ package server
 import (
 	"net/http"
 
-	"github.com/Autumn-27/artex/db"
-	"github.com/Autumn-27/artex/locale"
+	"github.com/afterglow-labs/afterglow-cybersecurity/db"
+	"github.com/afterglow-labs/afterglow-cybersecurity/locale"
 )
 
 // Task-scoped asset rule CRUD. Rules belong to task_id and affect only that task.

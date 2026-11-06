@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Autumn-27/artex/config"
+	"github.com/afterglow-labs/afterglow-cybersecurity/config"
 )
 
 // withLiveDSN temporarily overrides the package-level liveDSN (captured at init)

@@ -3,7 +3,7 @@ package db
 import (
 	"encoding/json"
 	"errors"
-	"github.com/Autumn-27/artex/chatstate"
+	"github.com/afterglow-labs/afterglow-cybersecurity/chatstate"
 	"github.com/Autumn-27/norma/llm"
 	"github.com/Autumn-27/norma/transcript"
 	"reflect"

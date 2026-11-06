@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/Autumn-27/artex/artifactindex"
+	"github.com/afterglow-labs/afterglow-cybersecurity/artifactindex"
 	actool "github.com/Autumn-27/norma/tool"
 )
 

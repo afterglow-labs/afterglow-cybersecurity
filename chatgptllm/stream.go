@@ -113,11 +113,11 @@ func consumeObserved(resp *http.Response, names map[string]string, allowPartial 
 		data.Reset()
 		lastEvent = eventName
 		if raw == "[DONE]" {
-			return false, failure("interrupted_stream", "완료 확인 전에 응답이 끝났습니다", nil)
+			return false, failure("interrupted_stream", "The response ended before completion was confirmed.", nil)
 		}
 		var event streamEvent
 		if json.Unmarshal([]byte(raw), &event) != nil {
-			return false, failure("invalid_stream", "이벤트 JSON이 올바르지 않습니다", nil)
+			return false, failure("invalid_stream", "Malformed event JSON.", nil)
 		}
 		if event.Type == "" {
 			event.Type = eventName
@@ -132,7 +132,7 @@ func consumeObserved(resp *http.Response, names map[string]string, allowPartial 
 		eventName = ""
 		state.size += len(raw)
 		if state.size > 64<<20 {
-			return false, failure("response_too_large", "응답이 처리 한도를 초과했습니다", nil)
+			return false, failure("response_too_large", "The response exceeded the processing limit.", nil)
 		}
 		// A quota denial must latch even if the consumer cancels while receiving
 		// the terminal usage event or cancellation races with the parsed failure.
@@ -170,10 +170,10 @@ func consumeObserved(resp *http.Response, names map[string]string, allowPartial 
 			}
 		case "response.output_text.delta", "response.refusal.delta":
 			if item, ok := state.items[event.ItemID]; !ok || item.Type != "message" {
-				return false, failure("invalid_stream", "텍스트 항목 ID를 찾을 수 없습니다", nil)
+				return false, failure("invalid_stream", "Missing text item ID.", nil)
 			}
 			if event.ContentIndex < 0 || state.done[event.ItemID] != nil {
-				return false, failure("invalid_stream", "텍스트 이벤트 순서가 올바르지 않습니다", nil)
+				return false, failure("invalid_stream", "Text events arrived out of order.", nil)
 			}
 			if err := state.recordIndex(event.ItemID, event.OutputIndex); err != nil {
 				return false, err
@@ -186,10 +186,10 @@ func consumeObserved(resp *http.Response, names map[string]string, allowPartial 
 			}
 		case "response.function_call_arguments.delta":
 			if item, ok := state.items[event.ItemID]; !ok || item.Type != "function_call" {
-				return false, failure("invalid_stream", "도구 항목 ID를 찾을 수 없습니다", nil)
+				return false, failure("invalid_stream", "Missing tool item ID.", nil)
 			}
 			if state.done[event.ItemID] != nil {
-				return false, failure("invalid_stream", "도구 이벤트 순서가 올바르지 않습니다", nil)
+				return false, failure("invalid_stream", "Tool events arrived out of order.", nil)
 			}
 			if err := state.recordIndex(event.ItemID, event.OutputIndex); err != nil {
 				return false, err
@@ -198,7 +198,7 @@ func consumeObserved(resp *http.Response, names map[string]string, allowPartial 
 		case "response.completed":
 			var final response
 			if json.Unmarshal(event.Response, &final) != nil || final.Status != "completed" {
-				return false, failure("invalid_completion", "완료 응답이 올바르지 않습니다", nil)
+				return false, failure("invalid_completion", "Malformed completed response.", nil)
 			}
 			events, err := state.finish(final, names)
 			if err != nil {
@@ -222,7 +222,7 @@ func consumeObserved(resp *http.Response, names map[string]string, allowPartial 
 		case "response.incomplete":
 			var final response
 			if json.Unmarshal(event.Response, &final) != nil {
-				return false, failure("invalid_completion", "미완료 응답이 올바르지 않습니다", nil)
+				return false, failure("invalid_completion", "Malformed incomplete response.", nil)
 			}
 			if allowPartial && final.Status == "incomplete" && final.Incomplete.Reason == "max_output_tokens" {
 				events, err := state.finish(final, names)
@@ -237,14 +237,14 @@ func consumeObserved(resp *http.Response, names map[string]string, allowPartial 
 				}
 				return true, nil
 			}
-			err := failure("incomplete_response", "응답이 완성되지 않았습니다", nil)
+			err := failure("incomplete_response", "The response did not complete.", nil)
 			err.StatusCode = resp.StatusCode
 			err.Param, err.Body, err.RequestID = final.Incomplete.Reason, append([]byte(nil), event.Response...), resp.Header.Get("X-Request-Id")
 			return false, err
 		case "response.created", "response.queued", "response.in_progress", "response.metadata", "response.content_part.added", "response.content_part.done", "response.output_text.done", "response.refusal.done", "response.function_call_arguments.done", "response.reasoning_summary_part.added", "response.reasoning_summary_part.done", "response.reasoning_summary_text.delta", "response.reasoning_summary_text.done", "response.reasoning_text.delta", "response.reasoning_text.done":
 			// Final output is authoritative; intermediate summaries are not replayed.
 		default:
-			return false, failure("unsupported_event", "지원하지 않는 응답 이벤트입니다", nil)
+			return false, failure("unsupported_event", "Unsupported response event.", nil)
 		}
 		return false, nil
 	}
@@ -261,7 +261,7 @@ func consumeObserved(resp *http.Response, names map[string]string, allowPartial 
 			data.WriteString(strings.TrimPrefix(strings.TrimPrefix(line, "data:"), " "))
 			data.WriteByte('\n')
 			if data.Len() > 16<<20 {
-				return failure("response_too_large", "이벤트가 처리 한도를 초과했습니다", nil)
+				return failure("response_too_large", "The event exceeded the processing limit.", nil)
 			}
 		} else if strings.HasPrefix(line, "event:") {
 			eventName = strings.TrimSpace(strings.TrimPrefix(line, "event:"))
@@ -272,14 +272,14 @@ func consumeObserved(resp *http.Response, names map[string]string, allowPartial 
 	}
 	if scanner.Err() != nil {
 		if errors.Is(scanner.Err(), bufio.ErrTooLong) {
-			return failure("response_too_large", "이벤트가 처리 한도를 초과했습니다", scanner.Err())
+			return failure("response_too_large", "The event exceeded the processing limit.", scanner.Err())
 		}
-		return failure("interrupted_stream", "응답 스트림이 중단되었습니다", scanner.Err())
+		return failure("interrupted_stream", "The response stream was interrupted.", scanner.Err())
 	}
 	if done, err := process(); done || err != nil {
 		return err
 	}
-	return failure("interrupted_stream", "완료 확인 전에 응답이 끝났습니다", io.ErrUnexpectedEOF)
+	return failure("interrupted_stream", "The response ended before completion was confirmed.", io.ErrUnexpectedEOF)
 }
 
 func textKey(id string, index int) string { return fmt.Sprintf("%s:%d", id, index) }
@@ -303,10 +303,10 @@ func (s *streamState) recordIndex(id string, index *int) error {
 		return nil // Older streams with authoritative final output omit indexes.
 	}
 	if prior, ok := s.indexes[id]; *index < 0 || (ok && prior != *index) {
-		return failure("invalid_stream", "출력 항목 순서가 변경되었습니다", nil)
+		return failure("invalid_stream", "Output item order changed.", nil)
 	}
 	if other, ok := s.indexIDs[*index]; ok && other != id {
-		return failure("invalid_stream", "출력 항목 순서가 중복되었습니다", nil)
+		return failure("invalid_stream", "Duplicate output item order.", nil)
 	}
 	s.indexes[id], s.indexIDs[*index] = *index, id
 	return nil
@@ -315,15 +315,15 @@ func (s *streamState) recordIndex(id string, index *int) error {
 func (s *streamState) recordItem(event streamEvent) error {
 	var item outputItem
 	if json.Unmarshal(event.Item, &item) != nil || item.ID == "" {
-		return failure("invalid_stream", "출력 항목 ID가 올바르지 않습니다", nil)
+		return failure("invalid_stream", "Invalid output item ID.", nil)
 	}
 	if item.Type != "message" && item.Type != "function_call" && item.Type != "reasoning" {
-		return failure("unsupported_output", "지원하지 않는 응답 항목입니다", nil)
+		return failure("unsupported_output", "Unsupported response item.", nil)
 	}
 	prior, exists := s.items[item.ID]
 	if event.Type == "response.output_item.added" {
 		if exists {
-			return failure("invalid_stream", "출력 항목 ID가 중복되었습니다", nil)
+			return failure("invalid_stream", "Duplicate output item ID.", nil)
 		}
 		s.items[item.ID] = item
 		if item.Arguments != "" {
@@ -331,10 +331,10 @@ func (s *streamState) recordItem(event streamEvent) error {
 		}
 	} else {
 		if !exists || s.done[item.ID] != nil || !sameItemIdentity(prior, item) {
-			return failure("invalid_stream", "완료 항목 식별자가 올바르지 않습니다", nil)
+			return failure("invalid_stream", "Invalid completed item identifier.", nil)
 		}
 		if item.Status != "" && item.Status != "completed" && !(s.allowPartial && item.Status == "incomplete" && item.Type != "function_call") {
-			return failure("invalid_completion", "출력 항목이 완성되지 않았습니다", nil)
+			return failure("invalid_completion", "The output item did not complete.", nil)
 		}
 		// Keep the original object, including phase and opaque reasoning fields.
 		s.done[item.ID] = append(json.RawMessage(nil), event.Item...)
@@ -360,13 +360,13 @@ func sameItemIdentity(prior, item outputItem) bool {
 // done items can replace it, and only after the response itself has completed.
 func (s *streamState) completedOutput() ([]json.RawMessage, error) {
 	if len(s.items) == 0 || len(s.done) != len(s.items) || len(s.indexes) != len(s.items) {
-		return nil, failure("invalid_completion", "완료 응답에서 출력 항목이 누락되었습니다", nil)
+		return nil, failure("invalid_completion", "The completed response is missing an output item.", nil)
 	}
 	output := make([]json.RawMessage, len(s.items))
 	for id := range s.items {
 		index := s.indexes[id]
 		if index >= len(output) || s.done[id] == nil {
-			return nil, failure("invalid_completion", "완료 응답에서 출력 순서가 누락되었습니다", nil)
+			return nil, failure("invalid_completion", "The completed response is missing output order.", nil)
 		}
 		output[index] = s.done[id]
 	}
@@ -378,7 +378,7 @@ func (s *streamState) finish(final response, names map[string]string) ([]llm.Str
 	if partial {
 		for _, item := range s.items {
 			if item.Type == "function_call" {
-				return nil, failure("incomplete_response", "미완료 도구 호출은 실행하지 않습니다", nil)
+				return nil, failure("incomplete_response", "Incomplete tool calls are not executed.", nil)
 			}
 		}
 	}
@@ -396,17 +396,17 @@ func (s *streamState) finish(final response, names map[string]string) ([]llm.Str
 	for index, raw := range final.Output {
 		var item outputItem
 		if json.Unmarshal(raw, &item) != nil || item.ID == "" || seenIDs[item.ID] {
-			return nil, failure("invalid_completion", "완료 항목 ID가 올바르지 않습니다", nil)
+			return nil, failure("invalid_completion", "Invalid completed item ID.", nil)
 		}
 		if item.Status != "" && item.Status != "completed" && !(partial && item.Status == "incomplete" && item.Type != "function_call") {
-			return nil, failure("invalid_completion", "출력 항목이 완성되지 않았습니다", nil)
+			return nil, failure("invalid_completion", "The output item did not complete.", nil)
 		}
 		seenIDs[item.ID] = true
 		if prior, ok := s.items[item.ID]; ok && !sameItemIdentity(prior, item) {
-			return nil, failure("invalid_completion", "출력 항목 식별자가 변경되었습니다", nil)
+			return nil, failure("invalid_completion", "The output item identifier changed.", nil)
 		}
 		if prior, ok := s.indexes[item.ID]; ok && prior != index {
-			return nil, failure("invalid_completion", "완료 항목 순서가 변경되었습니다", nil)
+			return nil, failure("invalid_completion", "Completed item order changed.", nil)
 		}
 		if rawDone, ok := s.done[item.ID]; ok {
 			var done outputItem
@@ -414,25 +414,25 @@ func (s *streamState) finish(final response, names map[string]string) ([]llm.Str
 			// A terminal item can omit status; both forms mean completed here.
 			done.Status, item.Status = "", ""
 			if !reflect.DeepEqual(done, item) {
-				return nil, failure("invalid_completion", "완료 항목 내용이 변경되었습니다", nil)
+				return nil, failure("invalid_completion", "Completed item content changed.", nil)
 			}
 		}
 		switch item.Type {
 		case "message":
 			if item.Role != "assistant" || !validPhase(item.Phase) {
-				return nil, failure("invalid_completion", "응답 역할이 올바르지 않습니다", nil)
+				return nil, failure("invalid_completion", "Invalid response role.", nil)
 			}
 			for index, part := range item.Content {
 				text := part.Text
 				if part.Type == "refusal" {
 					text = part.Refusal
 				} else if part.Type != "output_text" {
-					return nil, failure("unsupported_output", "지원하지 않는 응답 콘텐츠입니다", nil)
+					return nil, failure("unsupported_output", "Unsupported response content.", nil)
 				}
 				key := textKey(item.ID, index)
 				seenText[key] = true
 				if !strings.HasPrefix(text, bufferText(s.text, key)) {
-					return nil, failure("invalid_completion", "완료 텍스트가 스트림과 일치하지 않습니다", nil)
+					return nil, failure("invalid_completion", "The completed text does not match the stream.", nil)
 				}
 				if rest := strings.TrimPrefix(text, bufferText(s.text, key)); rest != "" {
 					events = append(events, llm.StreamEvent{Type: llm.SETextDelta, Text: rest})
@@ -444,17 +444,17 @@ func (s *streamState) finish(final response, names map[string]string) ([]llm.Str
 			}
 		case "function_call":
 			if partial {
-				return nil, failure("incomplete_response", "미완료 도구 호출은 실행하지 않습니다", nil)
+				return nil, failure("incomplete_response", "Incomplete tool calls are not executed.", nil)
 			}
 			name, ok := names[item.Name]
 			if !ok || item.Namespace != "artex" || item.CallID == "" || seenCalls[item.CallID] || !validArguments([]byte(item.Arguments)) {
-				return nil, failure("invalid_tool_call", "완료된 도구 호출이 올바르지 않습니다", nil)
+				return nil, failure("invalid_tool_call", "Malformed completed tool call.", nil)
 			}
 			if prior, ok := s.items[item.ID]; ok && (prior.CallID != item.CallID || prior.Name != item.Name || prior.Namespace != item.Namespace) {
-				return nil, failure("invalid_tool_call", "도구 호출 식별자가 변경되었습니다", nil)
+				return nil, failure("invalid_tool_call", "The tool call identifier changed.", nil)
 			}
 			if !strings.HasPrefix(item.Arguments, bufferText(s.arguments, item.ID)) {
-				return nil, failure("invalid_tool_call", "도구 인수가 스트림과 일치하지 않습니다", nil)
+				return nil, failure("invalid_tool_call", "Tool arguments do not match the stream.", nil)
 			}
 			seenCalls[item.CallID], hasTool, hasContent = true, true, true
 			message.Content = append(message.Content, llm.ContentBlock{Type: llm.BlockToolUse, ID: item.CallID, Name: name, Input: json.RawMessage(item.Arguments)})
@@ -463,7 +463,7 @@ func (s *streamState) finish(final response, names map[string]string) ([]llm.Str
 			var parts []string
 			for _, summary := range item.Summary {
 				if summary.Type != "summary_text" {
-					return nil, failure("unsupported_output", "지원하지 않는 추론 요약입니다", nil)
+					return nil, failure("unsupported_output", "Unsupported reasoning summary.", nil)
 				}
 				parts = append(parts, summary.Text)
 			}
@@ -474,21 +474,21 @@ func (s *streamState) finish(final response, names map[string]string) ([]llm.Str
 				events = append(events, llm.StreamEvent{Type: llm.SETextDelta}, llm.StreamEvent{Type: llm.SEThinkingDelta, Text: text})
 			}
 		default:
-			return nil, failure("unsupported_output", "지원하지 않는 완료 항목입니다", nil)
+			return nil, failure("unsupported_output", "Unsupported completed item.", nil)
 		}
 	}
 	for id := range s.items {
 		if !seenIDs[id] {
-			return nil, failure("invalid_completion", "완료 응답에서 출력 항목이 누락되었습니다", nil)
+			return nil, failure("invalid_completion", "The completed response is missing an output item.", nil)
 		}
 	}
 	for key := range s.text {
 		if !seenText[key] {
-			return nil, failure("invalid_completion", "완료 응답에서 텍스트가 누락되었습니다", nil)
+			return nil, failure("invalid_completion", "The completed response is missing text.", nil)
 		}
 	}
 	if !hasContent {
-		return nil, failure("empty_response", "모델이 빈 응답을 반환했습니다", nil)
+		return nil, failure("empty_response", "The model returned an empty response.", nil)
 	}
 	if !partial {
 		if err := attachReplayState(&message, final.Output); err != nil {

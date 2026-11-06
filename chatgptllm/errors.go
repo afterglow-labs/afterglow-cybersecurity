@@ -53,7 +53,7 @@ func (e *Error) Error() string {
 	if detail != "" {
 		detail = " (" + detail + ")"
 	}
-	return name + " 요청 실패" + detail + ": " + e.Message
+	return name + " request failed" + detail + ": " + e.Message
 }
 
 func (e *Error) Unwrap() error    { return e.cause }
@@ -104,7 +104,7 @@ func failure(code, message string, cause error) *Error {
 func (p *provider) annotate(err error, stage string, shape RequestShape, attempts int, emitted bool) *Error {
 	var e *Error
 	if !errors.As(err, &e) {
-		e = failure("transport_error", "OpenAI에 연결할 수 없습니다", err)
+		e = failure("transport_error", "Could not connect to OpenAI.", err)
 	}
 	e.APIKeyMode, e.Attempts, e.OutputEmitted, e.Shape = p.cfg.APIKey != "", attempts, emitted, shape
 	if e.Code == "authorization_failed" || e.Code == "not_connected" || e.Code == "plan_usage_blocked" {
@@ -182,7 +182,7 @@ func responseFailure(body []byte) *Error {
 		detail
 		Error *detail `json:"error"`
 	}
-	e := &Error{Body: append([]byte(nil), body...), Message: "OpenAI가 요청을 완료하지 못했습니다"}
+	e := &Error{Body: append([]byte(nil), body...), Message: "OpenAI could not complete the request."}
 	if !strings.HasPrefix(strings.TrimSpace(string(body)), "{") || json.Unmarshal(body, &envelope) != nil {
 		e.ErrorClass = "malformed_error"
 		return e
@@ -200,34 +200,34 @@ func responseFailure(body []byte) *Error {
 	}
 	switch e.Code {
 	case "subscription_sharing_usage_limit_exceeded":
-		e.Message = "ChatGPT 사용 한도에 도달했습니다. ChatGPT 사용량 설정을 확인해 주세요"
+		e.Message = "ChatGPT usage limit reached. Check Usage settings in ChatGPT."
 	case "insufficient_quota", "billing_hard_limit_reached":
-		e.Message = "OpenAI API 사용 한도 또는 결제 한도에 도달했습니다"
+		e.Message = "OpenAI API quota or billing limit reached."
 	case "subscription_sharing_user_not_eligible", "subscription_sharing_route_not_supported", "chatpass_v2_scope_not_authorized", "chatpass_v2_invalid_authorization_context":
-		e.Message = "이 연결에서 ChatGPT 플랜 사용이 허용되지 않았습니다"
+		e.Message = "This connection is not authorized for ChatGPT plan use."
 	case "subscription_sharing_invalid_user":
-		e.Message = "ChatGPT 연결의 인증 상태를 확인해 주세요"
+		e.Message = "Check the ChatGPT connection's authentication status."
 	case "subscription_sharing_unsupported_capability":
-		e.Message = "ChatGPT 플랜에서 지원하지 않는 요청입니다"
+		e.Message = "This request is not supported by the ChatGPT plan."
 	case "subscription_sharing_usage_unavailable", "subscription_sharing_user_unavailable":
-		e.Message = "ChatGPT 사용 가능 여부를 일시적으로 확인할 수 없습니다"
+		e.Message = "ChatGPT plan availability could not be checked temporarily."
 	case "context_length_exceeded":
-		e.Message = "입력이 모델 문맥 한도를 초과했습니다 (context_length_exceeded)"
+		e.Message = "Input exceeds the model context window (context_length_exceeded)."
 	case "invalid_access_program":
-		e.Message = "선택한 모델과 Daybreak 프로그램의 조합을 확인해 주세요"
+		e.Message = "Check the selected model and Daybreak program combination."
 	case "unsupported_access_program":
-		e.Message = "이 모델에서 선택한 Daybreak 프로그램을 지원하지 않습니다"
+		e.Message = "The selected Daybreak program is not supported by this model."
 	case "access_program_not_enabled":
-		e.Message = "API 키의 조직 승인과 프로젝트 Daybreak 접근 설정을 확인해 주세요"
+		e.Message = "Check the API key's organization approval and project Daybreak access settings."
 	case "invalid_api_key":
-		e.Message = "OpenAI API 키를 확인해 주세요"
+		e.Message = "Check the OpenAI API key."
 	}
-	if e.Message != "OpenAI가 요청을 완료하지 못했습니다" || knownTransient(e.Code) {
+	if e.Message != "OpenAI could not complete the request." || knownTransient(e.Code) {
 		e.ErrorClass = "known_code"
 	}
 	// Preserve the existing local compaction signal without printing the message.
 	if e.Code == "" && strings.Contains(strings.ToLower(d.Message), "maximum context length") {
-		e.Message = "입력이 모델 문맥 한도를 초과했습니다 (context_length_exceeded)"
+		e.Message = "Input exceeds the model context window (context_length_exceeded)."
 	}
 	return e
 }

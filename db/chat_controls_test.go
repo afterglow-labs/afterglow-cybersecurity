@@ -3,7 +3,7 @@ package db
 import (
 	"encoding/json"
 	"errors"
-	"github.com/Autumn-27/artex/chatstate"
+	"github.com/afterglow-labs/afterglow-cybersecurity/chatstate"
 	"reflect"
 	"sync"
 	"sync/atomic"

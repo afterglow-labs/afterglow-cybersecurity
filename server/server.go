@@ -20,19 +20,19 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Autumn-27/artex/agent"
-	"github.com/Autumn-27/artex/chatgptauth"
-	"github.com/Autumn-27/artex/chatstate"
-	"github.com/Autumn-27/artex/db"
-	"github.com/Autumn-27/artex/llmpool"
-	"github.com/Autumn-27/artex/llmrec"
-	"github.com/Autumn-27/artex/locale"
-	"github.com/Autumn-27/artex/opencodesdk"
-	"github.com/Autumn-27/artex/report"
-	"github.com/Autumn-27/artex/traffic"
 	"github.com/Autumn-27/norma/llm"
 	actool "github.com/Autumn-27/norma/tool"
 	"github.com/Autumn-27/norma/transcript"
+	"github.com/afterglow-labs/afterglow-cybersecurity/agent"
+	"github.com/afterglow-labs/afterglow-cybersecurity/chatgptauth"
+	"github.com/afterglow-labs/afterglow-cybersecurity/chatstate"
+	"github.com/afterglow-labs/afterglow-cybersecurity/db"
+	"github.com/afterglow-labs/afterglow-cybersecurity/llmpool"
+	"github.com/afterglow-labs/afterglow-cybersecurity/llmrec"
+	"github.com/afterglow-labs/afterglow-cybersecurity/locale"
+	"github.com/afterglow-labs/afterglow-cybersecurity/opencodesdk"
+	"github.com/afterglow-labs/afterglow-cybersecurity/report"
+	"github.com/afterglow-labs/afterglow-cybersecurity/traffic"
 )
 
 // BuildVersion is the backend application version, injected from cmd/artex at
@@ -754,6 +754,7 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("POST /api/tasks/{id}/attack-chains/compose", s.composeTaskChains)
 	mux.HandleFunc("POST /api/tasks/{id}/attack-chains/{chain}/verify", s.verifyTaskChain)
 	mux.HandleFunc("GET /api/tasks/{id}/c2-handoffs", s.taskC2Handoffs)
+	mux.HandleFunc("GET /api/tasks/{id}/c2-handoffs/summary", s.taskC2HandoffsSummary)
 	mux.HandleFunc("POST /api/tasks/{id}/c2-handoffs/{handoff}/status", s.c2HandoffStatus)
 
 	// Auth routes — exempt from JWT check (handled in requireAuth)
@@ -761,6 +762,7 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("POST /api/auth/init", s.authInit)
 	mux.HandleFunc("POST /api/auth/login", s.authLogin)
 	mux.HandleFunc("POST /api/auth/change-password", s.authChangePassword)
+	mux.HandleFunc("POST /api/auth/gateway-token", s.issueGatewayToken)
 
 	mux.HandleFunc("GET /api/health", s.health)
 	mux.HandleFunc("GET /api/stats", s.stats)
@@ -1512,20 +1514,21 @@ func (s *Server) setLLM(w http.ResponseWriter, r *http.Request) {
 // testLLM makes a real minimal completion to verify the config works.
 func (s *Server) testLLM(w http.ResponseWriter, r *http.Request) {
 	var req struct {
-		KeepAlive        string `json:"keep_alive"`
-		MaxConcurrent    int    `json:"llm_max_concurrent"`
-		ContextWindowK   int    `json:"context_window_k"`
-		MaxTokens        int    `json:"max_tokens"`
-		Provider         string `json:"provider"`
-		Model            string `json:"model"`
-		BaseURL          string `json:"base_url"`
-		Proxy            string `json:"proxy"`
-		APIKey           string `json:"api_key"`
-		ThinkingType     string `json:"thinking_type"`
-		ReasoningEffort  string `json:"reasoning_effort"`
-		ProfileID        *int64 `json:"profile_id"`         // Existing profile under test; an empty api_key uses its stored key.
-		Streaming        *bool  `json:"streaming"`          // Omitted means streaming, matching profile-save defaults.
-		SessionHeaderKey string `json:"session_header_key"` // Optional custom session header, also sent during testing with a fresh random session ID.
+		KeepAlive          string  `json:"keep_alive"`
+		MaxConcurrent      int     `json:"llm_max_concurrent"`
+		ContextWindowK     int     `json:"context_window_k"`
+		MaxTokens          int     `json:"max_tokens"`
+		Provider           string  `json:"provider"`
+		Model              string  `json:"model"`
+		BaseURL            string  `json:"base_url"`
+		Proxy              string  `json:"proxy"`
+		APIKey             string  `json:"api_key"`
+		ThinkingType       string  `json:"thinking_type"`
+		ReasoningEffort    string  `json:"reasoning_effort"`
+		AccessProgramCyber *string `json:"access_program_cyber"`
+		ProfileID          *int64  `json:"profile_id"`         // Existing profile under test; an empty api_key uses its stored key.
+		Streaming          *bool   `json:"streaming"`          // Omitted means streaming, matching profile-save defaults.
+		SessionHeaderKey   string  `json:"session_header_key"` // Optional custom session header, also sent during testing with a fresh random session ID.
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		writeError(w, 400, err)
@@ -1544,6 +1547,9 @@ func (s *Server) testLLM(w http.ResponseWriter, r *http.Request) {
 	// reasoning_effort/thinking field fails the test too (no false "test ok, run 400").
 	cfg.ThinkingType = req.ThinkingType
 	cfg.ReasoningEffort = req.ReasoningEffort
+	if req.AccessProgramCyber != nil {
+		cfg.AccessProgramCyber = *req.AccessProgramCyber
+	}
 	if cfg.Provider() == opencodesdk.Format && req.MaxTokens > 0 {
 		cfg.MaxTokens = req.MaxTokens
 	}
@@ -1567,6 +1573,9 @@ func (s *Server) testLLM(w http.ResponseWriter, r *http.Request) {
 			}
 			if cfg.SessionHeaderKey == "" {
 				cfg.SessionHeaderKey = p.SessionHeaderKey
+			}
+			if req.AccessProgramCyber == nil {
+				cfg.AccessProgramCyber = p.AccessProgramCyber
 			}
 			if req.KeepAlive == "" {
 				cfg.KeepAlive = p.KeepAlive

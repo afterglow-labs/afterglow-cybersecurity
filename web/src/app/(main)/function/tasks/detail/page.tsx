@@ -2,6 +2,7 @@
 
 import { translate as swt } from "@/i18n/runtime";
 import { useI18n } from "@/i18n";
+import { questionMark } from "@/i18n/punctuation";
 import * as React from "react";
 
 import Link from "next/link";
@@ -382,7 +383,7 @@ function TaskDetailInner() {
               <AlertDialogTrigger asChild>{archiveTrigger}</AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>{swt("interface.m0813")}{task.id}？</AlertDialogTitle>
+                  <AlertDialogTitle>{swt("interface.m0813")}{task.id}{questionMark(swLocale)}</AlertDialogTitle>
                   <AlertDialogDescription>
                     {swt("interface.m0814")}</AlertDialogDescription>
                 </AlertDialogHeader>

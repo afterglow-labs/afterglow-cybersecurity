@@ -12,11 +12,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Autumn-27/artex/agent"
-	runtimeconfig "github.com/Autumn-27/artex/config"
-	"github.com/Autumn-27/artex/db"
-	"github.com/Autumn-27/artex/locale"
-	"github.com/Autumn-27/artex/ollama"
+	"github.com/afterglow-labs/afterglow-cybersecurity/agent"
+	runtimeconfig "github.com/afterglow-labs/afterglow-cybersecurity/config"
+	"github.com/afterglow-labs/afterglow-cybersecurity/db"
+	"github.com/afterglow-labs/afterglow-cybersecurity/locale"
+	"github.com/afterglow-labs/afterglow-cybersecurity/ollama"
 	"github.com/Autumn-27/norma/llm"
 )
 

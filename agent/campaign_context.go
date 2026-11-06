@@ -3,7 +3,7 @@ package agent
 import (
 	"encoding/json"
 
-	"github.com/Autumn-27/artex/db"
+	"github.com/afterglow-labs/afterglow-cybersecurity/db"
 )
 
 func campaignContext(ts *db.ExplorationStore) string {

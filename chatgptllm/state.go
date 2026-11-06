@@ -28,7 +28,7 @@ func contentHash(content []llm.ContentBlock) string {
 func attachReplayState(message *llm.Message, output []json.RawMessage) error {
 	data, err := json.Marshal(replayState{Version: 1, Provider: replayProvider, ContentHash: contentHash(message.Content), Output: output})
 	if err != nil {
-		return failure("invalid_completion", "응답 상태를 저장할 수 없습니다", err)
+		return failure("invalid_completion", "Could not save response state.", err)
 	}
 	message.ProviderData = data
 	return nil
@@ -37,27 +37,27 @@ func attachReplayState(message *llm.Message, output []json.RawMessage) error {
 func replayItems(message llm.Message) ([]json.RawMessage, error) {
 	var state replayState
 	if message.Role != llm.RoleAssistant || json.Unmarshal(message.ProviderData, &state) != nil || state.Version != 1 || state.Provider != replayProvider || state.ContentHash != contentHash(message.Content) || len(state.Output) == 0 {
-		return nil, failure("invalid_replay_state", "저장된 OpenAI 응답과 대화 내용이 일치하지 않습니다. 새 대화를 시작해 주세요", nil)
+		return nil, failure("invalid_replay_state", "The saved OpenAI response state does not match the conversation. Start a new conversation.", nil)
 	}
 	ids := map[string]bool{}
 	for _, raw := range state.Output {
 		var item outputItem
 		if json.Unmarshal(raw, &item) != nil || item.ID == "" || ids[item.ID] {
-			return nil, failure("invalid_replay_state", "저장된 응답 항목이 올바르지 않습니다", nil)
+			return nil, failure("invalid_replay_state", "Malformed saved response item.", nil)
 		}
 		ids[item.ID] = true
 		switch item.Type {
 		case "message":
 			if item.Role != "assistant" || !validPhase(item.Phase) {
-				return nil, failure("invalid_replay_state", "저장된 응답 역할이나 단계가 올바르지 않습니다", nil)
+				return nil, failure("invalid_replay_state", "Invalid saved response role or phase.", nil)
 			}
 		case "reasoning":
 		case "function_call":
 			if item.CallID == "" || item.Name == "" || item.Namespace != "artex" || !validArguments([]byte(item.Arguments)) {
-				return nil, failure("invalid_replay_state", "저장된 도구 호출이 올바르지 않습니다", nil)
+				return nil, failure("invalid_replay_state", "Malformed saved tool call.", nil)
 			}
 		default:
-			return nil, failure("invalid_replay_state", "지원하지 않는 응답 상태입니다", nil)
+			return nil, failure("invalid_replay_state", "Unsupported response state.", nil)
 		}
 	}
 	return state.Output, nil

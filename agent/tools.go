@@ -4,12 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/Autumn-27/artex/locale"
+	"github.com/afterglow-labs/afterglow-cybersecurity/locale"
 	"strconv"
 	"strings"
 	"sync"
 
-	"github.com/Autumn-27/artex/db"
+	"github.com/afterglow-labs/afterglow-cybersecurity/db"
 	acperm "github.com/Autumn-27/norma/permission"
 	actool "github.com/Autumn-27/norma/tool"
 )

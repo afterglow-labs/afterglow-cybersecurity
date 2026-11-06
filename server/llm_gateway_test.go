@@ -10,7 +10,7 @@ import (
 	"sync/atomic"
 	"testing"
 
-	"github.com/Autumn-27/artex/agent"
+	"github.com/afterglow-labs/afterglow-cybersecurity/agent"
 )
 
 func TestConnectionLocalGatewayCredentialReuse(t *testing.T) {

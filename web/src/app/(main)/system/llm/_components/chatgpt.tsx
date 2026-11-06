@@ -10,6 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { OpenAIModelControls } from "./openai-model-controls";
+import { defaultOpenAIAccess, openAIAccessProgram } from "@/lib/openai-models";
 
 export function ChatGPTPanel({ profiles, editing, onSaved }: {
   profiles: LLMProfile[];
@@ -20,7 +22,9 @@ export function ChatGPTPanel({ profiles, editing, onSaved }: {
   const [status, setStatus] = React.useState<ChatGPTStatus | null>(null);
   const [accountID, setAccountID] = React.useState("");
   const [models, setModels] = React.useState<ChatGPTModel[]>([]);
-  const [model, setModel] = React.useState("");
+  const [model, setModel] = React.useState("gpt-6-sol");
+  const [accessProgram, setAccessProgram] = React.useState("standard");
+  const [effort, setEffort] = React.useState("");
   const [name, setName] = React.useState("");
   const [profileID, setProfileID] = React.useState("");
   const [busy, setBusy] = React.useState(false);
@@ -49,6 +53,8 @@ export function ChatGPTPanel({ profiles, editing, onSaved }: {
     setName(editing.name);
     setAccountID(editing.chatgpt_account_id ?? "");
     setModel(editing.model);
+    setAccessProgram(editing.access_program_cyber || "standard");
+    setEffort(editing.reasoning_effort || "");
   }, [editing]);
   React.useEffect(() => {
     if (!accountID) { setModels([]); return; }
@@ -57,7 +63,7 @@ export function ChatGPTPanel({ profiles, editing, onSaved }: {
     void api.chatgptModels(accountID).then((items) => {
       if (!live) return;
       setModels(items);
-      setModel((current) => items.some((item) => item.id === current) ? current : items[0]?.id ?? "");
+      setModel((current) => current || "gpt-6-sol");
     }).catch((error) => {
       if (live) { setModels([]); toast.error((error as Error).message); }
     }).finally(() => { if (live) setModelsBusy(false); });
@@ -94,11 +100,13 @@ export function ChatGPTPanel({ profiles, editing, onSaved }: {
     if (!accountID || !model || !name.trim()) { toast.error(t("chatgpt.selectAccountModel")); return; }
     setBusy(true);
     try {
-      await api.saveLLMProfile({
+      const { id } = await api.saveLLMProfile({
         id: profileID ? Number(profileID) : undefined,
         name: name.trim(), format: "openai-responses", auth_mode: "chatgpt_plan",
         chatgpt_account_id: accountID, model, pool_exclude: true, streaming: true,
+        access_program_cyber: openAIAccessProgram(model, accessProgram), reasoning_effort: effort,
       });
+      setProfileID(String(id));
       toast.success(t("chatgpt.saved"));
       onSaved();
     } catch (error) { toast.error((error as Error).message); }
@@ -126,8 +134,8 @@ export function ChatGPTPanel({ profiles, editing, onSaved }: {
     <CardContent className="grid gap-4">
       <div className="flex flex-wrap items-center gap-2">
         <Button type="button" variant="outline" disabled={busy} onClick={() => void connect()}>{t("chatgpt.connect")}</Button>
-        {status?.accounts.map((a) => <div key={a.id} className="flex items-center gap-2 rounded-md border px-2 py-1 text-sm">
-          <span>{a.email || a.id}</span>
+        {status?.accounts.map((a) => <div key={a.id} className="flex min-w-0 flex-wrap items-center gap-2 rounded-md border px-2 py-1 text-sm">
+          <span className="min-w-0 break-all">{a.email || a.id}</span>
           <Badge variant="outline">{a.plan_blocked ? t("chatgpt.statusBlocked") : a.connected && a.plan_enabled ? t("chatgpt.statusConnected") : t("chatgpt.statusSignedOut")}</Badge>
           <Button size="sm" variant="ghost" disabled={busy} onClick={() => void connect(a.id)}>{t("chatgpt.reconnect")}</Button>
           <Button size="sm" variant="ghost" disabled={busy} onClick={() => void disconnect(a.id)}>{t("chatgpt.disconnect")}</Button>
@@ -136,22 +144,22 @@ export function ChatGPTPanel({ profiles, editing, onSaved }: {
       {status?.error && <p role="alert" className="text-sm text-destructive">{status.error}</p>}
       {!accountID && <p className="text-sm text-muted-foreground">{t("chatgpt.noAccount")}</p>}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="grid gap-1"><Label htmlFor="chatgpt-profile">{t("chatgpt.profile")}</Label>
-          <select id="chatgpt-profile" className="h-9 rounded-md border bg-background px-2 text-sm" value={profileID} onChange={(e) => {
+        <div className="grid min-w-0 gap-1"><Label htmlFor="chatgpt-profile">{t("chatgpt.profile")}</Label>
+          <select id="chatgpt-profile" className="h-9 w-full min-w-0 rounded-md border bg-background px-2 text-sm" value={profileID} onChange={(e) => {
             const p = planProfiles.find((item) => item.id === e.target.value);
-            setProfileID(p?.id ?? ""); setName(p?.name ?? ""); setAccountID(p?.chatgpt_account_id ?? accountID); setModel(p?.model ?? "");
+            setProfileID(p?.id ?? ""); setName(p?.name ?? ""); setAccountID(p?.chatgpt_account_id ?? accountID); setModel(p?.model ?? "gpt-6-sol"); setAccessProgram(p?.access_program_cyber || "standard"); setEffort(p?.reasoning_effort || "");
           }}><option value="">{t("chatgpt.newProfile")}</option>{planProfiles.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}</select>
           <Input aria-label={t("chatgpt.profile")} value={name} onChange={(e) => setName(e.target.value)} placeholder={t("chatgpt.profile")} />
         </div>
-        <div className="grid gap-1"><Label htmlFor="chatgpt-account">{t("chatgpt.account")}</Label>
-          <select id="chatgpt-account" className="h-9 rounded-md border bg-background px-2 text-sm" value={accountID} onChange={(e) => setAccountID(e.target.value)}>
+        <div className="grid min-w-0 gap-1"><Label htmlFor="chatgpt-account">{t("chatgpt.account")}</Label>
+          <select id="chatgpt-account" className="h-9 w-full min-w-0 rounded-md border bg-background px-2 text-sm" value={accountID} onChange={(e) => setAccountID(e.target.value)}>
             <option value="">{t("chatgpt.account")}</option>{status?.accounts.filter((a) => a.connected && a.plan_enabled).map((a) => <option key={a.id} value={a.id}>{a.email || a.id}</option>)}
           </select>
         </div>
-        <div className="grid gap-1"><Label htmlFor="chatgpt-model">{t("chatgpt.model")}</Label>
-          <select id="chatgpt-model" className="h-9 rounded-md border bg-background px-2 text-sm" value={model} onChange={(e) => setModel(e.target.value)} disabled={!accountID || modelsBusy}>
-            <option value="">{modelsBusy ? t("chatgpt.loadingModels") : t("chatgpt.model")}</option>{models.map((m) => <option key={m.id} value={m.id}>{m.name || m.id}</option>)}
-          </select>
+        <div className="grid min-w-0 gap-1"><Label htmlFor="chatgpt-model">{t("chatgpt.model")}</Label>
+          <OpenAIModelControls id="chatgpt" model={model} accessProgram={accessProgram} onAccessChange={setAccessProgram}
+            onModelChange={(next) => { setModel(next); setAccessProgram(defaultOpenAIAccess(next)); }} catalog={models} />
+          <Input id="chatgpt-model" aria-label={t("chatgpt.model")} value={model} onChange={(event) => { setModel(event.target.value); setAccessProgram(defaultOpenAIAccess(event.target.value)); }} />
           {accountID && !modelsBusy && models.length === 0 && <span className="text-xs text-muted-foreground">{t("chatgpt.noModels")}</span>}
         </div>
         <div className="flex flex-wrap items-end gap-2">

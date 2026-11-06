@@ -7,6 +7,14 @@ import type { en as browserSource } from "./browser.ts";
 import type { en as autowavesSource } from "./autowaves.ts";
 import type { en as appSource } from "./app.ts";
 export const app: Record<keyof typeof appSource, string> = {
+  cyberThemes: "サイバーセキュリティ",
+  classicThemes: "クラシック",
+  themeObsidian: "Obsidian",
+  themeObsidianDescription: "グラファイトの面にアイスシアンのアクセント",
+  themePhosphor: "Phosphor",
+  themePhosphorDescription: "黒に近い面に蛍光グリーンのアクセント",
+  themeAfterglow: "Afterglow",
+  themeAfterglowDescription: "温かみのあるチャコールにアンバーのアクセント",
   metricValue: "{label} {value}",
   tokenSummary: "入力 {input}（キャッシュ {cache} を含む）· 出力 {output}",
   reasoningInOutput: "推論（出力に含む）",
@@ -14,11 +22,11 @@ export const app: Record<keyof typeof appSource, string> = {
   operator: "オペレーター",
   commandPalette: "コマンドパレット",
   commandSearch: "実行するコマンドを検索…",
-  metaTitle: "Afterglow Cybersecurity — 自律型ペネトレーションテストコンソール",
-  metaDescription: "LLM を活用する自律型ペネトレーションテストシステムのコンソール",
+  metaTitle: "APTEX by Afterglow Labs — 自律型パープルチーム運用",
+  metaDescription: "LLM を活用した自律型パープルチーム運用コンソール",
   language: "言語",
   languageSelectAria: "画面の言語を選択",
-  attribution: "Autumn-27 による ARTEX を基にしています",
+  attribution: "Afterglow Labs 提供",
   notFoundTitle: "ページが見つかりません。",
   notFoundBody: "お探しのページは見つかりませんでした。",
   goHome: "ホームに戻る",
@@ -304,22 +312,22 @@ const interfaceMessages: Record<keyof typeof interfaceSource, string> = {
   m0003: "ユーザー名またはパスワードが正しくありません",
   m0004: "ログイン状態を確認中…",
   m0005: "サインイン",
-  m0006: "おかえりなさい。パスワードを入力して Afterglow Cybersecurity を続行してください",
+  m0006: "おかえりなさい。パスワードを入力して APTEX を続行してください",
   m0007: "ユーザー名",
   m0008: "パスワード",
   m0009: "パスワードを入力",
   m0010: "以下を読み、同意します:",
   m0011: "利用規約",
   m0012: "サインイン中…",
-  m0013: "Afterglow Cybersecurity 利用規約および免責事項",
+  m0013: "APTEX 利用規約および免責事項",
   m0014: "バージョン 1.0 · 2026 年 9 月 18 日施行 · サインインする前にすべての条項をお読みください",
   m0015:
-    "本利用規約および免責事項（以下「本声明」）は、ARTEX プロジェクトの作者および貢献者との関係における本ソフトウェアの利用を規定します。利用前にすべての条項を読み、理解してください。特に、太字または色付きのパネルで強調された免責事項、責任の制限および禁止事項を確認してください。",
+    "本利用規約および免責事項（以下「本声明」）は、APTEX プロジェクトの作者および貢献者との関係における本ソフトウェアの利用を規定します。利用前にすべての条項を読み、理解してください。特に、太字または色付きのパネルで強調された免責事項、責任の制限および禁止事項を確認してください。",
   m0016:
     "本ソフトウェアをダウンロード、インストール、アクセス、その他の方法で利用することにより、本声明のすべてを読み、理解し、その拘束を受けることに同意したものとみなされます。",
   m0017: "第 1 条 · 定義およびオープンソースライセンス",
   m0018:
-    "ARTEX を基にした本ソフトウェアは、GNU Affero General Public License v3.0（AGPL-3.0）の下で公開されています。同ライセンスに従い、利用、複製、変更および配布できます。ネットワークを通じて第三者に提供するオンラインサービスを含め、派生物も AGPL-3.0 の下でソースを公開し、完全な対応ソースコードを利用者に提供する必要があります。AGPL-3.0 の全文は同梱の LICENSE ファイルを参照してください。",
+    "APTEX は、GNU Affero General Public License v3.0（AGPL-3.0）の下で公開されています。同ライセンスに従い、利用、複製、変更および配布できます。ネットワークを通じて第三者に提供するオンラインサービスを含め、派生物も AGPL-3.0 の下でソースを公開し、完全な対応ソースコードを利用者に提供する必要があります。AGPL-3.0 の全文は同梱の LICENSE ファイルを参照してください。",
   m0019: "第 2 条 · 許可される利用",
   m0020:
     "本ソフトウェアは、利用者自身が構築したローカルの隔離環境における個人的な学習、コードの研究、セキュリティ原理の議論および技術検証のみを目的としています。学習、学術研究、コードレビューなど、攻撃や破壊を伴わない目的で利用してください。ここで明示的に許可された目的以外には利用できません。",
@@ -357,7 +365,7 @@ const interfaceMessages: Record<keyof typeof interfaceSource, string> = {
   m0042: "パスワードは 8 文字以上である必要があります",
   m0043: "初期設定に失敗しました",
   m0044: "初期パスワードを設定",
-  m0045: "Afterglow Cybersecurity へようこそ。アカウントのパスワードを設定してください（8 文字以上）",
+  m0045: "APTEX へようこそ。アカウントのパスワードを設定してください（8 文字以上）",
   m0046: "新しいパスワード",
   m0047: "8 文字以上",
   m0048: "パスワードの確認",
@@ -2826,8 +2834,8 @@ const interfaceMessages: Record<keyof typeof interfaceSource, string> = {
   m2407: "ツール呼び出し #{p0} を特定しました",
   m2408: "· 推論を含む",
   m2409: "ライブ配信中…",
-  m2410: "Afterglow Cybersecurity — 自律型ペネトレーションテストコンソール",
-  m2411: "LLM を活用する自律型ペネトレーションテストシステムのコンソール",
+  m2410: "APTEX by Afterglow Labs — 自律型パープルチーム運用",
+  m2411: "LLM を活用した自律型パープルチーム運用コンソール",
   m2412: "補足の質問データを解析できませんでした。パネルを開き直してください",
   m2413: "認証されていません",
   m2414:
@@ -3380,6 +3388,13 @@ export { interfaceMessages as interface };
 
 import type { en as providersSource } from "./providers.ts";
 export const providers: Record<keyof typeof providersSource, string> = {
+  openaiModel: "OpenAI モデル",
+  chooseModel: "モデルを選択",
+  openaiModelHelp: "モデルを選択するか ID を入力してください。利用可否は接続したアカウントまたは API プロジェクトで確認されます。",
+  daybreakBlue: "Daybreak Blue",
+  daybreakBlueHelp: "このモデルで承認済みの Daybreak Blue アクセスを使用します。オフにすると標準アクセスを使用します。",
+  standardAccessOnly: "このモデルでは標準アクセスが選択されています。",
+
   template: "設定テンプレート（新規プロファイルのみ）",
   chooseTemplate: "テンプレートを選択…",
   general: "Z.ai GLM-5.3 · General API（推奨）",
@@ -3393,7 +3408,7 @@ export const providers: Record<keyof typeof providersSource, string> = {
     "GLM-5.3 はテキスト専用で、コンテキストは 1M トークンです。推論は有効のままにする必要があり、対応する推論強度は low、high、max です。このテンプレートは low、出力上限 16,384 トークン、コンテキストウィンドウ 0（既定 200K）を選択します。ScopeWeaver の小規模なタスク 1 件の測定では、同じ検出事項に到達した際に low が使ったトークンは max の半分未満でした。難しいタスクでは推論強度を上げ、モデルを変更する場合はこれらの設定も見直してください。",
   deepseek: "DeepSeek · deepseek-flash（節約）",
   claude: "Anthropic Claude · Haiku 5.5（節約）",
-  openai: "OpenAI · GPT-6 Luna、Responses API（節約）",
+  openai: "OpenAI · Responses API",
   qwen: "Alibaba Qwen · qwen3.8-flash、国際版（節約）",
   kimi: "Moonshot Kimi · kimi-k3（節約）",
   openrouter: "OpenRouter · DeepSeek Flash（節約）",
@@ -3543,7 +3558,7 @@ export const settings: Record<keyof typeof settingsSource, string> = {
     "既定では無効で、クラウドのプロバイダーも引き続き動作します。有効にすると、すべての <b>LLM の HTTP 接続</b>（会話、モデル一覧、接続テスト、ウォームアップ、承認判定）は、<b>ループバック</b>アドレスと下記の信頼する CIDR にのみ接続できます。<b>LAN、Docker、その他のプライベートアドレスには、明示的な CIDR の指定が必要です</b>。host.docker.internal や ollama などの名前は、名前解決先のアドレスが許可される場合にのみ利用できます。リンクローカル、マルチキャスト、未指定アドレスは、一覧にあっても常に拒否されます。接続を開くたびに解決後の IP を検査し、<b>リダイレクトと LLM プロファイルのプロキシを拒否</b>します。<b>エージェントのウェブ検索（すべてのバックエンド）、更新確認、ダウンロードもブロック</b>します。現在のバージョンの表示とロールバックは引き続き利用できます。対象への通信、対象用ツール、全体のプロキシには影響しないため、ホスト全体がオフラインになるわけではありません。Ollama は引き続きクラウドモデルへリクエストを転送できるため、Ollama サーバーでも <code>OLLAMA_NO_CLOUD=1</code> を設定してください。",
   localOnlyToggle: "LLM の接続をローカルのみに制限",
   localOnlyEnv:
-    "サーバー環境の SCOPEWEAVER_LOCAL_LLM_ONLY=true（または ARTEX_LOCAL_LLM_ONLY）は、ここでは解除できません。SCOPEWEAVER_LOCAL_LLM_ALLOWED_CIDRS（または ARTEX_LOCAL_LLM_ALLOWED_CIDRS）の CIDR も適用されますが、ここでは編集できません。",
+    "サーバー環境の SCOPEWEAVER_LOCAL_LLM_ONLY=true（または APTEX_LOCAL_LLM_ONLY）は、ここでは解除できません。SCOPEWEAVER_LOCAL_LLM_ALLOWED_CIDRS（または APTEX_LOCAL_LLM_ALLOWED_CIDRS）の CIDR も適用されますが、ここでは編集できません。",
   allowlistLabel: "追加で信頼する CIDR",
   allowlistHelp:
     "1 行に 1 件、またはカンマ区切りで入力してください。推論サーバーのみを許可してください。例として、LAN または Docker ホストのアドレスには 192.168.1.20/32、IPv6 には fd00::20/128 を指定します。ScopeWeaver サーバーが実際に接続するアドレス（Docker ではホストゲートウェイまたは Ollama コンテナーの IP）を使用してください。信頼する範囲内のすべてのサーバーは、ローカル LLM サーバーとして扱われます。",
@@ -3556,8 +3571,8 @@ export const settings: Record<keyof typeof settingsSource, string> = {
 };
 export const chatgpt: Record<keyof typeof chatgptSource, string> = {
   title: "ChatGPT プラン",
-  help: "ChatGPT アカウントを接続し、公式 Responses API で利用可能なモデルを使います。プラン利用量と API 請求は別です。認証情報はこのサーバーに保存されます。",
-  connect: "アカウントを接続", reconnect: "再接続", disconnect: "接続解除", account: "アカウント", model: "モデル",
+  help: "ChatGPT アカウントでログインし、アカウントで利用可能なモデルを使います。API キーは不要です。プラン利用量と API 請求は別です。認証情報はこのサーバーに保存されます。",
+  connect: "ChatGPT でログイン", reconnect: "再接続", disconnect: "接続解除", account: "アカウント", model: "モデル",
   profile: "プロファイル名", create: "プランプロファイルを作成", update: "プランプロファイルを更新", newProfile: "新しいプランプロファイル",
   statusConnected: "接続済み", statusSignedOut: "サインアウト", statusBlocked: "プラン利用を一時停止",
   loadingModels: "アカウントのモデルを読み込む", recheck: "プラン利用を再確認",

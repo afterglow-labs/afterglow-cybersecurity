@@ -9,7 +9,7 @@ trap 'rm -rf -- "$fixture"' EXIT
 docker image inspect postgres:16-alpine >/dev/null
 cat > "$fixture/main.go" <<'GO'
 package main
-import("encoding/json";"os";"github.com/Autumn-27/artex/agent")
+import("encoding/json";"os";"github.com/afterglow-labs/afterglow-cybersecurity/agent")
 func main(){c,ready:=agent.FromEnv();_=json.NewEncoder(os.Stdout).Encode(map[string]any{"provider":c.Provider(),"ready":ready,"key":c.APIKey})}
 GO
 (cd "$repo" && go build -o "$fixture/resolve-env" "$fixture/main.go")

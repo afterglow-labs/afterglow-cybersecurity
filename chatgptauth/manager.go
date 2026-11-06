@@ -13,13 +13,13 @@ import (
 )
 
 var (
-	ErrClosed           = errors.New("ChatGPT 연결 관리자가 종료되었습니다.")
-	ErrLoginRequired    = errors.New("ChatGPT 계정을 다시 연결해 주세요.")
-	ErrPlanDisabled     = errors.New("이 연결은 ChatGPT 구독 사용 권한이 없습니다. 구독 사용에 동의한 뒤 다시 연결해 주세요.")
-	ErrRemoteRevocation = errors.New("로컬 연결은 해제했지만 원격 세션 해제를 확인하지 못했습니다. ChatGPT 설정에서 앱 연결을 확인해 주세요.")
-	errStorage          = errors.New("ChatGPT 자격증명을 안전하게 저장하거나 읽을 수 없습니다.")
-	errLogin            = errors.New("ChatGPT 로그인 응답을 검증하지 못했습니다. 다시 연결해 주세요.")
-	errNetwork          = errors.New("OpenAI 인증 서비스에 연결하지 못했습니다. 잠시 후 다시 시도해 주세요.")
+	ErrClosed           = errors.New("The ChatGPT connection manager is closed.")
+	ErrLoginRequired    = errors.New("Reconnect your ChatGPT account.")
+	ErrPlanDisabled     = errors.New("This connection is not authorized to use the ChatGPT subscription. Consent to subscription use, then reconnect.")
+	ErrRemoteRevocation = errors.New("The local connection was removed, but remote session revocation could not be confirmed. Check the app connection in ChatGPT settings.")
+	errStorage          = errors.New("ChatGPT credentials could not be stored or read securely.")
+	errLogin            = errors.New("The ChatGPT login response could not be verified. Reconnect and try again.")
+	errNetwork          = errors.New("Could not reach the OpenAI authentication service. Try again shortly.")
 )
 
 const planScope = "chatgpt.tokens.use.direct"

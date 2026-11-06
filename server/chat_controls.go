@@ -14,9 +14,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Autumn-27/artex/agent"
-	"github.com/Autumn-27/artex/chatstate"
-	"github.com/Autumn-27/artex/locale"
+	"github.com/afterglow-labs/afterglow-cybersecurity/agent"
+	"github.com/afterglow-labs/afterglow-cybersecurity/chatstate"
+	"github.com/afterglow-labs/afterglow-cybersecurity/locale"
 )
 
 func (s *Server) chatControlRef(w http.ResponseWriter, r *http.Request) (chatstate.SessionRef, bool) {

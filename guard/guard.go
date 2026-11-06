@@ -10,12 +10,12 @@ package guard
 import (
 	"context"
 	"encoding/json"
-	"github.com/Autumn-27/artex/locale"
+	"github.com/afterglow-labs/afterglow-cybersecurity/locale"
 	"regexp"
 	"sync"
 	"time"
 
-	"github.com/Autumn-27/artex/intercept"
+	"github.com/afterglow-labs/afterglow-cybersecurity/intercept"
 	"github.com/Autumn-27/norma/hook"
 )
 

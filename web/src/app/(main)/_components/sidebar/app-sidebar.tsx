@@ -16,6 +16,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { APP_CONFIG } from "@/config/app-config";
+import { BrandMark } from "@/components/brand-mark";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { sidebarItems } from "@/navigation/sidebar/sidebar-items";
 import { usePreferencesStore } from "@/stores/preferences/preferences-provider";
@@ -45,11 +46,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild>
+            <SidebarMenuButton asChild className="h-12" size="lg">
               <Link prefetch={false} href="/function/tasks">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/afterglow.svg" alt="Afterglow Cybersecurity" width={40} height={40} className="shrink-0" />
-                <span className="font-semibold text-base">{APP_CONFIG.name}</span>
+                <BrandMark className="size-9! shrink-0 group-data-[collapsible=icon]:size-6!" />
+                <span className="grid gap-0.5 group-data-[collapsible=icon]:hidden">
+                  <span className="font-semibold text-base tracking-tight">{APP_CONFIG.name}</span>
+                  <span className="text-[11px] font-normal text-muted-foreground">{APP_CONFIG.byline}</span>
+                </span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

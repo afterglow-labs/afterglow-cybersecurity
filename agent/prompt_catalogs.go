@@ -3,7 +3,7 @@ package agent
 import (
 	"embed"
 	"encoding/json"
-	"github.com/Autumn-27/artex/locale"
+	"github.com/afterglow-labs/afterglow-cybersecurity/locale"
 )
 
 //go:embed prompt_zh-Hans.json prompt_zh-Hant.json prompt_ja.json prompt_es.json

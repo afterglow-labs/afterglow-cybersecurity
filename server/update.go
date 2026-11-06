@@ -5,14 +5,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/Autumn-27/artex/locale"
+	"github.com/afterglow-labs/afterglow-cybersecurity/locale"
 	"log"
 	"net/http"
 	"runtime"
 	"sync"
 	"time"
 
-	"github.com/Autumn-27/artex/selfupdate"
+	"github.com/afterglow-labs/afterglow-cybersecurity/selfupdate"
 )
 
 // HTTP endpoints for one-click updates. Download, verification, and replacement

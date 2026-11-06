@@ -285,7 +285,7 @@ func TestLoopbackPKCEAndMultipleRegistrations(t *testing.T) {
 	f.m.SetOnChange(func() { _ = f.m.Snapshot(); changes.Add(1) })
 	q := f.login(t, "client-one")
 	u, _ := url.Parse(q.Get("redirect_uri"))
-	if u.Scheme != "http" || u.Hostname() != "127.0.0.1" || u.Port() == "" || u.Path != callbackPath || q.Get("client_id") != "dynamic_agent_client" || q.Get("agent_name_hint") != "Afterglow Cybersecurity" || q.Get("code_challenge_method") != "S256" || q.Get("scope") != requestedScopes || q.Get("resource") != resource {
+	if u.Scheme != "http" || u.Hostname() != "127.0.0.1" || u.Port() == "" || u.Path != callbackPath || q.Get("client_id") != "dynamic_agent_client" || q.Get("agent_name_hint") != "APTEX" || q.Get("code_challenge_method") != "S256" || q.Get("scope") != requestedScopes || q.Get("resource") != resource {
 		t.Fatal("invalid local OAuth authorization parameters")
 	}
 	f.login(t, "client-two")

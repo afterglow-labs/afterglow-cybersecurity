@@ -10,12 +10,12 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Autumn-27/artex/agent"
-	"github.com/Autumn-27/artex/db"
-	"github.com/Autumn-27/artex/guard"
-	"github.com/Autumn-27/artex/intercept"
-	"github.com/Autumn-27/artex/llmrec"
-	"github.com/Autumn-27/artex/locale"
+	"github.com/afterglow-labs/afterglow-cybersecurity/agent"
+	"github.com/afterglow-labs/afterglow-cybersecurity/db"
+	"github.com/afterglow-labs/afterglow-cybersecurity/guard"
+	"github.com/afterglow-labs/afterglow-cybersecurity/intercept"
+	"github.com/afterglow-labs/afterglow-cybersecurity/llmrec"
+	"github.com/afterglow-labs/afterglow-cybersecurity/locale"
 	"github.com/Autumn-27/norma/llm"
 )
 

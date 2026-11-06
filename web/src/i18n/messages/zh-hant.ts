@@ -7,6 +7,14 @@ import type { en as browserSource } from "./browser.ts";
 import type { en as autowavesSource } from "./autowaves.ts";
 import type { en as appSource } from "./app.ts";
 export const app: Record<keyof typeof appSource, string> = {
+  cyberThemes: "網路安全",
+  classicThemes: "經典",
+  themeObsidian: "Obsidian",
+  themeObsidianDescription: "石墨色介面，搭配冰青色強調色",
+  themePhosphor: "Phosphor",
+  themePhosphorDescription: "近黑色介面，搭配螢光綠色強調色",
+  themeAfterglow: "Afterglow",
+  themeAfterglowDescription: "暖炭色介面，搭配琥珀色強調色",
   metricValue: "{label} {value}",
   tokenSummary: "輸入 {input}（含快取 {cache}）· 輸出 {output}",
   reasoningInOutput: "推理（含在輸出中）",
@@ -14,11 +22,11 @@ export const app: Record<keyof typeof appSource, string> = {
   operator: "操作人員",
   commandPalette: "指令面板",
   commandSearch: "搜尋要執行的指令…",
-  metaTitle: "Afterglow Cybersecurity — 自主滲透測試控制台",
-  metaDescription: "由大語言模型驅動的自主滲透測試系統控制台",
+  metaTitle: "APTEX by Afterglow Labs — 自主紫隊執行",
+  metaDescription: "LLM 驅動的自主紫隊行動控制台",
   language: "語言",
   languageSelectAria: "選擇介面語言",
-  attribution: "基於 Autumn-27 的 ARTEX 項目",
+  attribution: "由 Afterglow Labs 提供",
   notFoundTitle: "頁面未找到。",
   notFoundBody: "找不到您要訪問的頁面。",
   goHome: "返回首頁",
@@ -301,21 +309,21 @@ const interfaceMessages: Record<keyof typeof interfaceSource, string> = {
   m0003: "使用者名稱或密碼錯誤",
   m0004: "正在檢查登入狀態…",
   m0005: "登入",
-  m0006: "歡迎回來，請輸入密碼以繼續使用 Afterglow Cybersecurity",
+  m0006: "歡迎回來，請輸入密碼以繼續使用 APTEX",
   m0007: "使用者名稱",
   m0008: "密碼",
   m0009: "請輸入密碼",
   m0010: "我已閱讀並同意",
   m0011: "《使用須知》",
   m0012: "登入中...",
-  m0013: "Afterglow Cybersecurity 使用須知與免責宣告",
+  m0013: "APTEX 使用須知與免責宣告",
   m0014: "版本 v1.0 · 生效日期 2026-09-18 · 請在登入前完整閱讀以下全部條款",
   m0015:
-    "本《使用須知與免責宣告》（以下簡稱“本宣告”）規定您使用本軟體時與 ARTEX 專案作者及貢獻者之間的關係。使用前請閱讀並理解全部條款，尤其是以粗體或色塊標註的免責宣告、責任限制和禁止性條款。",
+    "本《使用須知與免責宣告》（以下簡稱“本宣告”）規定您使用本軟體時與 APTEX 專案作者及貢獻者之間的關係。使用前請閱讀並理解全部條款，尤其是以粗體或色塊標註的免責宣告、責任限制和禁止性條款。",
   m0016: "一旦您下載、安裝、訪問或以任何方式使用本軟體，即視為您已閱讀、理解並同意接受本宣告的全部約束。",
   m0017: "第一條 · 定義與開源許可",
   m0018:
-    "本軟體基於 ARTEX，並按 GNU Affero General Public License v3.0（AGPL-3.0）開源。您可依據該許可證使用、複製、修改和分發本軟體。任何衍生作品（包括透過網路向第三方提供的線上服務）也須按 AGPL-3.0 開源，並向使用者提供完整的對應原始碼。完整條款請參閱隨附的 LICENSE 檔案。",
+    "APTEX 按 GNU Affero General Public License v3.0（AGPL-3.0）開源。您可依據該許可證使用、複製、修改和分發本軟體。任何衍生作品（包括透過網路向第三方提供的線上服務）也須按 AGPL-3.0 開源，並向使用者提供完整的對應原始碼。完整條款請參閱隨附的 LICENSE 檔案。",
   m0019: "第二條 · 授權使用範圍",
   m0020:
     "本軟體僅供個人學習、程式碼研究、安全技術原理探討，以及在您自行搭建的本地隔離環境中進行技術驗證之用，適用於學習、學術研究、程式碼審閱等非攻擊性、非破壞性用途。除本條明確許可的情形外，您不得將本軟體用於任何其他目的。",
@@ -349,7 +357,7 @@ const interfaceMessages: Record<keyof typeof interfaceSource, string> = {
   m0042: "密碼長度至少 8 位",
   m0043: "初始化失敗",
   m0044: "初始化密碼",
-  m0045: "首次使用 Afterglow Cybersecurity，請為賬戶設定一個登入密碼（至少 8 位）",
+  m0045: "首次使用 APTEX，請為賬戶設定一個登入密碼（至少 8 位）",
   m0046: "新密碼",
   m0047: "至少 8 位",
   m0048: "確認密碼",
@@ -1923,7 +1931,7 @@ const interfaceMessages: Record<keyof typeof interfaceSource, string> = {
   m1590: "發現新版本 {p0}",
   m1591: "目前已是最新版本",
   m1592: "已更新到 {p0}，正在重新載入頁面",
-  m1593: "等待服務重啟超時。請檢查後端記錄，或確認 artex 是透過 start.sh / start.bat 啟動的。",
+  m1593: "等待服務重啟超時。請檢查後端記錄，或確認 scopeweaver 是透過 start.sh / start.bat 啟動的。",
   m1594: "確定更新到 {p0}？\n\n",
   m1595: "更新會重啟程式，正在執行的任務會被中斷。\n",
   m1596: "\n注意：容器內更新只替換程式本身，不會更新映象裡的 playwright / nmap 等工具鏈；",
@@ -2755,8 +2763,8 @@ const interfaceMessages: Record<keyof typeof interfaceSource, string> = {
   m2407: "定位的工具呼叫 #{p0}",
   m2408: "· 含推理",
   m2409: "即時流式中…",
-  m2410: "Afterglow Cybersecurity — 自主滲透測試控制台",
-  m2411: "LLM 驅動的自主滲透測試系統控制台",
+  m2410: "APTEX by Afterglow Labs — 自主紫隊執行",
+  m2411: "LLM 驅動的自主紫隊行動控制台",
   m2412: "旁路資料解析失敗，請重新開啟面板",
   m2413: "未授權",
   m2414:
@@ -3283,6 +3291,13 @@ export { interfaceMessages as interface };
 
 import type { en as providersSource } from "./providers.ts";
 export const providers: Record<keyof typeof providersSource, string> = {
+  openaiModel: "OpenAI 模型",
+  chooseModel: "選擇模型",
+  openaiModelHelp: "選擇模型或輸入其 ID。可用性由已連線的帳號或 API 專案驗證。",
+  daybreakBlue: "Daybreak Blue 模式",
+  daybreakBlueHelp: "對此模型使用已核准的 Daybreak Blue 權限。關閉後使用標準存取。",
+  standardAccessOnly: "此模型已選擇標準存取。",
+
   template: "設定模板（僅用於新設定）",
   chooseTemplate: "選擇模板…",
   general: "Z.ai GLM-5.3 · 通用 API（推薦）",
@@ -3296,7 +3311,7 @@ export const providers: Record<keyof typeof providersSource, string> = {
     "GLM-5.3 僅支援文字，上下文為 100 萬token。必須保持推理開啟；支援 low、high、max 推理強度。此模板選擇 low 強度、16,384 token輸出上限和上下文視窗 0（預設 200K）。ScopeWeaver 對一個小任務的測量中，low 得到相同結果，所用token不到 max 的一半。較難的任務請提高強度；更換模型時請重新檢查這些設定。",
   deepseek: "DeepSeek · deepseek-flash（經濟型）",
   claude: "Anthropic Claude · Haiku 5.5（經濟型）",
-  openai: "OpenAI · GPT-6 Luna，Responses API（經濟型）",
+  openai: "OpenAI Responses 介面",
   qwen: "阿里雲通義千問 · qwen3.8-flash，國際站（經濟型）",
   kimi: "月之暗面 Kimi · kimi-k3（經濟型）",
   openrouter: "OpenRouter · DeepSeek Flash（經濟型）",
@@ -3437,7 +3452,7 @@ export const settings: Record<keyof typeof settingsSource, string> = {
     "預設關閉，因此雲端服務商可照常使用。開啟後，所有 <b>LLM HTTP 連線</b>（對話、模型清單、連線測試、預熱和核准判定）只能訪問<b>迴環</b>位址和下方的受信任 CIDR。<b>區域網、Docker 和其他私有位址需要顯式新增 CIDR</b>；host.docker.internal 或 ollama 等名稱只有在其解析出的位址被允許時才能連線。鏈路本地、組播和未指定位址始終被拒絕，即使已列出也是如此。每次建立連線時都會檢查實際解析出的 IP，並且<b>重定向和 LLM 設定代理都會被拒絕</b>。<b>Agent 網頁搜尋（所有後端）以及更新檢查和下載也會被阻止</b>；目前版本和復原仍然可用。目標流量、目標工具和全域代理不受影響，因此這不會讓整臺主機離線。Ollama 仍可將請求轉發到其雲端模型：請同時在 Ollama 伺服器上設定 <code>OLLAMA_NO_CLOUD=1</code>。",
   localOnlyToggle: "強制僅本地 LLM 連線",
   localOnlyEnv:
-    "伺服器環境中的 SCOPEWEAVER_LOCAL_LLM_ONLY=true（或 ARTEX_LOCAL_LLM_ONLY）無法在此關閉。SCOPEWEAVER_LOCAL_LLM_ALLOWED_CIDRS（或 ARTEX_LOCAL_LLM_ALLOWED_CIDRS）中的 CIDR 也會額外生效，但無法在此編輯。",
+    "伺服器環境中的 SCOPEWEAVER_LOCAL_LLM_ONLY=true（或 APTEX_LOCAL_LLM_ONLY）無法在此關閉。SCOPEWEAVER_LOCAL_LLM_ALLOWED_CIDRS（或 APTEX_LOCAL_LLM_ALLOWED_CIDRS）中的 CIDR 也會額外生效，但無法在此編輯。",
   allowlistLabel: "其他受信任 CIDR",
   allowlistHelp:
     "每行一個或用逗號分隔。只允許推理伺服器，例如區域網或 Docker 主機位址使用 192.168.1.20/32，IPv6 使用 fd00::20/128。請使用 ScopeWeaver 伺服器實際連線的位址（Docker 中為主機閘道器或 Ollama 容器的 IP）。受信任範圍內的每臺伺服器都會被視為本地 LLM 伺服器。",
@@ -3450,8 +3465,8 @@ export const settings: Record<keyof typeof settingsSource, string> = {
 };
 export const chatgpt: Record<keyof typeof chatgptSource, string> = {
   title: "ChatGPT 訂閱方案",
-  help: "連結 ChatGPT 帳戶，透過官方 Responses API 使用帳戶可用的模型。訂閱用量與 API 帳單分開，憑證儲存在此伺服器。",
-  connect: "連結帳戶", reconnect: "重新連結", disconnect: "中斷連結", account: "帳戶", model: "模型",
+  help: "使用 ChatGPT 帳戶登入，即可使用該帳戶可用的模型。無需 API 金鑰。訂閱用量與 API 帳單分開，憑證儲存在此伺服器。",
+  connect: "使用 ChatGPT 登入", reconnect: "重新連結", disconnect: "中斷連結", account: "帳戶", model: "模型",
   profile: "設定名稱", create: "建立訂閱設定", update: "更新訂閱設定", newProfile: "新增訂閱設定",
   statusConnected: "已連結", statusSignedOut: "未登入", statusBlocked: "訂閱使用已暫停",
   loadingModels: "載入帳戶模型", recheck: "重新檢查訂閱用量",

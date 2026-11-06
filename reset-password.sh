@@ -62,7 +62,7 @@ die() { echo "$(msg "Error: $*" "오류: $*" "错误：$*" "錯誤：$*" "エラ
 info() { echo "· $*" >&2; }
 
 usage() {
-  echo "$(msg 'Reset ScopeWeaver administrator password (legacy username ARTEX).' 'ScopeWeaver 관리자 비밀번호 재설정 (기존 사용자 이름 ARTEX).' "重置 ScopeWeaver 管理员密码（旧用户名为 ARTEX）。" "重設 ScopeWeaver 管理員密碼（原使用者名稱為 ARTEX）。" "ScopeWeaver の管理者パスワードをリセットします（従来のユーザー名は ARTEX）。" "Restablece la contraseña de administrador de ScopeWeaver (nombre de usuario heredado: ARTEX).")"
+  echo "$(msg 'Reset the APTEX administrator password (default login: Afterglow).' 'APTEX 관리자 비밀번호 재설정(기본 로그인: Afterglow).' "重置 APTEX 管理员密码（默认登录名：Afterglow）。" "重設 APTEX 管理員密碼（預設登入名稱：Afterglow）。" "APTEX 管理者のパスワードをリセットします（既定のログイン名: Afterglow）。" "Restablece la contraseña de administrador de APTEX (usuario predeterminado: Afterglow).")"
   echo "$(msg 'Usage: ./reset-password.sh [options]; prompts for a password when omitted.' '사용법: ./reset-password.sh [옵션]; 비밀번호 생략 시 입력을 요청합니다.' "用法：./reset-password.sh [options]；省略密码时将提示输入。" "用法：./reset-password.sh [options]；未提供密碼時會提示輸入。" "使用法: ./reset-password.sh [options]。パスワードを省略すると入力を求めます。" "Uso: ./reset-password.sh [options]; se pedirá la contraseña si se omite.")"
   echo '-m/--mode local|docker; --dsn DSN; --config PATH; --sslmode MODE'
   echo '-H/--host HOST; -P/--port PORT; -U/--user USER; -W/--db-password PASSWORD'
@@ -153,7 +153,7 @@ info "$(msg "Deployment mode: $MODE" "배포 방식: $MODE" "部署方式：${MO
 
 # Collect and confirm the new password.
 if [[ -z "$NEWPASS" ]]; then
-  read -r -s -p "$(msg "New password (legacy username ARTEX): " "새 비밀번호 (기존 사용자 이름 ARTEX): " "新密码（旧用户名为 ARTEX）： " "新密碼（原使用者名稱為 ARTEX）： " "新しいパスワード（従来のユーザー名は ARTEX）: " "Nueva contraseña (nombre de usuario heredado: ARTEX): ")" NEWPASS; echo >&2
+  read -r -s -p "$(msg "New administrator password: " "새 관리자 비밀번호: " "新的管理员密码： " "新的管理員密碼： " "新しい管理者パスワード: " "Nueva contraseña de administrador: ")" NEWPASS; echo >&2
   [[ -n "$NEWPASS" ]] || die "$(msg "Password cannot be empty" "비밀번호는 비어 있을 수 없습니다" "密码不能为空" "密碼不可為空" "パスワードは空にできません" "La contraseña no puede estar vacía")"
   read -r -s -p "$(msg "Confirm password: " "비밀번호 확인: " "确认密码： " "確認密碼： " "パスワードの確認: " "Confirma la contraseña: ")" NEWPASS2; echo >&2
   [[ "$NEWPASS" == "$NEWPASS2" ]] || die "$(msg "Passwords do not match" "비밀번호가 일치하지 않습니다" "两次输入的密码不一致" "兩次輸入的密碼不一致" "パスワードが一致しません" "Las contraseñas no coinciden")"
@@ -261,4 +261,4 @@ else
 fi
 
 unset ARTEX_RESET_NEWPASS
-echo "$(msg "Administrator password reset. Sign in as ARTEX with the new password; no restart needed." "관리자 비밀번호를 재설정했습니다. ARTEX와 새 비밀번호로 로그인하세요. 재시작은 필요하지 않습니다." "管理员密码已重置。请使用 ARTEX 和新密码登录；无需重启。" "管理員密碼已重設。請使用 ARTEX 和新密碼登入；無須重新啟動。" "管理者パスワードをリセットしました。ARTEX と新しいパスワードでログインしてください。再起動は不要です。" "Contraseña de administrador restablecida. Inicia sesión como ARTEX con la nueva contraseña; no es necesario reiniciar.")"
+echo "$(msg "Administrator password reset. Sign in with your administrator username and the new password; no restart needed." "관리자 비밀번호를 재설정했습니다. 관리자 사용자 이름과 새 비밀번호로 로그인하세요. 재시작은 필요하지 않습니다." "管理员密码已重置。请使用管理员用户名和新密码登录；无需重启。" "管理員密碼已重設。請使用管理員使用者名稱和新密碼登入；無須重新啟動。" "管理者パスワードをリセットしました。管理者ユーザー名と新しいパスワードでログインしてください。再起動は不要です。" "Contraseña de administrador restablecida. Inicia sesión con el nombre de usuario de administrador y la nueva contraseña; no es necesario reiniciar.")"

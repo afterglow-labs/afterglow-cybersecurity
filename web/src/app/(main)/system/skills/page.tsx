@@ -3,6 +3,7 @@ import { getIntlLocale } from "@/i18n/runtime";
 
 import { translate as swt } from "@/i18n/runtime";
 import { useI18n } from "@/i18n";
+import { quoted } from "@/i18n/punctuation";
 import * as React from "react";
 import { toast } from "sonner";
 import {
@@ -549,7 +550,8 @@ export default function SkillsPage() {
     setDetailMcps(next);
     try {
       await api.updateSkillMeta(skillName, { mcps: next });
-      toast.success(`${mcpOn ? swt("interface.m1787") : swt("interface.m1788")}「${mcpName}」`);
+      const gap = swLocale === "ja" || swLocale.startsWith("zh-") ? "" : " ";
+      toast.success(`${mcpOn ? swt("interface.m1787") : swt("interface.m1788")}${gap}${quoted(mcpName, swLocale)}`);
       load();
     } catch (e) {
       // roll back on error

@@ -1,0 +1,50 @@
+/* Compact APTEX chrome follows the selected preset; touch targets stay roomy. */
+:root[data-theme-preset^="aptex-"] {
+  --aptex-sidebar-width: 15rem;
+}
+
+:root[data-theme-preset^="aptex-"] [data-slot="card"] {
+  --card-spacing: 0.875rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 0 0 1px var(--border);
+}
+
+:root[data-theme-preset^="aptex-"] [data-slot="sidebar-group-label"] {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+:root[data-theme-preset^="aptex-"] [data-slot="sidebar-menu-button"][data-active="true"] {
+  background: var(--sidebar-accent);
+  box-shadow: inset 2px 0 0 var(--primary);
+  color: var(--sidebar-accent-foreground);
+}
+
+:root[data-theme-preset^="aptex-"] [data-slot="popover-content"] {
+  border-color: var(--border);
+  box-shadow: 0 12px 40px #00000026;
+}
+
+:root[data-theme-preset^="aptex-"] [data-slot="auth-brand-panel"] {
+  background: var(--sidebar);
+  border-right: 1px solid var(--border);
+}
+
+:root[data-theme-preset^="aptex-"] .auth-orbit {
+  border-color: color-mix(in srgb, var(--primary) 14%, transparent);
+}
+
+@media (pointer: fine) and (min-width: 768px) {
+  :root[data-theme-preset^="aptex-"] [data-slot="sidebar-menu-button"][data-size="default"] {
+    height: 1.75rem;
+    padding-block: 0.25rem;
+    font-size: 0.8125rem;
+  }
+
+  :root[data-theme-preset^="aptex-"] [data-slot="table-cell"] {
+    padding-block: 0.625rem;
+  }
+}

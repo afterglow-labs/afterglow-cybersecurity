@@ -10,7 +10,7 @@ const PlanUsageLimitCode = "subscription_sharing_usage_limit_exceeded"
 
 var (
 	ErrPlanBlocked    error = planBlockedError{}
-	ErrRecheckRunning       = errors.New("이 ChatGPT 연결의 한도를 이미 재확인하고 있습니다.")
+	ErrRecheckRunning       = errors.New("A usage limit recheck is already running for this ChatGPT connection.")
 )
 
 type recheckKey struct{}
@@ -90,7 +90,7 @@ func (m *Manager) Recheck(ctx context.Context, id string, probe func(context.Con
 	}
 	if probe == nil {
 		m.mu.Unlock()
-		return errors.New("한도 재확인 요청이 필요합니다.")
+		return errors.New("A usage limit recheck request is required.")
 	}
 	a.rechecking = true
 	p := &recheckPermit{manager: m, id: id, session: a.ctx, generation: a.blockGeneration}
@@ -130,6 +130,6 @@ func (m *Manager) Recheck(ctx context.Context, id string, probe func(context.Con
 type planBlockedError struct{}
 
 func (planBlockedError) Error() string {
-	return "이 ChatGPT 연결의 사용 한도에 도달했습니다. Usage 설정을 확인한 뒤 한도 재확인을 실행해 주세요."
+	return "This ChatGPT connection has reached its usage limit. Check Usage settings, then run a limit recheck."
 }
 func (planBlockedError) ChatGPTPlanBlocked() bool { return true }

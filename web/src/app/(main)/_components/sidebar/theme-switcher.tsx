@@ -25,15 +25,15 @@ export function ThemeSwitcher() {
   };
 
   return (
-    <Button size="icon" onClick={cycleTheme} aria-label={t("app.cycleTheme", { theme: t(themeMode === "light" ? "english.e012" : themeMode === "dark" ? "english.e014" : "english.e016") })}>
+    <Button size="icon" variant="outline" onClick={cycleTheme} aria-label={t("app.cycleTheme", { theme: t(themeMode === "light" ? "english.e012" : themeMode === "dark" ? "english.e014" : "english.e016") })}>
       {/* SYSTEM */}
       <Monitor className="hidden [html[data-theme-mode=system]_&]:block" />
 
       {/* DARK (resolved) */}
-      <Sun className="hidden dark:block [html[data-theme-mode=system]_&]:hidden" />
+      <Moon className="hidden dark:block [html[data-theme-mode=system]_&]:hidden" />
 
       {/* LIGHT (resolved) */}
-      <Moon className="block dark:hidden [html[data-theme-mode=system]_&]:hidden" />
+      <Sun className="block dark:hidden [html[data-theme-mode=system]_&]:hidden" />
     </Button>
   );
 }

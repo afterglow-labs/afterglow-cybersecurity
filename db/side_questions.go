@@ -5,10 +5,10 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
-	"github.com/Autumn-27/artex/locale"
+	"github.com/afterglow-labs/afterglow-cybersecurity/locale"
 
-	"github.com/Autumn-27/artex/chatstate"
-	"github.com/Autumn-27/artex/sidequestion"
+	"github.com/afterglow-labs/afterglow-cybersecurity/chatstate"
+	"github.com/afterglow-labs/afterglow-cybersecurity/sidequestion"
 	"github.com/google/uuid"
 )
 

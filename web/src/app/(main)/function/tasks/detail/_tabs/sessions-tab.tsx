@@ -3,6 +3,7 @@ import { getIntlLocale } from "@/i18n/runtime";
 
 import { translate as swt } from "@/i18n/runtime";
 import { useI18n } from "@/i18n";
+import { questionMark } from "@/i18n/punctuation";
 import * as React from "react";
 
 import {
@@ -2109,7 +2110,7 @@ export function SessionsTab({ taskId }: { taskId: string }) {
         >
           <AlertDialogContent className="max-w-[min(32rem,calc(100vw-2rem))]">
             <AlertDialogHeader>
-              <AlertDialogTitle>{swt("interface.m0758")}{cancelIntent?.intent_id}？</AlertDialogTitle>
+              <AlertDialogTitle>{swt("interface.m0758")}{cancelIntent?.intent_id}{questionMark(swLocale)}</AlertDialogTitle>
               <AlertDialogDescription className="break-words whitespace-normal">
                 {deleteMode === "hard" ? (
                   <>

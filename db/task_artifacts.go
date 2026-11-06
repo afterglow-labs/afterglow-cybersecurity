@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Autumn-27/artex/artifactindex"
+	"github.com/afterglow-labs/afterglow-cybersecurity/artifactindex"
 )
 
 type TaskArtifact struct {
