@@ -1,5 +1,10 @@
 # APTEX and Odysseus: client startup and server architecture
 
+This report covers the completed interface-delivery improvements. The later
+[server architecture review](server-architecture-review.md) covers startup,
+sessions, jobs and the server-first decisions required before the paused iOS
+client resumes.
+
 Inspection and measurements on 2026-11-06 support keeping APTEX's Go execution
 engine and improving the client delivery path. A Python server rewrite would
 not, on its own, reduce the JavaScript a connecting client must download.
