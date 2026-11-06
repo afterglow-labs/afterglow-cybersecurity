@@ -30,7 +30,7 @@ else
   codesign --force --deep --options runtime --timestamp --sign "$TASK_IDENTITY" "$TASK_APP"
 fi
 codesign --verify --deep --strict "$TASK_APP"
-lipo -verify_arch arm64 x86_64 "$TASK_APP/Contents/MacOS/APTEX"
+lipo "$TASK_APP/Contents/MacOS/APTEX" -verify_arch arm64 x86_64
 if [ -e "$TASK_OUTPUT/APTEX.app" ]; then
   test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$TASK_OUTPUT/APTEX.app/Contents/Info.plist")" = 'com.afterglowlabs.aptex.client' || { echo 'Refusing to replace an unrelated application.' >&2; exit 1; }
   rm -rf "$TASK_OUTPUT/APTEX.app"
