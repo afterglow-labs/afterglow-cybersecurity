@@ -6,8 +6,9 @@ model runtime, Python environment, or repository-path dependency.
 
 ## Connect
 
-1. Download `APTEX-macOS-universal.zip` from the macOS client build artifacts and
-   move `APTEX.app` into Applications.
+1. Download `APTEX-macOS-universal.zip` from the
+   [Mac client release](https://github.com/afterglow-labs/afterglow-cybersecurity/releases/tag/aptex-macos-client-v1.0.0)
+   and move `APTEX.app` into Applications. CI also retains build artifacts.
 2. Open APTEX and enter your desktop server's HTTPS address or private LAN/VPN
    address, such as `http://desktop.local:8787`.
 3. Sign in with your APTEX account. Your Mac keeps its own app session and theme
@@ -55,5 +56,6 @@ CI builds and renders the actual app on Apple Silicon and Intel runners.
 
 The default build is ad-hoc signed, rather than Developer ID notarized. macOS may
 require approval in **System Settings → Privacy & Security** for a downloaded
-build. Set `APTEX_SIGN_IDENTITY` to an available Developer ID identity when
+build; follow [Apple's instructions for an app from an unidentified developer](https://support.apple.com/guide/mac-help/open-a-mac-app-from-an-unidentified-developer-mh40616/mac).
+Set `APTEX_SIGN_IDENTITY` to an available Developer ID identity when
 building a distribution-signed version; notarization is a separate release step.
