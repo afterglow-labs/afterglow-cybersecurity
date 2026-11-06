@@ -15,8 +15,9 @@ aptex
 
 The installer adds `aptex`, `aptex-start`, and `aptex-stop` under
 `~/.local/bin/`, plus an APTEX desktop entry. Commands resolve files from the
-script's checkout. Paths containing spaces are supported. An existing managed
-`odysseus-cyber-start` or `odysseus-cyber-stop` alias is redirected to APTEX.
+script's checkout. Paths containing spaces are supported. The installer removes
+old `odysseus-cyber-start` and `odysseus-cyber-stop` aliases only when they point
+to this APTEX launcher. Commands owned by Odysseus remain under its control.
 
 | Command | Action |
 | --- | --- |
@@ -48,14 +49,23 @@ accounts. The launcher does not mint an Odysseus gateway token.
 ## Local model
 
 The native start command uses the existing local Ollama model, normally
-`qwen3:32b`, with strict local LLM networking enabled. Set `OLLAMA_MODELS_DIR`
+`qwen3:32b`. Fresh installs enable strict local LLM networking; subsequent starts
+preserve the chosen local-only or remote-model policy. Set `OLLAMA_MODELS_DIR`
 in this checkout's `.env` to the existing directory containing `blobs/` and
 `manifests/`. The launcher also checks the usual host Ollama stores when this
 setting is absent.
 
 The model store is mounted read-only. Ollama stays on APTEX's private Docker
-network with cloud disabled, and its current address is added to the LLM
-allowlist. Starting the app does not download a model.
+network with cloud disabled. When local-only policy is enabled, its current
+address is added to the LLM allowlist. Starting the app does not download a model.
+
+## Appearance
+
+Open **Preferences** with the gear button and choose **Theme preset**. Obsidian
+uses graphite and cyan, Phosphor uses near-black and green, and Afterglow uses
+warm charcoal and amber. All three support light, dark, and system mode. The
+selector previews each palette, and choices persist across routes and reloads.
+Classic presets and font options remain available.
 
 The client command requires a Chrome or Chromium browser and a healthy APTEX
 server. Its profile lives at `~/.local/share/aptex/client/`. It does not start

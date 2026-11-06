@@ -2746,7 +2746,7 @@ const interfaceMessages: Record<keyof typeof interfaceSource, string> = {
   "m2407": "Llamada a herramienta #{p0} localizada",
   "m2408": "· Incluye razonamiento",
   "m2409": "Transmitiendo en directo…",
-  "m2410": "APTEX — Ejecución autónoma de operaciones de equipo púrpura",
+  "m2410": "APTEX by Afterglow Labs — Ejecución autónoma de operaciones de equipo púrpura",
   "m2411": "Consola para ejecutar operaciones autónomas de equipo púrpura con LLM",
   "m2412": "No se pudieron interpretar los datos de preguntas paralelas. Vuelve a abrir el panel",
   "m2413": "No autorizado",
@@ -3229,6 +3229,14 @@ const interfaceMessages: Record<keyof typeof interfaceSource, string> = {
 export { interfaceMessages as interface };
 import type { en as appSource } from './app.ts';
 export const app: Record<keyof typeof appSource, string> = {
+  cyberThemes: "Ciberseguridad",
+  classicThemes: "Clásicos",
+  themeObsidian: "Obsidian",
+  themeObsidianDescription: "Superficies de grafito y acentos cian hielo",
+  themePhosphor: "Phosphor",
+  themePhosphorDescription: "Superficies casi negras y acentos verde fósforo",
+  themeAfterglow: "Afterglow",
+  themeAfterglowDescription: "Carbón cálido y acentos ámbar",
   "metricValue": "{label} {value}",
   "tokenSummary": "Entrada {input} (incluida caché {cache}) · Salida {output}",
   "reasoningInOutput": "Razonamiento (en salida)",
@@ -3236,7 +3244,7 @@ export const app: Record<keyof typeof appSource, string> = {
   "operator": "Operador",
   "commandPalette": "Paleta de comandos",
   "commandSearch": "Busca un comando para ejecutar…",
-  "metaTitle": "APTEX — Ejecución autónoma de operaciones de equipo púrpura",
+  "metaTitle": "APTEX by Afterglow Labs — Ejecución autónoma de operaciones de equipo púrpura",
   "metaDescription": "Consola para ejecutar operaciones autónomas de equipo púrpura con LLM",
   "language": "Idioma",
   "languageSelectAria": "Seleccionar idioma de interfaz",

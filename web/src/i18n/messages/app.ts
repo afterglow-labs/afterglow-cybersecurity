@@ -1,6 +1,14 @@
 // app messages. English is the source catalog; Korean must define every key.
 
 export const en = {
+  cyberThemes: "Cybersecurity",
+  classicThemes: "Classic",
+  themeObsidian: "Obsidian",
+  themeObsidianDescription: "Graphite surfaces, ice-cyan accents",
+  themePhosphor: "Phosphor",
+  themePhosphorDescription: "Near-black surfaces, phosphor-green accents",
+  themeAfterglow: "Afterglow",
+  themeAfterglowDescription: "Warm charcoal, amber accents",
   metricValue: "{label} {value}",
   tokenSummary: "In {input} (including cache {cache}) · Out {output}",
   reasoningInOutput: "Reasoning (in output)",
@@ -8,7 +16,7 @@ export const en = {
   operator: "Operator",
   commandPalette: "Command palette",
   commandSearch: "Search for a command to run…",
-  metaTitle: "APTEX — Autonomous Purple Team Execution",
+  metaTitle: "APTEX by Afterglow Labs — Autonomous Purple Team Execution",
   metaDescription: "Console for LLM-driven autonomous purple team execution",
   language: "Language",
   languageSelectAria: "Select interface language",
@@ -29,6 +37,14 @@ export const en = {
 };
 
 export const ko: Record<keyof typeof en, string> = {
+  cyberThemes: "사이버 보안",
+  classicThemes: "클래식",
+  themeObsidian: "Obsidian",
+  themeObsidianDescription: "흑연색 표면과 차가운 청록색 강조",
+  themePhosphor: "Phosphor",
+  themePhosphorDescription: "검은색에 가까운 표면과 형광 녹색 강조",
+  themeAfterglow: "Afterglow",
+  themeAfterglowDescription: "따뜻한 차콜색 표면과 호박색 강조",
   metricValue: "{label} {value}",
   tokenSummary: "입력 {input}(캐시 {cache} 포함) · 출력 {output}",
   reasoningInOutput: "추론(출력에 포함)",
@@ -36,7 +52,7 @@ export const ko: Record<keyof typeof en, string> = {
   operator: "운영자",
   commandPalette: "명령 팔레트",
   commandSearch: "실행할 명령을 검색하세요…",
-  metaTitle: "APTEX — 자율 퍼플팀 실행",
+  metaTitle: "APTEX by Afterglow Labs — 자율 퍼플팀 실행",
   metaDescription: "LLM 기반 자율 퍼플팀 실행 콘솔",
   language: "언어",
   languageSelectAria: "인터페이스 언어 선택",

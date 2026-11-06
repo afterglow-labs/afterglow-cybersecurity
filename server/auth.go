@@ -125,8 +125,7 @@ func createJWTKeyFile(path string, key []byte) error {
 	return nil
 }
 
-// adminUsername is deployment-specific. It can match an existing Odysseus
-// username without making that person's name the default for every install.
+// adminUsername belongs to this APTEX deployment and defaults to Afterglow.
 func adminUsername() string {
 	name := strings.TrimSpace(os.Getenv("AFTERGLOW_ADMIN_USERNAME"))
 	if name == "" || strings.EqualFold(name, "ARTEX") || len(name) > 64 || strings.ContainsAny(name, "\r\n\t") {

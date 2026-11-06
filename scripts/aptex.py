@@ -387,11 +387,11 @@ def install() -> None:
     links = [bin_dir / name for name in ("aptex", "aptex-start", "aptex-stop")]
     for name in ("odysseus-cyber-start", "odysseus-cyber-stop"):
         path = bin_dir / name
-        if path.is_symlink() and path.resolve().name in ("odysseus_cyber_stack.py", "aptex.py"):
-            links.append(path)
+        if path.is_symlink() and path.resolve() == script:
+            path.unlink()
     for path in links:
         if path.exists() or path.is_symlink():
-            if not path.is_symlink() or path.resolve().name not in ("aptex.py", "odysseus_cyber_stack.py"):
+            if not path.is_symlink() or path.resolve() != script:
                 raise ValueError(f"shortcut already exists and is not managed by APTEX: {path}")
         if path.is_symlink() and path.resolve() == script:
             continue
@@ -406,7 +406,7 @@ def install() -> None:
     if not icon.is_file():
         raise ValueError(f"APTEX icon is missing: {icon}")
     command = desktop_argument(sys.executable) + " " + desktop_argument(str(script)) + " client"
-    atomic_write(desktop, marker + "\n[Desktop Entry]\nType=Application\nName=APTEX\n"
+    atomic_write(desktop, marker + "\n[Desktop Entry]\nType=Application\nName=APTEX by Afterglow Labs\n"
                  "Comment=Autonomous Purple Team Execution\nExec=" + command + "\nIcon=" + str(icon)
                  + "\nTerminal=false\nStartupWMClass=APTEX\nCategories=Development;\n")
     print("Installed aptex, aptex-start, aptex-stop, and the APTEX desktop entry.", flush=True)

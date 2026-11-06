@@ -9,6 +9,8 @@ import { useRouter } from "next/navigation";
 
 import { AlertTriangle, ShieldCheck } from "lucide-react";
 
+import { BrandMark } from "@/components/brand-mark";
+import { APP_CONFIG } from "@/config/app-config";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -97,13 +99,12 @@ export default function LoginPage() {
     <div className="relative flex min-h-dvh">
       <div className="absolute right-4 top-4 z-10"><LanguageSelector /></div>
       {/* Left panel */}
-      <div className="hidden flex-col items-center justify-center bg-primary p-12 text-center lg:flex lg:w-1/3">
+      <div data-slot="auth-brand-panel" className="hidden flex-col items-center justify-center bg-primary p-12 text-center lg:flex lg:w-1/3">
         <div className="relative flex items-center justify-center">
-          <div className="absolute size-80 rounded-full border border-primary-foreground/10" />
-          <div className="absolute size-60 rounded-full border border-primary-foreground/15" />
-          <div className="absolute size-40 rounded-full border border-primary-foreground/20" />
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/afterglow.svg" alt="APTEX" width={160} height={160} className="relative" />
+          <div className="auth-orbit absolute size-80 rounded-full border border-primary-foreground/10" />
+          <div className="auth-orbit absolute size-60 rounded-full border border-primary-foreground/15" />
+          <div className="auth-orbit absolute size-40 rounded-full border border-primary-foreground/20" />
+          <BrandMark className="relative size-40" />
         </div>
       </div>
 
@@ -111,6 +112,7 @@ export default function LoginPage() {
       <div className="flex w-full items-center justify-center bg-background p-8 lg:w-2/3">
         <div className="w-full max-w-md space-y-10 py-24 lg:py-32">
           <div className="space-y-4 text-center">
+            <h1 className="font-mono text-xl font-semibold tracking-tight">{APP_CONFIG.fullName}</h1>
             <h2 className="text-2xl font-medium tracking-tight">{swt("interface.m0005")}</h2>
             <p className="mx-auto max-w-xl text-muted-foreground">{swt("interface.m0006")}</p>
           </div>

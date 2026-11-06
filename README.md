@@ -1,4 +1,6 @@
-# APTEX — Autonomous Purple Team Execution
+# APTEX by Afterglow Labs
+
+Autonomous Purple Team Execution.
 
 APTEX by Afterglow Labs combines the main capabilities of five ARTEX-derived projects in one self-hosted security research console. ScopeWeaver supplies the application base; the other forks contribute ChatGPT plan access, browser sessions, workflows, deeper hunting, defensive content, proxy controls, and operator-directed assessment tools. The application uses a Go backend, a Next.js frontend, PostgreSQL, a shared asset graph, and per-task exploration graphs. Use it only in locally isolated or explicitly authorized research environments.
 

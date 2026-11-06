@@ -5,6 +5,8 @@ const currentYear = new Date().getFullYear();
 
 export const APP_CONFIG = {
   name: "APTEX",
+  fullName: "APTEX by Afterglow Labs",
+  byline: "by Afterglow Labs",
   version: packageJson.version,
   copyright: `© ${currentYear}, APTEX by Afterglow Labs.`,
   meta: {

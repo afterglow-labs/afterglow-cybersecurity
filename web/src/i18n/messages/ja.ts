@@ -7,6 +7,14 @@ import type { en as browserSource } from "./browser.ts";
 import type { en as autowavesSource } from "./autowaves.ts";
 import type { en as appSource } from "./app.ts";
 export const app: Record<keyof typeof appSource, string> = {
+  cyberThemes: "サイバーセキュリティ",
+  classicThemes: "クラシック",
+  themeObsidian: "Obsidian",
+  themeObsidianDescription: "グラファイトの面にアイスシアンのアクセント",
+  themePhosphor: "Phosphor",
+  themePhosphorDescription: "黒に近い面に蛍光グリーンのアクセント",
+  themeAfterglow: "Afterglow",
+  themeAfterglowDescription: "温かみのあるチャコールにアンバーのアクセント",
   metricValue: "{label} {value}",
   tokenSummary: "入力 {input}（キャッシュ {cache} を含む）· 出力 {output}",
   reasoningInOutput: "推論（出力に含む）",
@@ -14,7 +22,7 @@ export const app: Record<keyof typeof appSource, string> = {
   operator: "オペレーター",
   commandPalette: "コマンドパレット",
   commandSearch: "実行するコマンドを検索…",
-  metaTitle: "APTEX — 自律型パープルチーム運用",
+  metaTitle: "APTEX by Afterglow Labs — 自律型パープルチーム運用",
   metaDescription: "LLM を活用した自律型パープルチーム運用コンソール",
   language: "言語",
   languageSelectAria: "画面の言語を選択",
@@ -2826,7 +2834,7 @@ const interfaceMessages: Record<keyof typeof interfaceSource, string> = {
   m2407: "ツール呼び出し #{p0} を特定しました",
   m2408: "· 推論を含む",
   m2409: "ライブ配信中…",
-  m2410: "APTEX — 自律型パープルチーム運用",
+  m2410: "APTEX by Afterglow Labs — 自律型パープルチーム運用",
   m2411: "LLM を活用した自律型パープルチーム運用コンソール",
   m2412: "補足の質問データを解析できませんでした。パネルを開き直してください",
   m2413: "認証されていません",

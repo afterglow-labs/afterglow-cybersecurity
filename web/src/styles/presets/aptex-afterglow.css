@@ -1,0 +1,77 @@
+/*
+label: Afterglow
+labelKey: app.themeAfterglow
+descriptionKey: app.themeAfterglowDescription
+family: cyber
+value: aptex-afterglow
+*/
+
+:root[data-theme-preset="aptex-afterglow"] {
+  --radius: 0.375rem;
+  --foreground: #15232d;
+  --card: #fffdf9;
+  --card-foreground: #15232d;
+  --popover: #fffdf9;
+  --popover-foreground: #15232d;
+  --primary-foreground: #ffffff;
+  --secondary-foreground: #263b47;
+  --muted-foreground: #6d5a46;
+  --accent-foreground: #6d3710;
+  --destructive: #bd283b;
+  --sidebar-foreground: #263b47;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent-foreground: #6d3710;
+  --background: #fbf8f2;
+  --primary: #a45216;
+  --secondary: #f1eadd;
+  --muted: #f4eee3;
+  --accent: #f6e9d6;
+  --border: #dbcfbd;
+  --input: #bba68a;
+  --ring: #a45216;
+  --sidebar: #f3ece0;
+  --sidebar-primary: #a45216;
+  --sidebar-accent: #f6e9d6;
+  --sidebar-border: #dbcfbd;
+  --sidebar-ring: #a45216;
+  --chart-1: #a45216;
+  --chart-2: #8ba5c6;
+  --chart-3: #c9a7ed;
+  --chart-4: #de8d8d;
+  --chart-5: #91b9aa;
+}
+
+.dark:root[data-theme-preset="aptex-afterglow"] {
+  --radius: 0.375rem;
+  --foreground: #e6edf3;
+  --card-foreground: #e6edf3;
+  --popover-foreground: #e6edf3;
+  --secondary-foreground: #d2dee7;
+  --accent-foreground: #ffdfb1;
+  --destructive: #fb7b89;
+  --sidebar-foreground: #c2d0dc;
+  --background: #120f0b;
+  --card: #1c1812;
+  --popover: #1c1812;
+  --primary: #f5b75c;
+  --primary-foreground: #2c1805;
+  --secondary: #2a2218;
+  --muted: #2a2218;
+  --muted-foreground: #bdad98;
+  --accent: #35281a;
+  --border: #4a3c2b;
+  --input: #5d4b35;
+  --ring: #f5b75c;
+  --sidebar: #17130e;
+  --sidebar-primary: #f5b75c;
+  --sidebar-primary-foreground: #2c1805;
+  --sidebar-accent: #35281a;
+  --sidebar-accent-foreground: #ffdfb1;
+  --sidebar-border: #3d3123;
+  --sidebar-ring: #f5b75c;
+  --chart-1: #f5b75c;
+  --chart-2: #8ba5c6;
+  --chart-3: #c9a7ed;
+  --chart-4: #de8d8d;
+  --chart-5: #91b9aa;
+}

@@ -15,8 +15,8 @@ import (
 )
 
 const (
-	gatewaySubject  = "odysseus-gateway"
-	gatewayAudience = "afterglow-api"
+	gatewaySubject  = "aptex-gateway"
+	gatewayAudience = "aptex-api"
 	gatewayTokenTTL = 30 * 24 * time.Hour
 )
 
@@ -45,7 +45,7 @@ func verifyGatewayJWT(token string, key []byte) bool {
 }
 
 // issueGatewayToken requires an administrator bearer token. The returned token
-// has a distinct subject and can call only the routes used by Odysseus.
+// has a distinct APTEX subject and can call only the scoped integration routes.
 func (s *Server) issueGatewayToken(w http.ResponseWriter, r *http.Request) {
 	adminToken, ok := strings.CutPrefix(r.Header.Get("Authorization"), "Bearer ")
 	if !ok || !verifyJWT(adminToken, s.jwtKey) {
@@ -65,9 +65,9 @@ func (s *Server) issueGatewayToken(w http.ResponseWriter, r *http.Request) {
 
 type gatewayRoute struct{ method, pattern string }
 
-// These are the exact backend methods and paths the Odysseus gateway calls.
+// These are the exact backend methods and paths available to scoped clients.
 // Adding a route here is a privilege expansion and requires review alongside
-// the typed Odysseus handler that calls it.
+// the client handler that calls it.
 var gatewayRoutes = []gatewayRoute{
 	{"GET", "/api/stats"},
 	{"GET", "/api/tasks"},
@@ -187,7 +187,7 @@ func gatewayText(value string, max int) bool {
 
 // The three model setup routes can otherwise point a valid gateway token at
 // arbitrary network targets or save an API credential. Accept only the exact
-// local Ollama and ChatGPT-plan payloads constructed by the Odysseus gateway.
+// local Ollama and ChatGPT-plan payloads constructed by scoped clients.
 func gatewayModelBodyAllowed(r *http.Request) bool {
 	if r.Method != http.MethodPost || (r.URL.Path != "/api/llm/models" &&
 		r.URL.Path != "/api/llm/test" && r.URL.Path != "/api/llm/profiles") {

@@ -13,6 +13,34 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
+func TestLegacyOdysseusGatewayTokensAreRejected(t *testing.T) {
+	key := []byte("01234567890123456789012345678901")
+	server := &Server{jwtKey: key}
+	protected := server.requireAuth(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusNoContent)
+	}))
+	for _, identity := range []struct{ subject, audience string }{
+		{"odysseus-gateway", "afterglow-api"},
+		{"odysseus-gateway", gatewayAudience},
+		{gatewaySubject, "afterglow-api"},
+	} {
+		token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.RegisteredClaims{
+			Subject: identity.subject, Audience: jwt.ClaimStrings{identity.audience},
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour)),
+		}).SignedString(key)
+		if err != nil {
+			t.Fatal(err)
+		}
+		req := httptest.NewRequest(http.MethodGet, "/api/stats", nil)
+		req.Header.Set("Authorization", "Bearer "+token)
+		response := httptest.NewRecorder()
+		protected.ServeHTTP(response, req)
+		if response.Code != http.StatusUnauthorized {
+			t.Fatalf("legacy gateway identity accepted: %+v status=%d", identity, response.Code)
+		}
+	}
+}
+
 func TestGatewayTokenCannotBecomeAdministrator(t *testing.T) {
 	key := []byte("01234567890123456789012345678901")
 	admin, err := signJWT(key)

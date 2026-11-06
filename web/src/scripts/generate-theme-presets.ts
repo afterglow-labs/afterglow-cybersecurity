@@ -1,132 +1,65 @@
-import { translate as swt } from "@/i18n/runtime";
-/**
- * Script: generate-theme-presets.ts
- *
- * This script scans the /styles/presets directory for CSS files containing theme definitions.
- * It extracts `label:`, `value:`, and primary color definitions (`--primary`) for both light and dark modes.
- * These primary colors are used to visually represent each theme in the UI (e.g., colored dots or theme previews).
- * Default theme colors are fetched from /app/globals.css.
- * All extracted metadata is injected into a marked section of the /lib/preferences/theme.ts file.
- *
- * Usage:
- * - During local development, run manually after adding any new theme preset:
- *     npm run generate:presets
- * - Ensure that each new CSS preset includes `label:` and `value:` comments.
- * - This generation step is currently automated using a Husky pre-push hook.
- * - You may optionally integrate it directly into a build step if preferred.
- */
-
+/** Generate localized preset metadata from the checkout's CSS token files. */
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 
 const presetDir = path.resolve(__dirname, "../styles/presets");
-
-if (!fs.existsSync(presetDir)) {
-  console.error(`❌ Preset directory not found at: ${presetDir}`);
-  process.exit(1);
-}
-
 const outputPath = path.resolve(__dirname, "../lib/preferences/theme.ts");
-
-const files = fs.readdirSync(presetDir).filter((file) => file.endsWith(".css"));
-
-if (files.length === 0) {
-  console.warn("⚠️ No preset CSS files found. Only default preset will be included.");
+const globalPath = path.resolve(__dirname, "../app/globals.css");
+for (const required of [presetDir, outputPath, globalPath]) {
+  if (!fs.existsSync(required)) throw new Error(`Required theme source is missing: ${required}`);
 }
 
-const presets = files.map((file) => {
-  const filePath = path.join(presetDir, file);
-  const content = fs.readFileSync(filePath, "utf8");
-
-  const labelMatch = content.match(/label:\s*(.+)/);
-  const valueMatch = content.match(/value:\s*(.+)/);
-
-  if (!labelMatch) {
-    console.warn(`⚠️ No 'label:' found in ${file}, using filename as fallback.`);
-  }
-  if (!valueMatch) {
-    console.warn(`⚠️ No 'value:' found in ${file}, using filename as fallback.`);
-  }
-
-  const label = labelMatch?.[1]?.trim() ?? file.replace(".css", "");
-  const value = valueMatch?.[1]?.trim() ?? file.replace(".css", "");
-
-  const lightPrimaryMatch = content.match(/:root\[data-theme-preset="[^"]*"\][\s\S]*?--primary:\s*([^;]+);/);
-  const darkPrimaryMatch = content.match(/\.dark:root\[data-theme-preset="[^"]*"\][\s\S]*?--primary:\s*([^;]+);/);
-
-  const primary = {
-    light: lightPrimaryMatch?.[1]?.trim() ?? "",
-    dark: darkPrimaryMatch?.[1]?.trim() ?? "",
-  };
-
-  if (!lightPrimaryMatch || !darkPrimaryMatch) {
-    console.warn(`⚠️ Missing --primary for ${file} (light or dark). Check CSS syntax.`);
-  }
-
-  return { label, value, primary };
-});
-
-const globalStylesPath = path.resolve(__dirname, "../app/globals.css");
-
-let globalContent = "";
-try {
-  globalContent = fs.readFileSync(globalStylesPath, "utf8");
-} catch (err) {
-  console.error(`❌ Could not read globals.css at ${globalStylesPath}`);
-  console.error(err);
-  process.exit(1);
-}
-
-const defaultLightPrimaryRegex = /:root\s*{[^}]*--primary:\s*([^;]+);/;
-const defaultDarkPrimaryRegex = /\.dark\s*{[^}]*--primary:\s*([^;]+);/;
-
-const defaultLightPrimaryMatch = defaultLightPrimaryRegex.exec(globalContent);
-const defaultDarkPrimaryMatch = defaultDarkPrimaryRegex.exec(globalContent);
-
-const defaultPrimary = {
-  light: defaultLightPrimaryMatch?.[1]?.trim() ?? "",
-  dark: defaultDarkPrimaryMatch?.[1]?.trim() ?? "",
+const classicLabels: Record<string, string> = {
+  default: "english.e188", brutalist: "english.e189", "soft-pop": "english.e190", tangerine: "english.e191",
 };
 
-presets.unshift({ get label() { return swt("english.e188"); }, value: "default", primary: defaultPrimary });
+function property(block: string, name: string): string {
+  const value = block.match(new RegExp(`--${name}:\\s*([^;]+);`))?.[1]?.trim();
+  if (!value) throw new Error(`Theme is missing --${name}`);
+  return value;
+}
 
-const generatedBlock = `// --- generated:themePresets:start ---
+function palette(block: string) {
+  return { primary: property(block, "primary"), background: property(block, "background"), surface: property(block, "card"), border: property(block, "border") };
+}
 
-export const THEME_PRESET_OPTIONS = ${JSON.stringify(presets, null, 2)} as const;
-
+const global = fs.readFileSync(globalPath, "utf8");
+const defaultLight = global.match(/:root\s*\{([^}]+)\}/)?.[1] ?? "";
+const defaultDark = global.match(/\.dark\s*\{([^}]+)\}/)?.[1] ?? "";
+const presets = fs.readdirSync(presetDir).filter((file) => file.endsWith(".css")).sort().map((file) => {
+  const css = fs.readFileSync(path.join(presetDir, file), "utf8");
+  const metadata = (name: string) => css.match(new RegExp(`^${name}:\\s*(.+)$`, "m"))?.[1]?.trim();
+  const value = metadata("value");
+  const label = metadata("label");
+  if (!value || !label) throw new Error(`Theme ${file} requires label and value metadata`);
+  const blocks = [...css.matchAll(/([^{}]+)\{([^{}]+)\}/g)];
+  const light = blocks.find(([_, selector]) => selector.includes(`:root[data-theme-preset="${value}"]`) && !selector.includes(".dark"))?.[2] ?? "";
+  const dark = blocks.find(([_, selector]) => selector.includes(`.dark:root[data-theme-preset="${value}"]`))?.[2] ?? "";
+  return { value, label, labelKey: metadata("labelKey") ?? classicLabels[value], descriptionKey: metadata("descriptionKey"), family: metadata("family") ?? "classic", light: palette(light), dark: palette(dark) };
+});
+presets.push({ value: "default", label: "Default", labelKey: classicLabels.default, descriptionKey: undefined, family: "classic", light: palette(defaultLight), dark: palette(defaultDark) });
+const order = ["aptex-obsidian", "aptex-phosphor", "aptex-afterglow", "default", "brutalist", "soft-pop", "tangerine"];
+presets.sort((a, b) => {
+  const ai = order.indexOf(a.value); const bi = order.indexOf(b.value);
+  return (ai < 0 ? order.length : ai) - (bi < 0 ? order.length : bi) || a.value.localeCompare(b.value);
+});
+const q = JSON.stringify;
+const generated = presets.map((p) => `{
+  get label() { return ${p.labelKey ? `swt(${q(p.labelKey)})` : q(p.label)}; },
+  get description() { return ${p.descriptionKey ? `swt(${q(p.descriptionKey)})` : '""'}; },
+  value: ${q(p.value)}, family: ${q(p.family)},
+  primary: ${q({ light: p.light.primary, dark: p.dark.primary })},
+  preview: ${q({ light: p.light, dark: p.dark })},
+}`).join(",\n");
+const block = `// --- generated:themePresets:start ---
+export const THEME_PRESET_OPTIONS = [${generated}] as const;
 export const THEME_PRESET_VALUES = THEME_PRESET_OPTIONS.map((p) => p.value);
-
 export type ThemePreset = (typeof THEME_PRESET_OPTIONS)[number]["value"];
-
 // --- generated:themePresets:end ---`;
-
-const fileContent = fs.readFileSync(outputPath, "utf8");
-
-const updated = fileContent.replace(
-  /\/\/ --- generated:themePresets:start ---[\s\S]*?\/\/ --- generated:themePresets:end ---/,
-  generatedBlock,
-);
-
-function main() {
-  const biomeBin = require.resolve("@biomejs/biome/bin/biome");
-  const formatted = execFileSync(process.execPath, [biomeBin, "format", "--stdin-file-path", outputPath], {
-    input: updated,
-    encoding: "utf8",
-  });
-
-  if (formatted === fileContent) {
-    console.log("ℹ️  No changes in theme.ts");
-    return;
-  }
-
-  fs.writeFileSync(outputPath, formatted);
-  console.log("✅ theme.ts updated with new theme presets");
-}
-
-try {
-  main();
-} catch (err) {
-  console.error("❌ Unexpected error while generating theme presets:", err);
-  process.exit(1);
-}
+const original = fs.readFileSync(outputPath, "utf8");
+const markers = /\/\/ --- generated:themePresets:start ---[\s\S]*?\/\/ --- generated:themePresets:end ---/;
+if (!markers.test(original)) throw new Error(`Theme generation markers are missing: ${outputPath}`);
+const result = execFileSync(process.execPath, [require.resolve("@biomejs/biome/bin/biome"), "format", "--stdin-file-path", outputPath], { input: original.replace(markers, block), encoding: "utf8" });
+if (result !== original) fs.writeFileSync(outputPath, result);
+console.log(`Theme presets verified: ${presets.length}`);

@@ -2,7 +2,8 @@
 import { translate as swt } from "@/i18n/runtime";
 import { useI18n } from "@/i18n";
 
-import { Settings } from "lucide-react";
+import { Settings, X } from "lucide-react";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -20,13 +21,15 @@ import {
 } from "@/lib/preferences/layout-utils";
 import { PREFERENCE_DEFAULTS } from "@/lib/preferences/preferences-config";
 import { persistPreference } from "@/lib/preferences/preferences-storage";
-import { THEME_PRESET_OPTIONS, type ThemeMode, type ThemePreset } from "@/lib/preferences/theme";
+import { type ThemeMode, type ThemePreset } from "@/lib/preferences/theme";
 import { applyThemePreset } from "@/lib/preferences/theme-utils";
 import { usePreferencesStore } from "@/stores/preferences/preferences-provider";
+import { ThemePresetPicker } from "./theme-preset-picker";
 
 export function LayoutControls() {
   "use no memo";
   const { locale: swLocale } = useI18n();
+  const [open, setOpen] = useState(false);
 
   const themeMode = usePreferencesStore((s) => s.themeMode);
   const resolvedThemeMode = usePreferencesStore((s) => s.resolvedThemeMode);
@@ -102,43 +105,21 @@ export function LayoutControls() {
   };
 
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button size="icon">
+        <Button size="icon" variant="outline" aria-label={swt("english.e004")}>
           <Settings />
         </Button>
       </PopoverTrigger>
-      <PopoverContent align="end">
+      <PopoverContent align="end" className="max-h-[calc(100dvh-5rem)] w-80 max-w-[calc(100vw-2rem)] overflow-y-auto">
         <div className="flex flex-col gap-5">
-          <div className="space-y-1.5">
+          <div className="relative space-y-1.5 pr-7">
             <h4 className="font-medium text-sm leading-none">{swt("english.e004")}</h4>
             <p className="text-muted-foreground text-xs">{swt("english.e005")}</p>
+            <Button className="absolute -top-2 -right-2" size="icon-sm" variant="ghost" aria-label={swt("common.close")} onClick={() => setOpen(false)}><X /></Button>
           </div>
           <div className="space-y-3 **:data-[slot=toggle-group]:w-full **:data-[slot=toggle-group-item]:flex-1 **:data-[slot=toggle-group-item]:text-xs">
-            <div className="space-y-1">
-              <Label className="font-medium text-xs">{swt("english.e006")}</Label>
-              <Select value={themePreset} onValueChange={onThemePresetChange}>
-                <SelectTrigger size="sm" className="w-full text-xs">
-                  <SelectValue placeholder={swt("english.e007")} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    {THEME_PRESET_OPTIONS.map((preset) => (
-                      <SelectItem key={preset.value} className="text-xs" value={preset.value}>
-                        <span
-                          className="size-2.5 rounded-full"
-                          style={{
-                            backgroundColor:
-                              (resolvedThemeMode ?? "light") === "dark" ? preset.primary.dark : preset.primary.light,
-                          }}
-                        />
-                        {preset.label}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            </div>
+            <ThemePresetPicker value={themePreset} mode={resolvedThemeMode ?? "dark"} onChange={onThemePresetChange} />
 
             <div className="space-y-1">
               <Label className="font-medium text-xs">{swt("english.e008")}</Label>

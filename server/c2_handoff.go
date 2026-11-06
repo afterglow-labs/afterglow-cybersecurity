@@ -56,8 +56,8 @@ func (s *Server) taskC2Handoffs(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, 200, map[string]any{"handoffs": rows})
 }
 
-// taskC2HandoffsSummary is the read-only view exposed to the scoped Odysseus
-// gateway. The full route above remains an administrator-only console feature.
+// taskC2HandoffsSummary is the read-only view exposed to scoped APTEX clients.
+// The full route above remains an administrator-only console feature.
 func (s *Server) taskC2HandoffsSummary(w http.ResponseWriter, r *http.Request) {
 	taskID, ok := s.c2TaskID(w, r)
 	if !ok {

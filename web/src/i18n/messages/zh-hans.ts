@@ -7,6 +7,14 @@ import type { en as browserSource } from "./browser.ts";
 import type { en as autowavesSource } from "./autowaves.ts";
 import type { en as appSource } from "./app.ts";
 export const app: Record<keyof typeof appSource, string> = {
+  cyberThemes: "网络安全",
+  classicThemes: "经典",
+  themeObsidian: "Obsidian",
+  themeObsidianDescription: "石墨色界面，搭配冰青色强调色",
+  themePhosphor: "Phosphor",
+  themePhosphorDescription: "近黑色界面，搭配荧光绿色强调色",
+  themeAfterglow: "Afterglow",
+  themeAfterglowDescription: "暖炭色界面，搭配琥珀色强调色",
   metricValue: "{label} {value}",
   tokenSummary: "输入 {input}（含缓存 {cache}）· 输出 {output}",
   reasoningInOutput: "推理（含在输出中）",
@@ -14,7 +22,7 @@ export const app: Record<keyof typeof appSource, string> = {
   operator: "操作员",
   commandPalette: "命令面板",
   commandSearch: "搜索要运行的命令…",
-  metaTitle: "APTEX — 自主紫队执行",
+  metaTitle: "APTEX by Afterglow Labs — 自主紫队执行",
   metaDescription: "LLM 驱动的自主紫队行动控制台",
   language: "语言",
   languageSelectAria: "选择界面语言",
@@ -2755,7 +2763,7 @@ const interfaceMessages: Record<keyof typeof interfaceSource, string> = {
   m2407: "定位的工具调用 #{p0}",
   m2408: "· 含推理",
   m2409: "实时流式中…",
-  m2410: "APTEX — 自主紫队执行",
+  m2410: "APTEX by Afterglow Labs — 自主紫队执行",
   m2411: "LLM 驱动的自主紫队行动控制台",
   m2412: "旁路数据解析失败，请重新打开面板",
   m2413: "未授权",

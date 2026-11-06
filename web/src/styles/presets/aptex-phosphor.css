@@ -1,0 +1,77 @@
+/*
+label: Phosphor
+labelKey: app.themePhosphor
+descriptionKey: app.themePhosphorDescription
+family: cyber
+value: aptex-phosphor
+*/
+
+:root[data-theme-preset="aptex-phosphor"] {
+  --radius: 0.375rem;
+  --foreground: #15232d;
+  --card: #ffffff;
+  --card-foreground: #15232d;
+  --popover: #ffffff;
+  --popover-foreground: #15232d;
+  --primary-foreground: #ffffff;
+  --secondary-foreground: #263b47;
+  --muted-foreground: #506577;
+  --accent-foreground: #123e50;
+  --destructive: #bd283b;
+  --sidebar-foreground: #263b47;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent-foreground: #114329;
+  --background: #f4f8f5;
+  --primary: #167844;
+  --secondary: #e9f1eb;
+  --muted: #edf4ee;
+  --accent: #deefe4;
+  --border: #c4d5c8;
+  --input: #a0bba8;
+  --ring: #167844;
+  --sidebar: #ebf2ed;
+  --sidebar-primary: #167844;
+  --sidebar-accent: #deefe4;
+  --sidebar-border: #c4d5c8;
+  --sidebar-ring: #167844;
+  --chart-1: #167844;
+  --chart-2: #8ba5c6;
+  --chart-3: #c9a7ed;
+  --chart-4: #de8d8d;
+  --chart-5: #91b9aa;
+}
+
+.dark:root[data-theme-preset="aptex-phosphor"] {
+  --radius: 0.375rem;
+  --foreground: #e6edf3;
+  --card-foreground: #e6edf3;
+  --popover-foreground: #e6edf3;
+  --secondary-foreground: #d2dee7;
+  --accent-foreground: #b9f5d2;
+  --destructive: #fb7b89;
+  --sidebar-foreground: #c2d0dc;
+  --background: #080e0c;
+  --card: #101b16;
+  --popover: #101b16;
+  --primary: #5ceba2;
+  --primary-foreground: #052116;
+  --secondary: #182a21;
+  --muted: #182a21;
+  --muted-foreground: #a1b6a8;
+  --accent: #123529;
+  --border: #2c4035;
+  --input: #365343;
+  --ring: #5ceba2;
+  --sidebar: #0b1510;
+  --sidebar-primary: #5ceba2;
+  --sidebar-primary-foreground: #052116;
+  --sidebar-accent: #123529;
+  --sidebar-accent-foreground: #b9f5d2;
+  --sidebar-border: #253b2d;
+  --sidebar-ring: #5ceba2;
+  --chart-1: #5ceba2;
+  --chart-2: #8ba5c6;
+  --chart-3: #c9a7ed;
+  --chart-4: #de8d8d;
+  --chart-5: #91b9aa;
+}

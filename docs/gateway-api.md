@@ -8,6 +8,10 @@ Send `POST /api/auth/gateway-token` with an administrator JWT in the bearer
 header. The response contains a scoped token and its expiration time. It lasts
 30 days and can be renewed with another administrator request.
 
+New tokens use subject `aptex-gateway` and audience `aptex-api`. Tokens from the
+former Odysseus integration are rejected; a custom client needs a newly issued
+APTEX token. APTEX administrator and ChatGPT account sessions are independent.
+
 The token is accepted only in a bearer header and only for its fixed API
 methods and paths. It cannot read task credentials, change global settings, or
 issue another token. It permits task control and interception decisions, so

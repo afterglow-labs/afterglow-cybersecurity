@@ -120,13 +120,17 @@ class AptexLauncherTests(unittest.TestCase):
         legacy = self.directory / "odysseus" / "script" / "odysseus_cyber_stack.py"
         legacy.parent.mkdir(parents=True)
         legacy.write_text("")
-        (bin_dir / "odysseus-cyber-start").symlink_to(legacy)
+        (bin_dir / "odysseus-cyber-start").symlink_to(Path(aptex.__file__).resolve())
+        (bin_dir / "odysseus-cyber-stop").symlink_to(legacy)
         aptex.install()
         self.assertEqual(normal.read_text(), "original Odysseus command")
-        for name in ("aptex", "aptex-start", "aptex-stop", "odysseus-cyber-start"):
+        self.assertFalse((bin_dir / "odysseus-cyber-start").is_symlink())
+        self.assertEqual((bin_dir / "odysseus-cyber-stop").resolve(), legacy)
+        for name in ("aptex", "aptex-start", "aptex-stop"):
             self.assertEqual((bin_dir / name).resolve(), Path(aptex.__file__).resolve())
         desktop = (self.home / ".local/share/applications/aptex.desktop").read_text()
         self.assertIn("StartupWMClass=APTEX", desktop)
+        self.assertIn("Name=APTEX by Afterglow Labs", desktop)
         self.assertIn('"' + str(Path(aptex.__file__).resolve()) + '" client', desktop)
 
     def test_invalid_port_fails_before_opening_any_client(self):

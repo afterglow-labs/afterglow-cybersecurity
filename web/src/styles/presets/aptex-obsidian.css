@@ -1,0 +1,77 @@
+/*
+label: Obsidian
+labelKey: app.themeObsidian
+descriptionKey: app.themeObsidianDescription
+family: cyber
+value: aptex-obsidian
+*/
+
+:root[data-theme-preset="aptex-obsidian"] {
+  --radius: 0.375rem;
+  --foreground: #15232d;
+  --card: #ffffff;
+  --card-foreground: #15232d;
+  --popover: #ffffff;
+  --popover-foreground: #15232d;
+  --primary-foreground: #ffffff;
+  --secondary-foreground: #263b47;
+  --muted-foreground: #506577;
+  --accent-foreground: #123e50;
+  --destructive: #bd283b;
+  --sidebar-foreground: #263b47;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent-foreground: #123e50;
+  --background: #f5f8fa;
+  --primary: #0e7490;
+  --secondary: #eaf0f4;
+  --muted: #edf2f5;
+  --accent: #deeff5;
+  --border: #c5d1d9;
+  --input: #a5b8c5;
+  --ring: #0e7490;
+  --sidebar: #ecf2f5;
+  --sidebar-primary: #0e7490;
+  --sidebar-accent: #deeff5;
+  --sidebar-border: #c5d1d9;
+  --sidebar-ring: #0e7490;
+  --chart-1: #0e7490;
+  --chart-2: #8ba5c6;
+  --chart-3: #c9a7ed;
+  --chart-4: #de8d8d;
+  --chart-5: #91b9aa;
+}
+
+.dark:root[data-theme-preset="aptex-obsidian"] {
+  --radius: 0.375rem;
+  --foreground: #e6edf3;
+  --card-foreground: #e6edf3;
+  --popover-foreground: #e6edf3;
+  --secondary-foreground: #d2dee7;
+  --accent-foreground: #dcf8ff;
+  --destructive: #fb7b89;
+  --sidebar-foreground: #c2d0dc;
+  --background: #090e13;
+  --card: #111920;
+  --popover: #111920;
+  --primary: #67e8f9;
+  --primary-foreground: #06202a;
+  --secondary: #17232d;
+  --muted: #17232d;
+  --muted-foreground: #a3b4c2;
+  --accent: #142e38;
+  --border: #2d3c48;
+  --input: #344550;
+  --ring: #67e8f9;
+  --sidebar: #0c141b;
+  --sidebar-primary: #67e8f9;
+  --sidebar-primary-foreground: #06202a;
+  --sidebar-accent: #142e38;
+  --sidebar-accent-foreground: #a5f3fc;
+  --sidebar-border: #25323d;
+  --sidebar-ring: #67e8f9;
+  --chart-1: #67e8f9;
+  --chart-2: #8ba5c6;
+  --chart-3: #c9a7ed;
+  --chart-4: #de8d8d;
+  --chart-5: #91b9aa;
+}

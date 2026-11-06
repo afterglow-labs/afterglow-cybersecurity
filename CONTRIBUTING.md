@@ -1,6 +1,8 @@
-# Contributing to Afterglow Cybersecurity
+# Contributing to APTEX by Afterglow Labs
 
 Afterglow combines code from several ARTEX-derived repositories. Keep changes focused, record their source when porting code, and retain AGPL-3.0 and component notices. The inherited ScopeWeaver process is saved in [CONTRIBUTING.scopeweaver.md](CONTRIBUTING.scopeweaver.md) for reference; this repository does not require its `dev` to `main` promotion route.
+
+Maintain APTEX as an independent application. Ports from Odysseus belong in this checkout and use APTEX's server lifecycle, accounts, configuration, and data. Record the source and retained license notices for each port in [docs/AFTERGLOW-MERGE.md](docs/AFTERGLOW-MERGE.md).
 
 Use locally isolated environments you own or are explicitly authorized to test. Task scope is guidance, so configure interception rules and network egress controls for any test environment. Do not add an external service dependency or a hardcoded public connector URL to a core workflow.
 
