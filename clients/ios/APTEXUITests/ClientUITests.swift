@@ -143,9 +143,9 @@ final class ClientUITests: XCTestCase {
         XCTAssertEqual(result,.completed)
         XCTAssertTrue(app.buttons["model-picker"].label.contains("SOL fixture"))
         app.buttons["Attach files"].tap()
-        XCTAssertTrue(app.buttons["Choose photos"].waitForExistence(timeout:5))
-        XCTAssertTrue(app.buttons["Choose files"].exists)
-        app.buttons["Choose files"].tap()
+        XCTAssertTrue(app.buttons["Choose photos"].firstMatch.waitForExistence(timeout:5))
+        let files=app.buttons["Choose files"].firstMatch
+        XCTAssertTrue(files.exists);files.tap()
         let cancel=app.buttons["Cancel"].firstMatch
         XCTAssertTrue(cancel.waitForExistence(timeout:10));cancel.tap()
         XCTAssertTrue(app.textFields["message-draft"].waitForExistence(timeout:10))
