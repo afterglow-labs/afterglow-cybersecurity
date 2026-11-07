@@ -15,7 +15,7 @@ import (
 
 func TestLegacyOdysseusGatewayTokensAreRejected(t *testing.T) {
 	key := []byte("01234567890123456789012345678901")
-	server := &Server{jwtKey: key}
+	server := &Server{jwtKey: key, authSessions: &memoryAuthSessions{}}
 	protected := server.requireAuth(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusNoContent)
 	}))
@@ -58,7 +58,7 @@ func TestGatewayTokenCannotBecomeAdministrator(t *testing.T) {
 		t.Fatal("administrator token must retain its original role")
 	}
 
-	server := &Server{jwtKey: key}
+	server := &Server{jwtKey: key, authSessions: &memoryAuthSessions{}}
 	protected := server.requireAuth(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusNoContent)
 	}))
@@ -152,7 +152,7 @@ func TestGatewayModelPayloadsStayOnApprovedTargets(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	server := &Server{jwtKey: key}
+	server := &Server{jwtKey: key, authSessions: &memoryAuthSessions{}}
 	var forwardedBody string
 	protected := server.requireAuth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		body := new(strings.Builder)
@@ -201,7 +201,7 @@ func TestGatewayTokenIssueRequiresAdminBearer(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	server := &Server{jwtKey: key}
+	server := &Server{jwtKey: key, authSessions: &memoryAuthSessions{}}
 	request := func(token string, cookie bool) *httptest.ResponseRecorder {
 		r := httptest.NewRequest("POST", "/api/auth/gateway-token", strings.NewReader("{}"))
 		if cookie {

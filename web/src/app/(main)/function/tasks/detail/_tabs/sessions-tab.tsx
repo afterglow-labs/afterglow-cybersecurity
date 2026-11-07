@@ -996,6 +996,7 @@ export function SessionsTab({ taskId }: { taskId: string }) {
         // Open the single task SSE from the snapshot cursor.
         const es = new EventSource(
           sseUrl(`/api/exploration/activity/stream?task=${encodeURIComponent(taskId)}&since=${snapshotRef.current}`),
+          { withCredentials: true },
         );
         esRef.current = es;
         es.onopen = () => setSseLive(true);
@@ -1081,7 +1082,7 @@ export function SessionsTab({ taskId }: { taskId: string }) {
     const previous = esRef.current;
     if (MOCK || !previous) return;
     previous.close();
-    const stream = new EventSource(sseUrl(`/api/exploration/activity/stream?task=${encodeURIComponent(taskId)}&since=${snapshotRef.current}`));
+    const stream = new EventSource(sseUrl(`/api/exploration/activity/stream?task=${encodeURIComponent(taskId)}&since=${snapshotRef.current}`), { withCredentials: true });
     stream.onopen = previous.onopen;
     stream.onerror = previous.onerror;
     stream.onmessage = previous.onmessage;

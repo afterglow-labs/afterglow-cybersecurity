@@ -53,8 +53,14 @@ accounts. The launcher does not mint an Odysseus gateway token.
 
 ## Local model
 
-The native start command uses the existing local Ollama model, normally
-`qwen3:32b`. Fresh installs enable strict local LLM networking; subsequent starts
+The native start command can use the existing local Ollama model, normally
+`qwen3:32b`. API startup also works without local weights. Automatic mode starts
+Ollama when a verified local store is available and the selected provider uses
+it. Set `APTEX_LOCAL_MODEL_ENABLED=false` to leave local-runtime management off,
+or `true` to require a valid store. An unavailable selected model is reported
+after the API is ready; it does not stop the application.
+
+Fresh installs enable strict local LLM networking; subsequent starts
 preserve the chosen local-only or remote-model policy. Set `OLLAMA_MODELS_DIR`
 in this checkout's `.env` to the existing directory containing `blobs/` and
 `manifests/`. The launcher also checks the usual host Ollama stores when this
@@ -63,6 +69,10 @@ setting is absent.
 The model store is mounted read-only. Ollama stays on APTEX's private Docker
 network with cloud disabled. When local-only policy is enabled, its current
 address is added to the LLM allowlist. Starting the app does not download a model.
+
+Remote clients use the [version 1 API](client-api-v1.md). Browser sessions use an
+HttpOnly cookie, and logout revokes the current device's session. A password
+change revokes all interactive sessions.
 
 ## Appearance
 

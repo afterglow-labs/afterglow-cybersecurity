@@ -149,6 +149,7 @@ export async function http<T>(path: string, init?: RequestInit): Promise<T> {
   if (r.status === 401) {
     if (typeof window !== "undefined") {
       localStorage.removeItem("afterglow_token");
+      localStorage.removeItem("aptex_session_user");
       document.cookie = "afterglow_token=; path=/; max-age=0";
       window.location.href = "/login";
     }

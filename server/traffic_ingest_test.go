@@ -15,7 +15,7 @@ func TestBrowserCaptureIngestUsesTrafficStoreAndAuth(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Cleanup(func() { _ = tr.Close() })
-	s := &Server{m: &Manager{traffic: tr}, jwtKey: []byte("test-browser-capture-signing-key")}
+	s := &Server{m: &Manager{traffic: tr}, jwtKey: []byte("test-browser-capture-signing-key"), authSessions: &memoryAuthSessions{}}
 	h := cors(s.requireAuth(http.HandlerFunc(s.ingestTraffic)))
 
 	preflight := httptest.NewRequest(http.MethodOptions, "/api/traffic/ingest", nil)

@@ -41,7 +41,7 @@ export const browserSessions = {
     const response = await fetch(`/api${path(id)}/screenshot`, {
       signal,
       cache: "no-store",
-      headers: { Authorization: `Bearer ${auth.getToken() ?? ""}` },
+      headers: auth.getToken() ? { Authorization: `Bearer ${auth.getToken()}` } : {},
     });
     if (!response.ok) {
       throw new HTTPError(`Browser screen request failed (${response.status})`, response.status);

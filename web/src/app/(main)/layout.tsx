@@ -39,15 +39,13 @@ export default function Layout({ children }: Readonly<{ children: ReactNode }>) 
   // protected UI (or its API calls) flashes for a logged-out visitor.
   const [authed, setAuthed] = React.useState(false);
   React.useEffect(() => {
-    if (auth.getToken()) {
-      setAuthed(true);
-    } else {
-      // When the client guard finds no login, also clear the cookie. Otherwise proxy.ts sees its presence
-      // and redirects /login back to the app, while this guard redirects back again,
-      // creating an infinite redirect and blank screen when cookie and localStorage disagree.
-      auth.clearToken();
-      window.location.href = "/login";
-    }
+    let mounted = true;
+    auth.restoreSession().then((valid) => {
+      if (!mounted) return;
+      if (valid) setAuthed(true);
+      else window.location.href = "/login";
+    }).catch(() => { if (mounted) window.location.href = "/login"; });
+    return () => { mounted = false; };
   }, []);
 
   const defaultOpen = typeof document === "undefined" ? true : getClientCookie("sidebar_state") !== "false";

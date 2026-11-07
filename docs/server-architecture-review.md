@@ -1,8 +1,10 @@
 # Server architecture before the iOS client
 
-Status: proposed server direction, 2026-11-06. The owner paused iOS implementation
-until the server architecture and client contract are settled. This review does
-not implement or deploy a server migration.
+Status: initial application boundaries implemented, 2026-11-06. The owner paused
+iOS implementation until the server architecture and client contract were
+settled. The [version 1 client contract](client-api-v1.md) now defines bootstrap,
+readiness, revocable sessions and resumable conversation observation. The source
+comparison and measurements below describe the pre-migration revision.
 
 ## Recommendation
 
@@ -133,8 +135,11 @@ runtime, account store or unrelated video/Cookbook features are prerequisites.
    then resume the iOS client against them. Changing internal engine code later
    should not force another authentication or message protocol rewrite.
 
-This is a proposed order of work, not a statement that the new endpoints,
-revocable sessions or process separation already exist.
+The initial implementation covers these public contracts, browser session
+migration and optional local-runtime startup. Root Go tests (with a disposable
+database), build and vet pass; frontend tests and the static build pass. Separate
+worker-process extraction remains a future option. It is not required by the
+client protocol and has not been implemented.
 
 ## Alternatives
 

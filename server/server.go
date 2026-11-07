@@ -56,8 +56,9 @@ type Server struct {
 	engine         *Engine
 	ctx            context.Context
 
-	skillDir string // root directory for skill subdirectories
-	jwtKey   []byte // HS256 signing key loaded from / generated into dataDir/jwt.key
+	skillDir     string // root directory for skill subdirectories
+	jwtKey       []byte // HS256 signing key loaded from / generated into dataDir/jwt.key
+	authSessions authSessionRepository
 
 	// concMu serializes concurrency-cap decisions (admission + reconcile) so a
 	// scheduler tick and an HTTP settings change / task creation can't both count
@@ -740,6 +741,7 @@ func (s *Server) chatAgentRef() *agent.ChatAgent {
 
 func (s *Server) Handler() http.Handler {
 	mux := http.NewServeMux()
+	s.registerClientAPI(mux)
 	s.registerSideRoutes(mux)
 	s.registerBrowserRoutes(mux)
 	s.registerAutoContinueRoutes(mux)
@@ -4080,8 +4082,13 @@ func (s *Server) gc(w http.ResponseWriter, r *http.Request) {
 func cors(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Add("Vary", "Origin")
+		if allowedClientOrigin(r.Header.Get("Origin")) {
+			w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("Origin"))
+			w.Header().Set("Access-Control-Allow-Credentials", "true")
+		}
 		w.Header().Set("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type,Authorization")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type,Authorization,Last-Event-ID")
 		if r.Method == http.MethodOptions {
 			w.WriteHeader(204)
 			return

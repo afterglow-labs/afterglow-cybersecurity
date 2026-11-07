@@ -50,18 +50,13 @@ export default function LoginPage() {
   }, [termsOpen]);
 
   useEffect(() => {
-    // Authenticated users go straight to the app; static export has no middleware redirect.
-    const token = auth.getToken();
-    if (token) {
-      // localStorage may retain credentials after the cookie is lost. Synchronize before a fresh request,
-      // so server guards or cached routes do not send users back to a login page still checking authentication.
-      auth.setToken(token);
-      window.location.replace("/function/tasks");
-      return;
-    }
-    api
-      .authStatus()
-      .then(({ initialized, username: configuredUsername }) => {
+    auth.restoreSession().then((valid) => {
+      if (valid) { window.location.replace("/function/tasks"); return null; }
+      return api.authStatus();
+    })
+      .then((state) => {
+        if (!state) return;
+        const { initialized, username: configuredUsername } = state;
         if (configuredUsername) setUsername(configuredUsername);
         if (!initialized) router.replace("/setup");
       })

@@ -64,10 +64,62 @@ class AptexLauncherTests(unittest.TestCase):
              patch.object(aptex, "ensure_administrator"), \
              patch.object(aptex.subprocess, "run") as run:
             aptex.start()
-        self.assertEqual(run.call_args.args[0], aptex.compose_command(
-            self.repo, "up", "-d", "--no-build", "postgres", "ollama", "scopeweaver"))
+            expected = aptex.compose_command(self.repo, "up", "-d", "--no-build", "postgres", "ollama", "scopeweaver")
+        self.assertEqual(run.call_args.args[0], expected)
         self.assertEqual(run.call_count, 1)
         self.assertEqual(config.read_bytes(), original)
+
+    def test_fresh_server_can_start_without_model_weights(self):
+        with patch.dict(aptex.os.environ, {"OLLAMA_MODELS_DIR": str(self.directory / "missing")}):
+            settings = aptex.prepare_backend(self.repo)
+            command = aptex.compose_command(self.repo, "up", "-d", *aptex.CORE_SERVICES)
+        self.assertTrue(settings["POSTGRES_PASSWORD"])
+        self.assertNotIn("SCOPEWEAVER_LLM_PROVIDER", settings)
+        self.assertNotIn("docker-compose.host-model.yml", " ".join(command))
+        with patch.object(aptex, "prepare_backend", return_value=settings), \
+             patch.object(aptex, "ensure_docker"), \
+             patch.object(aptex, "all_backend_services_running", return_value=True), \
+             patch.object(aptex, "wait_for_backend"), \
+             patch.object(aptex, "ensure_administrator"), \
+             patch.object(aptex, "ollama_ip_and_mount", side_effect=AssertionError("required optional Ollama")), \
+             patch.object(aptex.subprocess, "run") as run:
+            aptex.start()
+        self.assertEqual(run.call_args.args[0][-2:], list(aptex.CORE_SERVICES))
+
+    def test_prepare_preserves_cloud_provider_and_remote_ollama(self):
+        for provider, base in [("openai-responses", "https://provider.example/v1"), ("ollama", "http://private-vpn:11434")]:
+            with self.subTest(provider=provider):
+                (self.repo / ".env").write_text(f"SCOPEWEAVER_LLM_PROVIDER={provider}\nSCOPEWEAVER_LLM_BASE_URL={base}\nSCOPEWEAVER_LLM_MODEL=chosen-model\n")
+                settings = aptex.prepare_backend(self.repo)
+                self.assertEqual(settings["SCOPEWEAVER_LLM_PROVIDER"], provider)
+                self.assertEqual(settings["SCOPEWEAVER_LLM_BASE_URL"], base)
+                self.assertEqual(settings["SCOPEWEAVER_LLM_MODEL"], "chosen-model")
+                self.assertIsNone(aptex.optional_model_directory(self.repo, settings))
+
+    def test_disabled_or_missing_local_model_does_not_require_override(self):
+        for mode in ["false", "auto"]:
+            (self.repo / ".env").write_text(f"APTEX_LOCAL_MODEL_ENABLED={mode}\nOLLAMA_MODELS_DIR={self.directory / 'missing'}\n")
+            settings = aptex.prepare_backend(self.repo)
+            self.assertIsNone(aptex.optional_model_directory(self.repo, settings))
+            self.assertNotIn("--profile", aptex.compose_command(self.repo, "ps"))
+        (self.repo / ".env").write_text(f"APTEX_LOCAL_MODEL_ENABLED=true\nOLLAMA_MODELS_DIR={self.directory / 'missing'}\n")
+        with self.assertRaisesRegex(ValueError, "OLLAMA_MODELS_DIR"):
+            aptex.prepare_backend(self.repo)
+
+    def test_missing_selected_model_leaves_application_running(self):
+        with patch.object(aptex, "prepare_backend", return_value={"SCOPEWEAVER_LLM_MODEL": "missing-model"}), \
+             patch.object(aptex, "ensure_docker"), \
+             patch.object(aptex, "all_backend_services_running", return_value=True), \
+             patch.object(aptex, "model_directory", return_value=self.directory / "models"), \
+             patch.object(aptex, "ollama_ip_and_mount", return_value="172.20.0.2"), \
+             patch.object(aptex, "update_local_allowlist", return_value=False), \
+             patch.object(aptex, "wait_for_backend") as ready, \
+             patch.object(aptex, "ensure_administrator"), \
+             patch.object(aptex, "wait_for_local_model", side_effect=ValueError("model missing")), \
+             patch.object(aptex.subprocess, "run") as run:
+            aptex.start()
+        ready.assert_called_once()
+        self.assertEqual(run.call_count, 1)
 
     def test_stop_targets_only_aptex_services(self):
         with patch.object(aptex.shutil, "which", return_value=None), \

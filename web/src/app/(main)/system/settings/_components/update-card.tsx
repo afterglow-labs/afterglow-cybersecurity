@@ -111,7 +111,7 @@ export function UpdateCard() {
   // Subscribe to update progress directly; Next /api rewrites buffer SSE events.
   const openStream = React.useCallback(
     (fromVersion: string) => {
-      const es = new EventSource(sseUrl("/api/update/stream"));
+      const es = new EventSource(sseUrl("/api/update/stream"), { withCredentials: true });
       updateStream.current = es;
       updateFrom.current = fromVersion;
       es.onmessage = (ev) => {
