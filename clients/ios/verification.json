@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "generated_at": "2026-11-07T03:53:47.805552+00:00",
+  "generated_at": "2026-11-07T04:12:04.501651+00:00",
   "odysseus_reference": {
     "repository": "afterglow-labs/odysseus-ios",
     "revision": "f81c2cd09b90c49c308343c7569f795de2bf40c5",
@@ -9,7 +9,7 @@
   },
   "application_tree": {
     "algorithm": "SHA-256 of canonical JSON list of relative file paths and individual SHA-256 digests",
-    "sha256": "5b13ff0bd7240e01a56c475c0583b649393d06e839f5d7e28e6103da48b43d6c",
+    "sha256": "e62f4ba58d2160fb97be30ce1466c227e343053b51b3b2ca58417d57421dfff6",
     "files": [
       {
         "path": "APTEX/APTEX.entitlements",
@@ -121,7 +121,7 @@
       },
       {
         "path": "APTEX/Views/TasksView.swift",
-        "sha256": "42678cdef500e9bbd644c4c586464caf3503a1090b4478e59a9ccca6bb35f6a8"
+        "sha256": "2068921ab4c63bfefdaa05059b14fcc3f637013b566c00e5bf42d060bb00cab0"
       }
     ]
   },
@@ -242,12 +242,26 @@
         "verify files and photos choices",
         "open and cancel document picker"
       ]
+    },
+    "native_profile_list": {
+      "status": "passed",
+      "application_tree_sha256": "e62f4ba58d2160fb97be30ce1466c227e343053b51b3b2ca58417d57421dfff6",
+      "device": "iPad Pro 13-inch (M4)",
+      "runtime": "iPadOS 18.5",
+      "flow": [
+        "open native profile list",
+        "select profile",
+        "apply selection",
+        "open files/photos action sheet",
+        "open and cancel document picker"
+      ]
     }
   },
   "infrastructure_notes": [
     "An earlier iPadOS 27.0 simulator lost its remote keyboard-service connection. No tests were disabled; full iPad validation was moved to the installed iPadOS 27.2 runtime.",
     "iOS/iPadOS 18.5 CI exposed collapsed split navigation and attachment Menu accessibility behavior. Initial sidebar visibility, menu labeling and modal-transition waits were corrected; checks remain enabled.",
-    "The older Xcode 16.4 build retained a SwiftUI Menu accessibility/tap failure. Attachment choices now use a standard Button and confirmation dialog; the original model-to-file-picker acceptance test remains enabled. Debug builds compile only the active simulator architecture; Release packaging still verifies arm64."
+    "The older Xcode 16.4 build retained a SwiftUI Menu accessibility/tap failure. Attachment choices now use a standard Button and confirmation dialog; the original model-to-file-picker acceptance test remains enabled. Debug builds compile only the active simulator architecture; Release packaging still verifies arm64.",
+    "Profile selection uses a native navigation list with explicit choice buttons, following the Odysseus model-list pattern. This avoids hosted Xcode popup hit-testing instability and keeps complete profile names and access programs visible."
   ],
   "preserved": {
     "go_mod_and_sum_unchanged": true,

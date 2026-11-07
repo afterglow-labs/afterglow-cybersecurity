@@ -157,13 +157,34 @@ struct ProfilePicker: View {
     let profiles: [ModelProfile]
     @Binding var selection: String
     var body: some View {
-        Picker("Model profile", selection: $selection) {
-            Text("Server default").tag("")
-            ForEach(profiles) { profile in
-                Text(profile.label + ((profile.access_program_cyber?.isEmpty == false) ? " · " + profile.access_program_cyber!.capitalized : ""))
-                    .tag(profile.id).disabled(!profile.available)
+        NavigationLink {
+            ProfileChoicesView(profiles:profiles,selection:$selection)
+        } label: {
+            LabeledContent("Model profile") {
+                if let profile=profiles.first(where:{$0.id==selection}) {Text(profileChoiceLabel(profile)).lineLimit(2)}
+                else {Text("Server default")}
             }
         }.accessibilityIdentifier("profile-selection")
         if profiles.isEmpty { Text("Configure model profiles in Console to choose a model here.").font(.caption).foregroundStyle(.secondary) }
+    }
+}
+private func profileChoiceLabel(_ profile:ModelProfile)->String {
+    profile.label + ((profile.access_program_cyber?.isEmpty == false) ? " · " + profile.access_program_cyber!.capitalized : "")
+}
+private struct ProfileChoicesView:View {
+    let profiles:[ModelProfile]
+    @Binding var selection:String
+    @Environment(\.dismiss) private var dismiss
+    var body:some View {
+        List {
+            Button {selection="";dismiss()} label:{
+                HStack {Text("Server default").foregroundStyle(.primary);Spacer();if selection.isEmpty {Image(systemName:"checkmark")}}
+            }
+            ForEach(profiles) {profile in
+                Button {selection=profile.id;dismiss()} label:{
+                    HStack {Text(profileChoiceLabel(profile)).foregroundStyle(.primary);Spacer();if selection==profile.id {Image(systemName:"checkmark")}}
+                }.disabled(!profile.available)
+            }
+        }.clientNavigationTitle("Model profile").navigationBarTitleDisplayMode(.inline)
     }
 }
