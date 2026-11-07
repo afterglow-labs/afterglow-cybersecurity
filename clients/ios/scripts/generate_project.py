@@ -33,6 +33,7 @@ def config_list(name, settings):
         values = dict(settings)
         values["SWIFT_OPTIMIZATION_LEVEL"] = "-Onone" if kind == "Debug" else "-O"
         if kind == "Debug":
+            values["ONLY_ACTIVE_ARCH"] = "YES"
             values["SWIFT_ACTIVE_COMPILATION_CONDITIONS"] = "DEBUG"
             values["ENABLE_TESTABILITY"] = "YES"
         body = " ".join(f"{key} = {q(value)};" for key, value in values.items())

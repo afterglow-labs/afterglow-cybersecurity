@@ -121,6 +121,7 @@ struct ChatDetailView: View {
     @Environment(\.scenePhase) private var phase
     @Bindable var model: ChatSession
     @State private var importing = false
+    @State private var attachmentChoices = false
     @State private var choosingPhotos = false
     @State private var photos: [PhotosPickerItem] = []
     @State private var importingPhotos = false
@@ -189,6 +190,10 @@ struct ChatDetailView: View {
         .sheet(isPresented:$importing) {
             AttachmentFilePicker {files in importing=false;model.startUpload(files)}
         }
+        .confirmationDialog("Attach files",isPresented:$attachmentChoices,titleVisibility:.visible) {
+            Button("Choose files",systemImage:"doc"){composerFocused=false;importing=true}
+            Button("Choose photos",systemImage:"photo"){composerFocused=false;choosingPhotos=true}
+        }
         .photosPicker(isPresented:$choosingPhotos,selection:$photos,maxSelectionCount:8,matching:.images)
         .task(id:photos) {
             guard !photos.isEmpty else {return}
@@ -254,11 +259,8 @@ struct ChatDetailView: View {
                 }
             }
             HStack(alignment: .bottom, spacing: 12) {
-                Menu {
-                    Button("Choose files",systemImage:"doc"){composerFocused=false;importing=true}
-                    Button("Choose photos",systemImage:"photo"){composerFocused=false;choosingPhotos=true}
-                } label:{Image(systemName:"paperclip").frame(width:44,height:44).contentShape(Rectangle()).accessibilityLabel("Attach files")}
-                    .disabled(model.uploading || importingPhotos || model.pending != nil || model.sending)
+                Button {composerFocused=false;attachmentChoices=true} label:{Image(systemName:"paperclip").frame(width:44,height:44).contentShape(Rectangle())}
+                    .accessibilityLabel("Attach files").disabled(model.uploading || importingPhotos || model.pending != nil || model.sending)
                 TextField("Message", text: $model.draft, axis: .vertical).lineLimit(1...8).padding(10)
                     .focused($composerFocused)
                     .background(.quaternary, in: RoundedRectangle(cornerRadius: 12))

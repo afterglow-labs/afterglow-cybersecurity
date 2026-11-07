@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "generated_at": "2026-11-07T03:35:07.426422+00:00",
+  "generated_at": "2026-11-07T03:53:47.805552+00:00",
   "odysseus_reference": {
     "repository": "afterglow-labs/odysseus-ios",
     "revision": "f81c2cd09b90c49c308343c7569f795de2bf40c5",
@@ -9,7 +9,7 @@
   },
   "application_tree": {
     "algorithm": "SHA-256 of canonical JSON list of relative file paths and individual SHA-256 digests",
-    "sha256": "ae75ede737a1b975a80194e22128e3aeba068bab488733c9a5610c386a6e3831",
+    "sha256": "5b13ff0bd7240e01a56c475c0583b649393d06e839f5d7e28e6103da48b43d6c",
     "files": [
       {
         "path": "APTEX/APTEX.entitlements",
@@ -101,7 +101,7 @@
       },
       {
         "path": "APTEX/Views/ChatView.swift",
-        "sha256": "44e22de1fbc74fef550309d0889679465450634e08edf3b6f1fd6e0c50a55eeb"
+        "sha256": "5d366a0ee41818a4b669b3652e0217ec9449e97ea79d99e672a436fed96f4f0d"
       },
       {
         "path": "APTEX/Views/ConsoleView.swift",
@@ -227,11 +227,27 @@
         3
       ],
       "reason": "Unrelated planner system text contained seconds. Queue order was correct; verification now inspects the most recent user message and still rejects reversed or missing admissions."
+    },
+    "attachment_action_sheet": {
+      "status": "passed",
+      "application_tree_sha256": "5b13ff0bd7240e01a56c475c0583b649393d06e839f5d7e28e6103da48b43d6c",
+      "runtime": "iOS/iPadOS 18.5",
+      "devices": [
+        "iPhone 16 Pro",
+        "iPad Pro 13-inch (M4)"
+      ],
+      "flow": [
+        "apply model profile",
+        "open attachment action sheet",
+        "verify files and photos choices",
+        "open and cancel document picker"
+      ]
     }
   },
   "infrastructure_notes": [
     "An earlier iPadOS 27.0 simulator lost its remote keyboard-service connection. No tests were disabled; full iPad validation was moved to the installed iPadOS 27.2 runtime.",
-    "iOS/iPadOS 18.5 CI exposed collapsed split navigation and attachment Menu accessibility behavior. Initial sidebar visibility, menu labeling and modal-transition waits were corrected; checks remain enabled."
+    "iOS/iPadOS 18.5 CI exposed collapsed split navigation and attachment Menu accessibility behavior. Initial sidebar visibility, menu labeling and modal-transition waits were corrected; checks remain enabled.",
+    "The older Xcode 16.4 build retained a SwiftUI Menu accessibility/tap failure. Attachment choices now use a standard Button and confirmation dialog; the original model-to-file-picker acceptance test remains enabled. Debug builds compile only the active simulator architecture; Release packaging still verifies arm64."
   ],
   "preserved": {
     "go_mod_and_sum_unchanged": true,
