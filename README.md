@@ -106,6 +106,12 @@ For other installation modes and detailed operation, consult the [ScopeWeaver ba
 
 The extension sends its token only to HTTPS URLs or localhost over HTTP. Captured traffic can include session headers and response data, so protect the local traffic store and remove the extension token after the session if it is no longer needed.
 
+## Starter workflows
+
+Open **Workflows** in the web console, or **Console → Workflows** in the iOS client. The starter library includes incident triage, detection rule review, captured traffic review, asset inventory, web and API assessments, source code and cloud reviews, AI application review, finding retests, evidence-based reports, and purple-team control validation.
+
+Choose a template, supply the target scope and relevant task or evidence references, and select **Use template**. Review the generated instructions and selected agent, then save. Templates use the agent's configured model and tools; their initial schedule is manual with scheduling disabled. Selecting or saving a template does not run an agent. Choose **Run now** when ready, or explicitly configure an interval or daily schedule. The starter labels support all six interface languages; the editable procedures are authored in English.
+
 ## Defensive content and skills
 
 [`detections/`](detections/) contains rules and a read-only host triage utility. Run `detections/tests/run-all.sh` on a machine with Docker to verify the full ruleset. The source, indicator, ATT&CK, and host triage checks can also run directly with Python; exact commands and their current status are in [merge decisions and verification](docs/AFTERGLOW-MERGE.md).
