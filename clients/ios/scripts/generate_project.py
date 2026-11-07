@@ -1,5 +1,5 @@
-# Adapted from afterglow-labs/odysseus-ios, f81c2cd09b90, AGPL-3.0.
 #!/usr/bin/env python3
+# Adapted from afterglow-labs/odysseus-ios, f81c2cd09b90, AGPL-3.0.
 """Generate the small, dependency-free Xcode project from its Swift sources."""
 from pathlib import Path
 import hashlib
@@ -67,10 +67,11 @@ def main():
         resource_refs = []
         if is_app:
             for path in sorted((ROOT / name / "Resources").glob("*")):
-                if not path.is_file():
+                if not path.is_file() and path.suffix != ".xcassets":
                     continue
                 rel = str(path.relative_to(ROOT))
-                ref = add("resource:" + rel, f"isa = PBXFileReference; path = {q(rel)}; sourceTree = SOURCE_ROOT;")
+                kind = "folder.assetcatalog" if path.suffix == ".xcassets" else "text.json.xcstrings" if path.suffix == ".xcstrings" else "text"
+                ref = add("resource:" + rel, f"isa = PBXFileReference; lastKnownFileType = {kind}; path = {q(rel)}; sourceTree = SOURCE_ROOT;")
                 resource_refs.append(add("resource-build:" + rel, f"isa = PBXBuildFile; fileRef = {ref};"))
         resource_phase = add("resources:" + name, f"isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = {array(resource_refs)}; runOnlyForDeploymentPostprocessing = 0;")
         settings = {
@@ -82,6 +83,7 @@ def main():
         }
         if is_app:
             settings["INFOPLIST_FILE"] = "APTEX/Info.plist"
+            settings["ASSETCATALOG_COMPILER_APPICON_NAME"] = "AppIcon"
             settings["CODE_SIGN_ENTITLEMENTS"] = "APTEX/APTEX.entitlements"
         elif is_ui:
             settings["TEST_TARGET_NAME"] = "APTEX"
@@ -99,9 +101,9 @@ def main():
     main_group = add("main", f"isa = PBXGroup; children = {array(groups + [product_group])}; sourceTree = \"<group>\";")
     configs = config_list("project", {
         "CLANG_ENABLE_MODULES": "YES", "CLANG_ENABLE_OBJC_ARC": "YES",
-        "APTEX_BUNDLE_ID": "com.afterglowlabs.aptex",
+        "APTEX_BUNDLE_ID": "com.afterglowlabs.aptex", "APTEX_SOURCE_REVISION": "dev",
     })
-    project = add("project", f"isa = PBXProject; attributes = {{LastUpgradeCheck = 1600; BuildIndependentTargetsInParallel = YES;}}; buildConfigurationList = {configs}; compatibilityVersion = \"Xcode 14.0\"; developmentRegion = en; hasScannedForEncodings = 0; knownRegions = (en, Base); mainGroup = {main_group}; productRefGroup = {product_group}; projectDirPath = \"\"; projectRoot = \"\"; targets = {array(targets)};")
+    project = add("project", f"isa = PBXProject; attributes = {{LastUpgradeCheck = 1600; BuildIndependentTargetsInParallel = YES;}}; buildConfigurationList = {configs}; compatibilityVersion = \"Xcode 14.0\"; developmentRegion = en; hasScannedForEncodings = 0; knownRegions = (en, ko, \"zh-Hans\", \"zh-Hant\", ja, es, Base); mainGroup = {main_group}; productRefGroup = {product_group}; projectDirPath = \"\"; projectRoot = \"\"; targets = {array(targets)};")
     directory = ROOT / "APTEX.xcodeproj"
     directory.mkdir(exist_ok=True)
     content = "// !$*UTF8*$!\n{ archiveVersion = 1; classes = {}; objectVersion = 56; objects = {\n"

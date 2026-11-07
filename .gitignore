@@ -69,3 +69,9 @@ Thumbs.db
 
 # Native macOS client build products.
 /clients/macos/.build/
+
+# Native iOS generated products and local Xcode state.
+/clients/ios/build/
+/clients/ios/device-build/
+/clients/ios/APTEX.xcodeproj/xcuserdata/
+**/__pycache__/

@@ -17,6 +17,7 @@ public struct ServerAddress: Equatable {
         if scheme == "http" && !Self.isPrivateHost(host) { throw AddressError.publicHTTP }
         parts.scheme = scheme
         parts.host = host.lowercased()
+        if parts.port == (scheme == "https" ? 443 : 80) { parts.port = nil }
         parts.path = ""
         guard let url = parts.url else { throw AddressError.invalid }
         origin = url

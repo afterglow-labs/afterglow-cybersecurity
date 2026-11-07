@@ -15,7 +15,7 @@ enum CredentialVault {
     }
     private static func query(_ server: String) -> [String: Any] {
         [kSecClass as String: kSecClassGenericPassword,
-         kSecAttrService as String: "dev.afterglow.aptex.session",
+         kSecAttrService as String: "com.afterglowlabs.aptex.session",
          kSecAttrAccount as String: server]
     }
 

@@ -34,6 +34,10 @@ retaining their data. Odysseus uses its own `odysseus-start`, `odysseus`, and
 `odysseus-stop` commands. The [standalone client guide](docs/standalone-client.md)
 covers login, the existing local model, configuration, and image rebuilds.
 
+Remote devices can use the independent [Mac client](clients/macos/README.md) or
+[native iPhone/iPad client](clients/ios/README.md). Each connects to the desktop
+server without installing a server or model runtime on that device.
+
 For a manual Compose deployment:
 
 Docker and Docker Compose are required for the standard installation. Copy `.env.example` to `.env`, set `POSTGRES_PASSWORD`, then build this checkout:

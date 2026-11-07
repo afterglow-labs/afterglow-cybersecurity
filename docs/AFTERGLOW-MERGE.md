@@ -81,3 +81,32 @@ Validation includes the complete root Go suite with a disposable database,
 launcher tests. Session tests cover independent devices, logout, password-change
 races, legacy migration, origin checks and revocation of live observers. No
 dependency, module identity or patched Norma replacement was changed.
+
+## Independent iOS client, 2026-11-06
+
+The native chat comparison also covers the current Odysseus message renderer,
+document/photo import, model picker and adaptive iPad navigation. APTEX adapts
+the Markdown/code segmentation and document-copy/Transferable patterns, retaining
+their AGPL notices; its own API, upload cancellation and message-detail hydration
+follow the APTEX server contract. See
+[the client comparison](../clients/ios/odysseus-parity.md).
+
+`clients/ios/` adapts the credential-vault pattern, path helper, SSE parsing, and
+dependency-free Xcode/project-test script structure from
+`afterglow-labs/odysseus-ios` revision
+`f81c2cd09b90c49c308343c7569f795de2bf40c5`, under AGPL-3.0. Adapted files retain
+source notices and the application includes the complete license. The existing
+APTEX vector mark supplies the icon; native labels reuse matching web translations
+and add context-specific translations for the new screens.
+
+APTEX's iOS API, cybersecurity screens, persisted cursor handling, pending-input
+recovery and full-console transport target this application's version 1 contract.
+The client has a separate bundle identity, server-scoped Keychain entries and an
+ephemeral WebKit store. The console receives an HttpOnly cookie directly, with
+no credential in JavaScript or URL parameters. Native requests reject redirects
+to another origin. No Odysseus server, accounts or runtime are prerequisites.
+
+The server migration was merged and deployed before the client implementation
+resumed. The existing Go engine, local Qwen installation, provider accounts and
+patched Norma replacement remain intact. See the [client guide](../clients/ios/README.md)
+and its verification record for native and real-backend checks.
