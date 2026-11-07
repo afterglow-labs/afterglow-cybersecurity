@@ -124,6 +124,9 @@ await step("[en] setup creates the password and login accepts it", async () => {
   await page.fill("#confirm", PASSWORD);
   await page.locator('button[type="submit"]').click();
   await page.waitForURL(/\/function\/tasks/);
+  // The URL changes before the asynchronous session gate finishes. Wait for
+  // the protected workspace before deliberately revoking the setup session.
+  await page.getByRole("button", { name: "New task", exact: true }).waitFor();
   const second = await page.request.post(`${base}/api/auth/init`, { data: { password: "another-pass-99" } });
   check(second.status() === 403, `second setup returned ${second.status()}`);
 
@@ -140,6 +143,10 @@ await step("[en] setup creates the password and login accepts it", async () => {
   check(sessionCookie?.httpOnly, "login did not establish an HttpOnly session");
   token = sessionCookie.value;
 });
+if (!token) {
+  await browser.close();
+  throw new Error("Setup/login failed; authenticated smoke checks cannot run without a session");
+}
 
 await step("[zh-Hans] login draft and persisted reload preserve preference", async () => {
   const p=await openPage("en");
