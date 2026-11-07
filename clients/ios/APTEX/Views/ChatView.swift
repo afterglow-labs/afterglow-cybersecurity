@@ -11,16 +11,17 @@ struct ConversationsView: View {
     @State private var path: [Conversation] = []
     @State private var search = ""
     @State private var selection: Conversation?
+    @State private var columnVisibility:NavigationSplitViewVisibility = .all
     @Environment(\.horizontalSizeClass) private var sizeClass
     var body: some View {
         Group {
             if sizeClass == .regular {
-                NavigationSplitView {
+                NavigationSplitView(columnVisibility:$columnVisibility) {
                     conversationList.navigationSplitViewColumnWidth(min:240,ideal:290,max:360)
                 } detail: {
                     if let selection { ChatDetailHost(conversation:selection).id(selection.id) }
                     else {ContentUnavailableView("Start a conversation",systemImage:"bubble.left.and.text.bubble.right")}
-                }
+                }.navigationSplitViewStyle(.balanced)
             } else {
                 NavigationStack(path:$path) {
                     conversationList.navigationDestination(for:Conversation.self) { ChatDetailHost(conversation:$0) }
@@ -256,8 +257,8 @@ struct ChatDetailView: View {
                 Menu {
                     Button("Choose files",systemImage:"doc"){composerFocused=false;importing=true}
                     Button("Choose photos",systemImage:"photo"){composerFocused=false;choosingPhotos=true}
-                } label:{Image(systemName:"paperclip").frame(width:44,height:44)}
-                    .accessibilityLabel("Attach files").disabled(model.uploading || importingPhotos || model.pending != nil || model.sending)
+                } label:{Image(systemName:"paperclip").frame(width:44,height:44).contentShape(Rectangle()).accessibilityLabel("Attach files")}
+                    .disabled(model.uploading || importingPhotos || model.pending != nil || model.sending)
                 TextField("Message", text: $model.draft, axis: .vertical).lineLimit(1...8).padding(10)
                     .focused($composerFocused)
                     .background(.quaternary, in: RoundedRectangle(cornerRadius: 12))

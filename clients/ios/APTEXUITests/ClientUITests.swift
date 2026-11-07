@@ -17,8 +17,8 @@ final class ClientUITests: XCTestCase {
         app.launch()
     }
     override func tearDownWithError() throws {
-        if let app,(testRun?.failureCount ?? 0)>0 {
-            let image=XCTAttachment(screenshot:app.screenshot());image.name="APTEX UI failure";image.lifetime = .keepAlways;add(image)
+        if let app {
+            let image=XCTAttachment(screenshot:app.screenshot());image.name="APTEX UI state";image.lifetime = .keepAlways;add(image)
         }
     }
     private func login() {
@@ -38,6 +38,12 @@ final class ClientUITests: XCTestCase {
         let labels=[["Tasks","Tareas"],["Chat"],["Findings","Hallazgos"],["Console","Consola"],["Settings","Ajustes"]]
         return app.descendants(matching:.any).matching(NSPredicate(format:"label IN %@ AND (elementType == %d OR elementType == %d)",labels[index],XCUIElement.ElementType.button.rawValue,XCUIElement.ElementType.cell.rawValue)).firstMatch
     }
+    private func openFixtureConversation() {
+        tab(1).tap()
+        let row=app.buttons["conversation-7"]
+        if !row.waitForExistence(timeout:3),app.buttons["ToggleSidebar"].exists {app.buttons["ToggleSidebar"].tap()}
+        XCTAssertTrue(row.waitForExistence(timeout:10));row.tap()
+    }
     func testLoginTaskPauseFindingsAndLogout() {
         login()
         app.staticTexts["Local fixture assessment"].tap()
@@ -53,8 +59,7 @@ final class ClientUITests: XCTestCase {
         XCTAssertTrue(app.secureTextFields["password"].waitForExistence(timeout:10))
     }
     func testChatDraftLiveSendAndConsoleCookieHandoff() {
-        login();tab(1).tap()
-        XCTAssertTrue(app.buttons["conversation-7"].waitForExistence(timeout:10));app.buttons["conversation-7"].tap()
+        login();openFixtureConversation()
         let ready=app.staticTexts.matching(NSPredicate(format:"label CONTAINS %@","Full message detail is loaded automatically.")).firstMatch.waitForExistence(timeout:10)
         if !ready {let image=XCTAttachment(screenshot:app.screenshot());image.name="Chat detail failure";image.lifetime = .keepAlways;add(image);print(app.debugDescription)}
         XCTAssertTrue(ready)
@@ -91,8 +96,7 @@ final class ClientUITests: XCTestCase {
         let shot=XCTAttachment(screenshot:app.screenshot());shot.name="APTEX native settings";shot.lifetime = .keepAlways;add(shot)
     }
     func testLanguageSwitchPreservesAnUnsentDraft() {
-        login();tab(1).tap()
-        app.buttons["conversation-7"].tap()
+        login();openFixtureConversation()
         let draft=app.textFields["message-draft"]
         XCTAssertTrue(draft.waitForExistence(timeout:10));draft.tap();draft.typeText("draft across languages")
         app.buttons["dismiss-keyboard"].tap()
@@ -124,12 +128,19 @@ final class ClientUITests: XCTestCase {
     }
 
     func testNativeModelSelectionAndAttachmentChoices() {
-        login();tab(1).tap()
-        XCTAssertTrue(app.buttons["conversation-7"].waitForExistence(timeout:10));app.buttons["conversation-7"].tap()
+        login();openFixtureConversation()
         XCTAssertTrue(app.buttons["model-picker"].waitForExistence(timeout:10));app.buttons["model-picker"].tap()
         app.buttons["profile-selection"].tap()
         app.buttons["SOL fixture · fixture-sol · Blue"].tap()
-        app.buttons["Apply"].tap()
+        let apply=app.buttons["Apply"]
+        let selectionClosed=NSPredicate {_,_ in apply.isHittable}
+        expectation(for:selectionClosed,evaluatedWith:nil);waitForExpectations(timeout:10)
+        apply.tap()
+        let composerReady=NSPredicate {_,_ in self.app.buttons["model-picker"].isHittable && !self.app.buttons["Apply"].exists}
+        let ready=expectation(for:composerReady,evaluatedWith:nil)
+        let result=XCTWaiter.wait(for:[ready],timeout:10)
+        if result != .completed {print(app.debugDescription)}
+        XCTAssertEqual(result,.completed)
         XCTAssertTrue(app.buttons["model-picker"].label.contains("SOL fixture"))
         app.buttons["Attach files"].tap()
         XCTAssertTrue(app.buttons["Choose photos"].waitForExistence(timeout:5))
@@ -139,6 +150,7 @@ final class ClientUITests: XCTestCase {
         XCTAssertTrue(cancel.waitForExistence(timeout:10));cancel.tap()
         XCTAssertTrue(app.textFields["message-draft"].waitForExistence(timeout:10))
     }
+
 
 
 }
