@@ -176,6 +176,9 @@ func extractToken(r *http.Request) string {
 	if c, err := r.Cookie("afterglow_token"); err == nil && c.Value != "" {
 		return c.Value
 	}
+	if strings.HasPrefix(r.URL.Path, "/api/v1/") {
+		return ""
+	}
 	return r.URL.Query().Get("token")
 }
 
@@ -183,8 +186,19 @@ func extractToken(r *http.Request) string {
 // /api/auth/* and /api/health are exempt.
 func (s *Server) requireAuth(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.HasPrefix(r.URL.Path, "/api/v1/") && r.URL.Query().Has("token") {
+			writeErr(w, 400, "Credentials in URLs are not accepted")
+			return
+		}
+		if !sameOriginMutation(r) {
+			writeErr(w, http.StatusForbidden, "Cross-origin mutation rejected")
+			return
+		}
 		p := r.URL.Path
-		if strings.HasPrefix(p, "/api/auth/") || p == "/api/health" {
+		if strings.HasPrefix(p, "/api/auth/") || strings.HasPrefix(p, "/api/v1/auth/") {
+			w.Header().Set("Cache-Control", "no-store")
+		}
+		if strings.HasPrefix(p, "/api/auth/") || strings.HasPrefix(p, "/api/v1/auth/") || p == "/api/health" || p == "/api/ready" || p == "/api/v1/meta" {
 			h.ServeHTTP(w, r)
 			return
 		}
@@ -193,8 +207,13 @@ func (s *Server) requireAuth(h http.Handler) http.Handler {
 			writeErr(w, 401, locale.Text(responseLanguage(w), "Unauthorized"))
 			return
 		}
-		if verifyJWT(tok, s.jwtKey) {
-			h.ServeHTTP(w, r)
+		claims, sessionErr := s.validateAdminSession(r.Context(), tok)
+		if sessionErr != nil {
+			writeErr(w, 503, locale.Text(responseLanguage(w), errDataSourceUnavailable))
+			return
+		}
+		if claims != nil {
+			s.serveSessionObserver(h, w, r, tok)
 			return
 		}
 		// The gateway credential is accepted only in an Authorization header.
@@ -228,6 +247,7 @@ func (s *Server) authStatus(w http.ResponseWriter, r *http.Request) {
 
 // POST /api/auth/init — sets the password for the first time; rejected if already set.
 func (s *Server) authInit(w http.ResponseWriter, r *http.Request) {
+	r.Body = http.MaxBytesReader(w, r.Body, 16<<10)
 	pg := s.pg(w)
 	if pg == nil {
 		return
@@ -267,23 +287,31 @@ func (s *Server) authInit(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, 403, "Password is already set")
 		return
 	}
-	tok, err := signJWT(s.jwtKey)
+	tok, expires, err := s.issueAdminSession(r.Context(), string(hash))
 	if err != nil {
 		writeErr(w, 500, locale.Text(responseLanguage(w), "Token generation failed"))
 		return
 	}
-	writeJSON(w, 200, map[string]any{"token": tok})
+	setSessionCookie(w, r, tok, expires)
+	w.Header().Set("Cache-Control", "no-store")
+	writeJSON(w, 200, map[string]any{"token": tok, "username": adminUsername(), "expires_at": expires.UTC().Format(time.RFC3339)})
 }
 
 // POST /api/auth/change-password — changes the admin password. Requires a valid
 // token (this route is under /api/auth/* which requireAuth exempts, so the token
 // is validated here) AND the current password.
 func (s *Server) authChangePassword(w http.ResponseWriter, r *http.Request) {
+	r.Body = http.MaxBytesReader(w, r.Body, 16<<10)
 	pg := s.pg(w)
 	if pg == nil {
 		return
 	}
-	if !verifyJWT(extractToken(r), s.jwtKey) {
+	claims, sessionErr := s.validateAdminSession(r.Context(), extractToken(r))
+	if sessionErr != nil {
+		writeErr(w, 503, locale.Text(responseLanguage(w), errDataSourceUnavailable))
+		return
+	}
+	if claims == nil {
 		writeErr(w, 401, locale.Text(responseLanguage(w), "Unauthorized"))
 		return
 	}
@@ -321,15 +349,17 @@ func (s *Server) authChangePassword(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, 500, locale.Text(responseLanguage(w), "Password hashing failed"))
 		return
 	}
-	if err := pg.SetSetting(authPassKey, string(newHash)); err != nil {
+	if err := pg.ChangeAuthPassword(r.Context(), authPassKey, hash, string(newHash)); err != nil {
 		writeErr(w, 500, locale.Text(responseLanguage(w), "Save failed: ")+err.Error())
 		return
 	}
+	clearSessionCookie(w, r)
 	writeJSON(w, 200, map[string]any{"ok": true})
 }
 
 // POST /api/auth/login — validates username/password and returns a JWT.
 func (s *Server) authLogin(w http.ResponseWriter, r *http.Request) {
+	r.Body = http.MaxBytesReader(w, r.Body, 16<<10)
 	pg := s.pg(w)
 	if pg == nil {
 		return
@@ -359,10 +389,12 @@ func (s *Server) authLogin(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, 401, locale.Text(responseLanguage(w), "Incorrect username or password"))
 		return
 	}
-	tok, err := signJWT(s.jwtKey)
+	tok, expires, err := s.issueAdminSession(r.Context(), hash)
 	if err != nil {
 		writeErr(w, 500, locale.Text(responseLanguage(w), "Token generation failed"))
 		return
 	}
-	writeJSON(w, 200, map[string]any{"token": tok})
+	setSessionCookie(w, r, tok, expires)
+	w.Header().Set("Cache-Control", "no-store")
+	writeJSON(w, 200, map[string]any{"token": tok, "username": adminUsername(), "expires_at": expires.UTC().Format(time.RFC3339)})
 }

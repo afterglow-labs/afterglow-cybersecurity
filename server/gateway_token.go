@@ -48,7 +48,16 @@ func verifyGatewayJWT(token string, key []byte) bool {
 // has a distinct APTEX subject and can call only the scoped integration routes.
 func (s *Server) issueGatewayToken(w http.ResponseWriter, r *http.Request) {
 	adminToken, ok := strings.CutPrefix(r.Header.Get("Authorization"), "Bearer ")
-	if !ok || !verifyJWT(adminToken, s.jwtKey) {
+	if !ok {
+		writeErr(w, 401, "Administrator bearer token required")
+		return
+	}
+	claims, sessionErr := s.validateAdminSession(r.Context(), adminToken)
+	if sessionErr != nil {
+		writeErr(w, 503, errDataSourceUnavailable)
+		return
+	}
+	if claims == nil {
 		writeErr(w, 401, "Administrator bearer token required")
 		return
 	}

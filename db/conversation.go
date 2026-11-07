@@ -275,11 +275,15 @@ RETURNING id`, convID, utf8Clean(a.Worker), utf8Clean(a.Kind), utf8Clean(a.Tool)
 // ConvActivityList returns a conversation's steps after sinceID (exclusive) with
 // the summary-only column set (detail is lazy-loaded via ConvActivityDetail).
 func (d *DB) ConvActivityList(convID, sinceID int64, limit int) ([]Activity, int64, error) {
+	return d.ConvActivityListContext(context.Background(), convID, sinceID, limit)
+}
+
+func (d *DB) ConvActivityListContext(ctx context.Context, convID, sinceID int64, limit int) ([]Activity, int64, error) {
 	if limit <= 0 {
 		limit = 500
 	}
 	const cols = `id, COALESCE(worker,''), COALESCE(kind,''), COALESCE(tool,''), COALESCE(tool_use_id,''), is_error, COALESCE(summary,''), created_at, input_tokens, output_tokens, cache_read_tokens, cache_write_tokens,COALESCE(turn_id,''),COALESCE(run_id,''),active_attempt,history_mutable`
-	rows, err := d.Query(`SELECT `+cols+`
+	rows, err := d.QueryContext(ctx, `SELECT `+cols+`
 FROM conversation_activities WHERE conversation_id=$1 AND active_attempt IS DISTINCT FROM false AND id>$2 ORDER BY id LIMIT $3`, convID, sinceID, limit)
 	if err != nil {
 		return nil, sinceID, err

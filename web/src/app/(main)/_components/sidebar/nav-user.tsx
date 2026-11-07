@@ -3,6 +3,7 @@
 import { translate as swt } from "@/i18n/runtime";
 import { useI18n } from "@/i18n";
 import * as React from "react";
+import { toast } from "sonner";
 
 import { EllipsisVertical, KeyRound, LogOut } from "lucide-react";
 
@@ -36,11 +37,9 @@ export function NavUser({
   const { isMobile } = useSidebar();
   const [pwOpen, setPwOpen] = React.useState(false);
 
-  function handleLogout() {
-    auth.clearToken();
-    // Use a full navigation with the cleared cookie so
-    // middleware sees the empty token and allows /login.
-    window.location.href = "/login";
+  async function handleLogout() {
+    try { await auth.logout(); window.location.href = "/login"; }
+    catch { toast.error(swt("interface.m0001")); }
   }
 
   return (

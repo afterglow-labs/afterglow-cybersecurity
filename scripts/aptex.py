@@ -22,6 +22,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PROJECT = "afterglow"  # Preserve the existing PostgreSQL and account volumes.
 PROFILE = "local-llm"
 SERVICES = ("postgres", "ollama", "scopeweaver")
+CORE_SERVICES = ("postgres", "scopeweaver")
 OPENER = urllib.request.build_opener(urllib.request.ProxyHandler({}))
 
 
@@ -110,25 +111,46 @@ def model_directory(backend: Path, backend_settings: dict[str, str]) -> Path:
     raise ValueError("OLLAMA_MODELS_DIR must name an existing model directory with blobs/ and manifests/")
 
 
+def optional_model_directory(backend: Path, settings: dict[str, str]) -> Path | None:
+    mode = (os.getenv("APTEX_LOCAL_MODEL_ENABLED") or settings.get("APTEX_LOCAL_MODEL_ENABLED", "auto")).lower()
+    if mode not in {"auto", "true", "false"}:
+        raise ValueError("APTEX_LOCAL_MODEL_ENABLED must be auto, true, or false")
+    if mode == "false":
+        return None
+    provider = os.getenv("SCOPEWEAVER_LLM_PROVIDER") or os.getenv("ARTEX_LLM_PROVIDER") or settings.get("SCOPEWEAVER_LLM_PROVIDER") or settings.get("ARTEX_LLM_PROVIDER", "")
+    base = os.getenv("SCOPEWEAVER_LLM_BASE_URL") or os.getenv("ARTEX_LLM_BASE_URL") or settings.get("SCOPEWEAVER_LLM_BASE_URL") or settings.get("ARTEX_LLM_BASE_URL", "")
+    if mode == "auto" and provider and (provider != "ollama" or base not in {"", "http://ollama:11434"}):
+        return None
+    try:
+        return model_directory(backend, settings)
+    except ValueError:
+        if mode == "true":
+            raise
+        # Missing optional weights must not prevent configuring the application.
+        return None
+
+
 def prepare_backend(backend: Path) -> dict[str, str]:
     env_path = backend / ".env"
     fresh = not env_path.is_file()
     if fresh:
         atomic_write(env_path, (backend / ".env.example").read_text(encoding="utf-8"))
     settings = read_env(env_path)
-    model_path = model_directory(backend, settings)
-    updates = {
-        "OLLAMA_MODELS_DIR": str(model_path),
-        "SCOPEWEAVER_LLM_PROVIDER": "ollama",
-        "SCOPEWEAVER_LLM_BASE_URL": "http://ollama:11434",
-    }
+    model_path = optional_model_directory(backend, settings)
+    updates = {}
+    if model_path is not None:
+        updates["OLLAMA_MODELS_DIR"] = str(model_path)
+        if not (os.getenv("SCOPEWEAVER_LLM_PROVIDER") or os.getenv("ARTEX_LLM_PROVIDER") or settings.get("SCOPEWEAVER_LLM_PROVIDER") or settings.get("ARTEX_LLM_PROVIDER")):
+            updates["SCOPEWEAVER_LLM_PROVIDER"] = "ollama"
+        if not (os.getenv("SCOPEWEAVER_LLM_BASE_URL") or os.getenv("ARTEX_LLM_BASE_URL") or settings.get("SCOPEWEAVER_LLM_BASE_URL") or settings.get("ARTEX_LLM_BASE_URL")):
+            updates["SCOPEWEAVER_LLM_BASE_URL"] = "http://ollama:11434"
     if fresh or "SCOPEWEAVER_LOCAL_LLM_ONLY" not in settings:
         updates["SCOPEWEAVER_LOCAL_LLM_ONLY"] = "true"
     if not settings.get("POSTGRES_PASSWORD"):
         updates["POSTGRES_PASSWORD"] = secrets.token_urlsafe(32)
-    if not settings.get("SCOPEWEAVER_LLM_MODEL"):
+    if model_path is not None and not (settings.get("SCOPEWEAVER_LLM_MODEL") or settings.get("ARTEX_LLM_MODEL")):
         updates["SCOPEWEAVER_LLM_MODEL"] = "qwen3:32b"
-    if not settings.get("SCOPEWEAVER_LLM_CONTEXT_WINDOW_K"):
+    if model_path is not None and not settings.get("SCOPEWEAVER_LLM_CONTEXT_WINDOW_K"):
         updates["SCOPEWEAVER_LLM_CONTEXT_WINDOW_K"] = "32"
     update_env(env_path, updates)
     for name in ("data", "private/c2-binaries"):
@@ -144,20 +166,23 @@ def docker_running() -> bool:
 
 
 def compose_command(backend: Path, *args: str) -> list[str]:
-    return ["docker", "compose", "-p", PROJECT, "-f", str(backend / "docker-compose.yml"),
-            "-f", str(backend / "docker-compose.host-model.yml"), "--profile", PROFILE, *args]
+    command = ["docker", "compose", "-p", PROJECT, "-f", str(backend / "docker-compose.yml")]
+    if optional_model_directory(backend, read_env(backend / ".env")) is not None:
+        command += ["-f", str(backend / "docker-compose.host-model.yml"), "--profile", PROFILE]
+    return [*command, *args]
 
 
 def all_backend_services_running(backend: Path) -> bool:
     result = subprocess.run(compose_command(backend, "ps", "--status", "running", "--services"),
                             cwd=backend, check=True, text=True, capture_output=True)
-    return {"postgres", "ollama", "scopeweaver"}.issubset(result.stdout.split())
+    services = SERVICES if optional_model_directory(backend, read_env(backend / ".env")) is not None else CORE_SERVICES
+    return set(services).issubset(result.stdout.split())
 
 
 def wait_for_local_model(backend: Path, model: str) -> None:
     if not re.fullmatch(r"[A-Za-z0-9_.][A-Za-z0-9_.:/-]*", model):
         raise ValueError("SCOPEWEAVER_LLM_MODEL must name one local Ollama model")
-    deadline = time.monotonic() + 30
+    deadline = time.monotonic() + 3
     while time.monotonic() < deadline:
         result = subprocess.run(compose_command(backend, "exec", "-T", "ollama", "ollama", "show", model),
                                 cwd=backend, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -316,16 +341,23 @@ def start(*, rebuild: bool = False) -> None:
     running = all_backend_services_running(ROOT)
     print("Checking running APTEX services..." if running else "Starting APTEX services...", flush=True)
     build_option = "--build" if rebuild or not running else "--no-build"
-    subprocess.run(compose_command(ROOT, "up", "-d", build_option, *SERVICES), cwd=ROOT, check=True)
-    address = ollama_ip_and_mount(ROOT, model_directory(ROOT, settings))
-    wait_for_local_model(ROOT, settings["SCOPEWEAVER_LLM_MODEL"])
-    if update_local_allowlist(ROOT, read_env(ROOT / ".env"), address):
-        subprocess.run(compose_command(ROOT, "up", "-d", "--no-deps", "--no-build", "--force-recreate", "scopeweaver"),
-                       cwd=ROOT, check=True)
+    model_path = optional_model_directory(ROOT, settings)
+    services = SERVICES if model_path is not None else CORE_SERVICES
+    subprocess.run(compose_command(ROOT, "up", "-d", build_option, *services), cwd=ROOT, check=True)
+    if model_path is not None:
+        address = ollama_ip_and_mount(ROOT, model_path)
+        if update_local_allowlist(ROOT, read_env(ROOT / ".env"), address):
+            subprocess.run(compose_command(ROOT, "up", "-d", "--no-deps", "--no-build", "--force-recreate", "scopeweaver"),
+                           cwd=ROOT, check=True)
     base = base_url()
     wait_for_backend(base)
     ensure_administrator(base)
     print(f"APTEX server ready: {base}. Open its client with aptex.", flush=True)
+    if model_path is not None:
+        try:
+            wait_for_local_model(ROOT, settings.get("SCOPEWEAVER_LLM_MODEL") or settings.get("ARTEX_LLM_MODEL") or "qwen3:32b")
+        except ValueError as error:
+            print(f"Local model is not ready: {error}. Configure it in APTEX; the application is running.", flush=True)
 
 
 def stop() -> None:

@@ -64,3 +64,20 @@ again before sending it to the browser. Handoff decisions, chain composition
 and verification, and hunt-class edits remain
 outside the token's allowlist. Gateway authorization tests and a desktop/mobile
 Odysseus browser fixture cover the new view and lesson action.
+
+## Application server boundaries, 2026-11-06
+
+The [server review](server-architecture-review.md) inspected Odysseus revision
+`7a7d6faea699` for its bootstrap, readiness, revocable session and detached
+observation patterns. APTEX implements its own versioned API, persisted session
+revocation, browser cookie migration and optional model-runtime startup in Go;
+no Odysseus server source or runtime was imported. Existing PostgreSQL chat
+admissions, history revisions, recovery and scoped gateway restrictions remain
+authoritative. The new observer replays persisted active activities and does not
+own execution. See the [client contract](client-api-v1.md).
+
+Validation includes the complete root Go suite with a disposable database,
+`go build ./...`, `go vet ./...`, 93 frontend tests, the static export and 12
+launcher tests. Session tests cover independent devices, logout, password-change
+races, legacy migration, origin checks and revocation of live observers. No
+dependency, module identity or patched Norma replacement was changed.

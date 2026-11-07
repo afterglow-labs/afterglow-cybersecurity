@@ -124,18 +124,29 @@ await step("[en] setup creates the password and login accepts it", async () => {
   await page.fill("#confirm", PASSWORD);
   await page.locator('button[type="submit"]').click();
   await page.waitForURL(/\/function\/tasks/);
+  // The URL changes before the asynchronous session gate finishes. Wait for
+  // the protected workspace before deliberately revoking the setup session.
+  await page.getByRole("button", { name: "New task", exact: true }).waitFor();
   const second = await page.request.post(`${base}/api/auth/init`, { data: { password: "another-pass-99" } });
   check(second.status() === 403, `second setup returned ${second.status()}`);
 
-  await page.evaluate(() => localStorage.removeItem("afterglow_token"));
+  const signedOut = await page.request.post(`${base}/api/v1/auth/logout`);
+  check(signedOut.ok(), "setup session logout failed");
+  await page.evaluate(() => { localStorage.removeItem("afterglow_token"); localStorage.removeItem("aptex_session_user"); });
   await page.goto(`${base}/login`);
   await page.fill("#password", PASSWORD);
   await page.locator("#agree-terms").click();
   await page.locator('button[type="submit"]').click();
   await page.waitForURL(/\/function\/tasks/);
-  token = await page.evaluate(() => localStorage.getItem("afterglow_token"));
-  check(token, "login stored no token");
+  check(await page.evaluate(() => localStorage.getItem("afterglow_token")) === null, "login persisted a bearer credential");
+  const sessionCookie = (await page.context().cookies()).find(cookie => cookie.name === "afterglow_token");
+  check(sessionCookie?.httpOnly, "login did not establish an HttpOnly session");
+  token = sessionCookie.value;
 });
+if (!token) {
+  await browser.close();
+  throw new Error("Setup/login failed; authenticated smoke checks cannot run without a session");
+}
 
 await step("[zh-Hans] login draft and persisted reload preserve preference", async () => {
   const p=await openPage("en");
@@ -206,7 +217,8 @@ for (const locale of LOCALES) {
       check((await firstApi).headers()["accept-language"] === locale, "first API did not use stored locale");
       const response = await stream, url = new URL(response.url());
       check(url.origin === new URL(base).origin && url.searchParams.get("since") === "0", "SSE origin or cursor changed");
-      check(!!url.searchParams.get("token"), "SSE auth missing");
+      check(!url.searchParams.has("token"), "SSE leaked a credential in its URL");
+      check((await p.context().cookies()).some(cookie => cookie.name === "afterglow_token" && cookie.httpOnly), "SSE session cookie missing");
       check(response.headers()["content-language"] === locale, "SSE Content-Language missing");
       check((response.headers()["content-type"] || "").includes("text/event-stream"), "not SSE");
       const filter = p.getByRole("main").getByRole("textbox");

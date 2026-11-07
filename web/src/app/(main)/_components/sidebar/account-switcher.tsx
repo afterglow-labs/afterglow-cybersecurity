@@ -3,6 +3,7 @@
 import { translate as swt } from "@/i18n/runtime";
 import { useI18n } from "@/i18n";
 import { useState } from "react";
+import { toast } from "sonner";
 
 import { Check, KeyRound, LogOut } from "lucide-react";
 
@@ -36,9 +37,9 @@ export function AccountSwitcher({
   const [activeUser, setActiveUser] = useState(users[0]);
   const [pwOpen, setPwOpen] = useState(false);
 
-  function handleLogout() {
-    auth.clearToken();
-    window.location.href = "/login";
+  async function handleLogout() {
+    try { await auth.logout(); window.location.href = "/login"; }
+    catch { toast.error(swt("interface.m0001")); }
   }
 
   if (!activeUser) {

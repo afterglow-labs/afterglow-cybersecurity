@@ -1,0 +1,59 @@
+[
+  {
+    "scenario": "fresh database; no provider",
+    "http_ready_from_docker_run_ms": 803.3,
+    "version": "6f7f659c0b13",
+    "llm_configured": false,
+    "median_api_ms_5_samples": {
+      "/api/tasks": 0.73,
+      "/api/conversations": 0.41,
+      "/api/llm/profiles": 0.42,
+      "/api/agents": 0.89
+    },
+    "json_bytes": {
+      "/api/tasks": 25,
+      "/api/conversations": 21,
+      "/api/llm/profiles": 16,
+      "/api/agents": 3667
+    },
+    "model_requests": 0
+  },
+  {
+    "scenario": "existing database; no provider",
+    "http_ready_from_docker_run_ms": 399.5,
+    "version": "6f7f659c0b13",
+    "llm_configured": false,
+    "median_api_ms_5_samples": {
+      "/api/tasks": 0.62,
+      "/api/conversations": 0.43,
+      "/api/llm/profiles": 0.43,
+      "/api/agents": 0.98
+    },
+    "json_bytes": {
+      "/api/tasks": 25,
+      "/api/conversations": 21,
+      "/api/llm/profiles": 16,
+      "/api/agents": 3667
+    },
+    "model_requests": 0
+  },
+  {
+    "scenario": "existing database; 30-second model endpoint",
+    "http_ready_from_docker_run_ms": 447.7,
+    "version": "6f7f659c0b13",
+    "llm_configured": true,
+    "median_api_ms_5_samples": {
+      "/api/tasks": 0.74,
+      "/api/conversations": 0.43,
+      "/api/llm/profiles": 0.42,
+      "/api/agents": 1.03
+    },
+    "json_bytes": {
+      "/api/tasks": 25,
+      "/api/conversations": 21,
+      "/api/llm/profiles": 16,
+      "/api/agents": 3667
+    },
+    "model_requests": 0
+  }
+]
