@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import {request} from "playwright";
 import { LOCALES, namespaceMessages } from "./locale-resources.mjs";
+import {assertQueuedUserPromptOrder} from "./chat-queue-requests.mjs";
 const labels = namespaceMessages("interface");
 
 export async function waitChatState(api,path,predicate,timeout=20000){const deadline=Date.now()+timeout;let state;while(Date.now()<deadline){const response=await api.get(path);assert.ok(response.ok(),await response.text());state=await response.json();if(predicate(state))return state;await new Promise(resolve=>setTimeout(resolve,75))}throw new Error(`chat state did not settle: ${JSON.stringify(state)}`)}
@@ -47,7 +48,7 @@ export async function runChatQueueChecks({base,token,step,check,openPage,recover
    if(recoverInput){const inputID=await rows.last().getAttribute("data-queue-input");await recoverInput(inputID);await p.getByRole("button",{name:t.chatDiscardLost,exact:true}).waitFor();check(await p.getByRole("button",{name:t.chatResumeQueue,exact:true}).isDisabled(),"unknown run did not block Resume");await p.getByRole("button",{name:t.chatDiscardLost,exact:true}).click();await p.getByRole("button",{name:t.chatDiscardLost,exact:true}).waitFor({state:"hidden"});check(await p.getByRole("button",{name:t.chatResumeQueue,exact:true}).isEnabled(),"discard must leave Resume available");check(await p.getByRole("button",{name:t.chatDiscardLost,exact:true}).count()===0,"discard did not acknowledge unknown input");
     const expected=(await (await api.get(path)).json()).inputs.filter(item=>item.status==="queued").map(item=>item.prompt.text);const before=fixture?await fixture.calls():0;
     await p.getByRole("button",{name:t.chatResumeQueue,exact:true}).click();await waitChatState(api,path,state=>!state.active&&!state.inputs.some(item=>item.status==="queued"));
-    if(fixture){const requests=(await fixture.requests()).slice(before);const positions=expected.map(text=>requests.findIndex(request=>request.includes(text)));check(positions.every((position,index)=>position>=0&&(index===0||position>positions[index-1])),"queued execution order changed");check(!requests.some(text=>text.includes("lost-prompt-sentinel")),"discarded prompt replayed")}
+    if(fixture)assertQueuedUserPromptOrder((await fixture.requests()).slice(before),expected);
 }
 
   });await p.context().close();

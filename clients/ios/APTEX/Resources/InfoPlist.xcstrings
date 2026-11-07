@@ -1,0 +1,47 @@
+{
+  "sourceLanguage": "en",
+  "version": "1.0",
+  "strings": {
+    "NSLocalNetworkUsageDescription": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connect to your desktop APTEX server to access tasks, conversations, findings, and evidence."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "데스크톱 APTEX 서버에 연결하여 작업, 대화, 발견 사항 및 증거에 접근합니다."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "连接到桌面 APTEX 服务器，以访问任务、对话、发现的问题及证据。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "連線至桌上型電腦的 APTEX 伺服器，以存取任務、對話、發現的問題與證據。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "デスクトップの APTEX サーバーに接続して、タスク、会話、検出事項、証拠にアクセスします。"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conecta con el servidor APTEX de tu equipo de escritorio para acceder a tareas, conversaciones, hallazgos y evidencias."
+          }
+        }
+      }
+    }
+  }
+}

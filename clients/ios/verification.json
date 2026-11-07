@@ -1,0 +1,272 @@
+{
+  "schema": 1,
+  "generated_at": "2026-11-07T04:12:04.501651+00:00",
+  "odysseus_reference": {
+    "repository": "afterglow-labs/odysseus-ios",
+    "revision": "f81c2cd09b90c49c308343c7569f795de2bf40c5",
+    "version": "0.5.4",
+    "build": 69
+  },
+  "application_tree": {
+    "algorithm": "SHA-256 of canonical JSON list of relative file paths and individual SHA-256 digests",
+    "sha256": "e62f4ba58d2160fb97be30ce1466c227e343053b51b3b2ca58417d57421dfff6",
+    "files": [
+      {
+        "path": "APTEX/APTEX.entitlements",
+        "sha256": "d27d2a5b41520fec72df7c0bf495a113d62f7db536938bfec555de30dae18be9"
+      },
+      {
+        "path": "APTEX/App/APTEXApp.swift",
+        "sha256": "98677208bf6ffb22c7515b36b321daf303be28c0917732923a15dfbc85637d1b"
+      },
+      {
+        "path": "APTEX/App/AppStore.swift",
+        "sha256": "3f167eac46452bd1c5b9d896adbc7d34dfd4a8ecf66e30068a62bb74d7a33421"
+      },
+      {
+        "path": "APTEX/App/Appearance.swift",
+        "sha256": "61a967a81e96a3d0b8060a8e6dbe297ae7a0661c36d501d97610ca90da882777"
+      },
+      {
+        "path": "APTEX/App/ChatSession.swift",
+        "sha256": "d85e2a7af445732f95ffb478e482738bfd9426fd512997712cb8ef6ed7b9777e"
+      },
+      {
+        "path": "APTEX/Core/APTEXAPI.swift",
+        "sha256": "c23d2a1ba5bcd1e4648e7150e37a5a2edd02e9abd4190cc27d2aede91612d172"
+      },
+      {
+        "path": "APTEX/Core/CredentialVault.swift",
+        "sha256": "3a51511121156e0a753fdf577b9f3e557f7b7cd983f5e76dd9e963ae96966010"
+      },
+      {
+        "path": "APTEX/Core/Models.swift",
+        "sha256": "e1a327721ec0a68106cb561a70aa099e64e642d5f33f56f26cbb7af1d076daf0"
+      },
+      {
+        "path": "APTEX/Core/PathUtilities.swift",
+        "sha256": "e1e04fbea9322817b0cebc45771fec407c2588f7a6f8f06a4da86ce8ea245632"
+      },
+      {
+        "path": "APTEX/Core/PendingInputVault.swift",
+        "sha256": "a3ba1902eaa2e589f3803f7922dd51f56987c57bb2d94c02530ba198abc7c596"
+      },
+      {
+        "path": "APTEX/Core/SSEParser.swift",
+        "sha256": "49ab4db8991d1086c6e8e302d2effd28aede69bb229b3c5912f0c471c3c78ff0"
+      },
+      {
+        "path": "APTEX/Core/ServerAddress.swift",
+        "sha256": "f5f12062f555357a93e0665646617a74b4f85983baa03295de2b754a7951d54f"
+      },
+      {
+        "path": "APTEX/Info.plist",
+        "sha256": "f16adbcabc4175b7c777556b720f5ce4bce2773c9452e8f74226c6fbc98d76f4"
+      },
+      {
+        "path": "APTEX/Resources/Assets.xcassets/AppIcon.appiconset/AppIcon.png",
+        "sha256": "1c33c9e218ab1c210421ec1ecf1677683e9b4906654cd0529a4b5d5eec31b288"
+      },
+      {
+        "path": "APTEX/Resources/Assets.xcassets/AppIcon.appiconset/Contents.json",
+        "sha256": "852920cb36e95beb53771138a4b8195a16fcce1cc31250632f246081cc638f9a"
+      },
+      {
+        "path": "APTEX/Resources/Assets.xcassets/Brand.imageset/Brand.png",
+        "sha256": "1c33c9e218ab1c210421ec1ecf1677683e9b4906654cd0529a4b5d5eec31b288"
+      },
+      {
+        "path": "APTEX/Resources/Assets.xcassets/Brand.imageset/Contents.json",
+        "sha256": "5ecf4693659c63c9c428b8e638ca25e9bf3de89417006a29418adfba09741216"
+      },
+      {
+        "path": "APTEX/Resources/Assets.xcassets/Contents.json",
+        "sha256": "f5fb0e1f3a8142892ed092efb5955c1c2cc537003a89ad7bbdb9dade7fe8985f"
+      },
+      {
+        "path": "APTEX/Resources/InfoPlist.xcstrings",
+        "sha256": "a81f501bf4cb6bb2559592019b4b7d1c6774b5a708175411e8033f14cd0e827a"
+      },
+      {
+        "path": "APTEX/Resources/LICENSE",
+        "sha256": "0d96a4ff68ad6d4b6f1f30f713b18d5184912ba8dd389f86aa7710db079abcb0"
+      },
+      {
+        "path": "APTEX/Resources/Localizable.xcstrings",
+        "sha256": "8a99d9cbbd05d2de0694c60d5cb3ce4f5acf4da74f6c8ed6eb98dc7575e71a5f"
+      },
+      {
+        "path": "APTEX/Views/AttachmentPicker.swift",
+        "sha256": "d6940bfd011add7d9e7670aa82a61c721ef5d249dd260a1e0afd3dd0f7b732ef"
+      },
+      {
+        "path": "APTEX/Views/ChatView.swift",
+        "sha256": "5d366a0ee41818a4b669b3652e0217ec9449e97ea79d99e672a436fed96f4f0d"
+      },
+      {
+        "path": "APTEX/Views/ConsoleView.swift",
+        "sha256": "543dcfbe4cf6594551c8966536cb1c3d9b824268dafca356175843032be87d17"
+      },
+      {
+        "path": "APTEX/Views/FindingsView.swift",
+        "sha256": "23fe923c689fb4a36b7fc0c187c4104718edefdbb69c163389fbb73e33f045a6"
+      },
+      {
+        "path": "APTEX/Views/MessageBody.swift",
+        "sha256": "be4542b7fcc5a2bf62570631cde08499b63b24ae19a5cc65e904e44c80c74e41"
+      },
+      {
+        "path": "APTEX/Views/RootView.swift",
+        "sha256": "cd4912bf0b802d6a8ff950a91e4eafa39ddce6c83907c60f83c6f21dba21781d"
+      },
+      {
+        "path": "APTEX/Views/TasksView.swift",
+        "sha256": "2068921ab4c63bfefdaa05059b14fcc3f637013b566c00e5bf42d060bb00cab0"
+      }
+    ]
+  },
+  "checks": {
+    "localization": {
+      "status": "passed",
+      "english_primary": true,
+      "labels": 131,
+      "languages": [
+        "en",
+        "ko",
+        "zh-Hans",
+        "zh-Hant",
+        "ja",
+        "es"
+      ],
+      "network_permission_localized": true
+    },
+    "project_generation": {
+      "status": "passed",
+      "deterministic": true
+    },
+    "simulators": [
+      {
+        "device": "iPhone 16 Pro",
+        "runtime": "iOS 27.2",
+        "status": "passed",
+        "unit_tests": 17,
+        "ui_tests": 7,
+        "failures": 0,
+        "result_bundle": "build/tests-20261106-205854.xcresult",
+        "application_tree_sha256": "aa90482fe6a28d5e4becdea3d1b362e2da3ef86d50d1e691acb2ed49217e7642"
+      },
+      {
+        "device": "iPad Pro 13-inch (M5)",
+        "runtime": "iPadOS 27.2",
+        "status": "passed",
+        "unit_tests": 17,
+        "ui_tests": 7,
+        "failures": 0,
+        "result_bundle": "build/tests-20261106-210308.xcresult",
+        "application_tree_sha256": "aa90482fe6a28d5e4becdea3d1b362e2da3ef86d50d1e691acb2ed49217e7642"
+      },
+      {
+        "device": "iPad Pro 13-inch (M4)",
+        "runtime": "iPadOS 18.5",
+        "status": "passed",
+        "unit_tests": 17,
+        "ui_tests": 7,
+        "failures": 0,
+        "result_bundle": "build/tests-20261106-213143.xcresult",
+        "application_tree_sha256": "ae75ede737a1b975a80194e22128e3aeba068bab488733c9a5610c386a6e3831"
+      }
+    ],
+    "real_go_network_contract": {
+      "status": "passed",
+      "transport": "HTTPS from macOS using the actual native APTEXAPI, Models, ServerAddress and SSEParser sources",
+      "backend_version": "platform-candidate",
+      "database": "disposable PostgreSQL",
+      "checks": [
+        "identity before credentials",
+        "login",
+        "task list",
+        "agents",
+        "profiles",
+        "conversation creation and list",
+        "message history and detail-only response",
+        "controls",
+        "findings list",
+        "attachment upload",
+        "SSE state",
+        "logout revocation"
+      ]
+    },
+    "device_release_build": {
+      "status": "passed",
+      "platform": "iOS",
+      "architecture": "arm64",
+      "signing": "unsigned preflight; packaged release is separately ad-hoc signed for Feather"
+    },
+    "physical_device_installation": {
+      "status": "not_verified",
+      "delivery": "Release notes record IPA transfer separately; the owner signs and installs with Feather."
+    },
+    "ios18_model_and_files": {
+      "status": "passed",
+      "device": "iPhone 16 Pro",
+      "runtime": "iOS 18.5",
+      "application_tree_sha256": "ae75ede737a1b975a80194e22128e3aeba068bab488733c9a5610c386a6e3831",
+      "flow": [
+        "select and apply model",
+        "dismiss model sheet",
+        "open files and photos menu",
+        "open and cancel document picker"
+      ]
+    },
+    "queue_request_attribution": {
+      "status": "passed",
+      "node_tests": 12,
+      "captured_ci_failure_replayed": true,
+      "correct_positions": [
+        2,
+        3
+      ],
+      "reason": "Unrelated planner system text contained seconds. Queue order was correct; verification now inspects the most recent user message and still rejects reversed or missing admissions."
+    },
+    "attachment_action_sheet": {
+      "status": "passed",
+      "application_tree_sha256": "5b13ff0bd7240e01a56c475c0583b649393d06e839f5d7e28e6103da48b43d6c",
+      "runtime": "iOS/iPadOS 18.5",
+      "devices": [
+        "iPhone 16 Pro",
+        "iPad Pro 13-inch (M4)"
+      ],
+      "flow": [
+        "apply model profile",
+        "open attachment action sheet",
+        "verify files and photos choices",
+        "open and cancel document picker"
+      ]
+    },
+    "native_profile_list": {
+      "status": "passed",
+      "application_tree_sha256": "e62f4ba58d2160fb97be30ce1466c227e343053b51b3b2ca58417d57421dfff6",
+      "device": "iPad Pro 13-inch (M4)",
+      "runtime": "iPadOS 18.5",
+      "flow": [
+        "open native profile list",
+        "select profile",
+        "apply selection",
+        "open files/photos action sheet",
+        "open and cancel document picker"
+      ]
+    }
+  },
+  "infrastructure_notes": [
+    "An earlier iPadOS 27.0 simulator lost its remote keyboard-service connection. No tests were disabled; full iPad validation was moved to the installed iPadOS 27.2 runtime.",
+    "iOS/iPadOS 18.5 CI exposed collapsed split navigation and attachment Menu accessibility behavior. Initial sidebar visibility, menu labeling and modal-transition waits were corrected; checks remain enabled.",
+    "The older Xcode 16.4 build retained a SwiftUI Menu accessibility/tap failure. Attachment choices now use a standard Button and confirmation dialog; the original model-to-file-picker acceptance test remains enabled. Debug builds compile only the active simulator architecture; Release packaging still verifies arm64.",
+    "Profile selection uses a native navigation list with explicit choice buttons, following the Odysseus model-list pattern. This avoids hosted Xcode popup hit-testing instability and keeps complete profile names and access programs visible."
+  ],
+  "preserved": {
+    "go_mod_and_sum_unchanged": true,
+    "local_norma_replacement": "github.com/Autumn-27/norma => ./third_party/norma",
+    "odysseus_server_unchanged": true,
+    "production_model_and_provider_configuration_unchanged": true
+  }
+}

@@ -2,6 +2,9 @@
 
 The [native macOS client](../clients/macos/README.md) connects to the server on
 your desktop. It needs no Mac server, Docker installation, or model runtime.
+The [native iPhone/iPad client](../clients/ios/README.md) uses the same private
+server connection and provides native task, chat and finding screens plus the
+full console.
 See the [startup measurements and server comparison](client-startup.md) for the
 delivery changes and the decision to retain APTEX's existing execution engine.
 

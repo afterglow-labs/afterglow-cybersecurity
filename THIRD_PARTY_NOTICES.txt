@@ -1,3 +1,8 @@
+APTEX iOS client infrastructure includes adaptations from:
+https://github.com/afterglow-labs/odysseus-ios/tree/f81c2cd09b90c49c308343c7569f795de2bf40c5
+License: GNU Affero General Public License, version 3. See LICENSE and
+clients/ios/APTEX/Resources/LICENSE. Modified files retain source notices.
+
 Vendored from shadcn 4.12.0, dist/tailwind.css.
 Source: https://registry.npmjs.org/shadcn/-/shadcn-4.12.0.tgz
 Original SHA-256: bc7d83425702955b4cb67cb14ede9d603f9d912376d57a2d81d661094d2a782a

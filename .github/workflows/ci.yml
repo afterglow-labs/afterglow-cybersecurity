@@ -75,8 +75,8 @@ jobs:
           cache-dependency-path: |
             web/package-lock.json
             e2e/package-lock.json
-      - name: Test compaction request attribution
-        run: node --test e2e/chat-summary-requests.test.mjs
+      - name: Test compaction and queue request attribution
+        run: node --test e2e/chat-summary-requests.test.mjs e2e/chat-queue-requests.test.mjs
       - uses: actions/setup-go@v7
         with:
           go-version-file: go.mod
